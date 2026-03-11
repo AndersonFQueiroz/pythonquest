@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import type { MapData } from '../../maps/world1';
 import { useMapEngine } from '../../hooks/useMapEngine';
 import { useGameStore } from '../../hooks/useGameStore';
@@ -25,10 +25,9 @@ const TILE_COLORS: Record<number, string> = {
 const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInteract, onPortal, isDialogActive }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasTriggeredInitialDialog, setHasTriggeredInitialDialog] = useState(false);
-  const [frame, setFrame] = useState(0);
   const [showBugDex, setShowBugDex] = useState(false);
   
-  const { playerPos, isMoving, move, setManualDir, interact, teleport } = useMapEngine(
+  const { playerPos, direction, isMoving, move, setManualDir, interact, teleport } = useMapEngine(
     map, 
     isDialogActive ? undefined : onEncounter, 
     isDialogActive ? undefined : onPortal, 
@@ -36,11 +35,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   );
   
   const { name: playerName, color: playerColor, openedChests, correctedBugs } = useGameStore();
-
-  useEffect(() => {
-    const interval = setInterval(() => setFrame(f => (f + 1) % 1000), 50);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     if (map.id === 'village' && !hasTriggeredInitialDialog && !isDialogActive) {
@@ -70,12 +64,15 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleInteract, isDialogActive]);
 
-  // Função de renderização principal (Unificada para evitar LAG)
-  const render = () => {
+  // Loop de renderização de alta performance
+  const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    const now = Date.now();
+    const animFrame = Math.floor(now / 100); // 10 fps para animações de tiles
 
     const cameraX = Math.max(0, Math.min(playerPos.x * TILE_SIZE - VIEWPORT_W / 2 + TILE_SIZE / 2, map.width * TILE_SIZE - VIEWPORT_W));
     const cameraY = Math.max(0, Math.min(playerPos.y * TILE_SIZE - VIEWPORT_H / 2 + TILE_SIZE / 2, map.height * TILE_SIZE - VIEWPORT_H));
@@ -93,13 +90,12 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       ctx.fillText(text, x, y - 2);
     };
 
-    // 1. Camada Base (Chão e Paredes)
+    // 1. Camada de Chão
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const tile = map.tiles[y][x];
         const tx = x * TILE_SIZE - cameraX;
         const ty = y * TILE_SIZE - cameraY;
-        
         if (![5, 10, 11].includes(tile)) {
           ctx.fillStyle = TILE_COLORS[0];
           if (tile === 2 || tile === 6 || tile === 12) ctx.fillStyle = TILE_COLORS[2];
@@ -115,7 +111,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         const tx = x * TILE_SIZE - cameraX;
         const ty = y * TILE_SIZE - cameraY;
 
-        if (tile === 1) { // MATINHO
+        if (tile === 1) {
           ctx.fillStyle = TILE_COLORS[1];
           ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = '#306230';
@@ -136,12 +132,13 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#ff0000'; ctx.font = '4px "Press Start 2P"'; ctx.textAlign = 'center';
           ctx.fillText("GLITCH", tx + TILE_SIZE/2, ty + TILE_SIZE/2);
         } else if (tile === 3) {
-          const sway = Math.sin(frame / 10) * 2;
+          const sway = Math.sin(now / 1000) * 2;
           ctx.fillStyle = TILE_COLORS[3]; ctx.fillRect(tx + sway, ty, TILE_SIZE, TILE_SIZE);
         } else if (tile === 13) { 
           ctx.fillStyle = '#0f380f'; ctx.fillRect(tx + 14, ty + 16, 4, 16); 
           ctx.fillStyle = '#e0f0c0'; ctx.fillRect(tx + 4, ty + 6, 24, 14); 
           ctx.strokeStyle = '#0f380f'; ctx.lineWidth = 2; ctx.strokeRect(tx + 4, ty + 6, 24, 14);
+          ctx.fillStyle = '#0f380f'; ctx.fillRect(tx + 8, ty + 10, 16, 2); ctx.fillRect(tx + 10, ty + 14, 12, 2);
         } else if (tile === 14) { 
            ctx.fillStyle = '#0f380f'; ctx.fillRect(tx + 14, ty + 16, 4, 16);
            ctx.fillStyle = '#e0f0c0'; ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 10, 0, Math.PI * 2); ctx.fill();
@@ -152,7 +149,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
              ctx.fillStyle = '#0f380f'; ctx.fillRect(tx + 4, ty + 6, 24, 6);
           } else {
              ctx.fillStyle = '#f1c40f'; ctx.fillRect(tx + 4, ty + 14, 24, 4);
-             if (frame % 20 < 10) { ctx.fillStyle = '#fff'; ctx.fillRect(tx + 14, ty + 16, 4, 4); }
+             if (animFrame % 10 < 5) { ctx.fillStyle = '#fff'; ctx.fillRect(tx + 14, ty + 16, 4, 4); }
           }
         } else if ([5, 10, 11].includes(tile)) { 
            ctx.fillStyle = TILE_COLORS[tile] || '#000';
@@ -164,11 +161,11 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       }
     }
 
-    // 3. Matrix
-    ctx.fillStyle = 'rgba(139, 172, 15, 0.2)'; ctx.font = '8px monospace';
+    // 3. Matrix (Usando timestamp real para velocidade constante)
+    ctx.fillStyle = 'rgba(55, 118, 171, 0.2)'; ctx.font = '8px monospace';
     for(let i=0; i<15; i++) {
       const bx = (i * 32) % VIEWPORT_W;
-      const by = ((frame * 3) + (i * 40)) % VIEWPORT_H;
+      const by = ((now / 30) + (i * 40)) % VIEWPORT_H;
       ctx.fillText(Math.random() > 0.5 ? "0" : "1", bx, by);
     }
 
@@ -178,7 +175,8 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       const ny = npc.tileY * TILE_SIZE - cameraY;
       ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(nx + 8, ny + 28, 16, 4);
       ctx.fillStyle = 'var(--gb-darkest)'; ctx.fillRect(nx + 6, ny + 2, 20, 28);
-      ctx.fillStyle = npc.id.includes('zumbi') ? '#555' : '#9b59b6'; ctx.fillRect(nx + 8, ny + 16, 16, 12);
+      ctx.fillStyle = npc.id.includes('zumbi') ? '#555' : '#9b59b6';
+      ctx.fillRect(nx + 8, ny + 16, 16, 12);
       ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
       ctx.fillStyle = 'black'; ctx.fillRect(nx + 12, ny + 8, 2, 2); ctx.fillRect(nx + 16, ny + 8, 2, 2);
       if (npc.name) drawLabel(npc.name, nx + 16, ny - 4);
@@ -187,7 +185,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     // 5. Player
     const px = playerPos.x * TILE_SIZE - cameraX;
     const py = playerPos.y * TILE_SIZE - cameraY;
-    const walkCycle = isMoving ? Math.sin(frame / 2) * 4 : 0;
+    const walkCycle = isMoving ? Math.sin(now / 100) * 4 : 0;
     
     ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(px + 8, py + 28, 16, 4);
     ctx.fillStyle = 'var(--gb-darkest)';
@@ -200,33 +198,41 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     ctx.fillStyle = '#ffdbac'; ctx.fillRect(px + 10, py + 4, 12, 12);
     ctx.fillStyle = 'black'; ctx.fillRect(px + 13, py + 8, 2, 2); ctx.fillRect(px + 17, py + 8, 2, 2); 
     if (playerName) drawLabel(playerName, px + 16, py - 6);
-  };
+  }, [playerPos, map, isMoving, playerColor, openedChests, playerName, onInteract, hasTriggeredInitialDialog, isDialogActive]);
 
   useEffect(() => {
-    const id = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(id);
-  }, [playerPos, map, frame, isMoving, playerColor, openedChests, playerName]);
+    let requestRef: number;
+    const animate = () => {
+      render();
+      requestRef = requestAnimationFrame(animate);
+    };
+    requestRef = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef);
+  }, [render]);
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <canvas ref={canvasRef} width={VIEWPORT_W} height={VIEWPORT_H} style={{ display: 'block', backgroundColor: '#000' }} />
-      <div style={{ flex: 1, position: 'relative', backgroundColor: 'var(--gb-white)', borderTop: '2px solid var(--gb-darkest)' }}>
-        <button onClick={() => setShowBugDex(true)} style={{ position: 'absolute', right: '10px', top: '10px', padding: '5px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: 'var(--gb-darkest)', color: '#fff', border: 'none', cursor: 'pointer', zIndex: 50 }}>BUGDEX (B)</button>
-        <DPad onMoveStart={(dir) => !isDialogActive && setManualDir(dir)} onMoveEnd={() => setManualDir(null)} onInteract={handleInteract} />
+      <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab' }}>
+        <button onClick={() => setShowBugDex(true)} style={{ position: 'absolute', right: '10px', top: '10px', padding: '5px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: 'none', cursor: 'pointer', zIndex: 50 }}>BUGDEX (B)</button>
+        <DPad onMoveStart={(dir) => !isDialogActive && move(dir)} onMoveEnd={() => move(null)} onInteract={handleInteract} />
       </div>
 
       {showBugDex && (
-        <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(15, 56, 15, 0.95)', border: '4px double var(--gb-lightest)', zIndex: 100, padding: '15px', color: 'var(--gb-lightest)', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: '8px', marginBottom: '15px', textAlign: 'center' }}>[ BUGDEX - REINO 1 ]</h3>
+        <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(20, 30, 48, 0.95)', border: '4px solid #3776ab', zIndex: 100, padding: '15px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ fontSize: '8px', marginBottom: '15px', textAlign: 'center', color: '#ffd43b' }}>[ BUGDEX - REINO 1 ]</h3>
             <div style={{ fontSize: '6px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
                 {WORLD1_ENEMIES.map(enemy => (
-                    <div key={enemy.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div key={enemy.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #3776ab', paddingBottom: '4px' }}>
                         <span>{correctedBugs.includes(enemy.id) ? enemy.name : '???'}</span>
-                        <span>{correctedBugs.includes(enemy.id) ? '[ OK ]' : '[ !! ]'}</span>
+                        <span style={{ color: correctedBugs.includes(enemy.id) ? '#2ecc71' : '#ff4757' }}>{correctedBugs.includes(enemy.id) ? '[ OK ]' : '[ !! ]'}</span>
                     </div>
                 ))}
             </div>
-            <button onClick={() => setShowBugDex(false)} style={{ position: 'absolute', top: '5px', right: '10px', background: 'none', border: 'none', color: 'red', fontSize: '10px', cursor: 'pointer' }}>X</button>
+            <div style={{ marginTop: '10px', textAlign: 'center', fontSize: '8px', color: '#ffd43b' }}>
+                PROGRESSO: {correctedBugs.length}/{WORLD1_ENEMIES.length}
+            </div>
+            <button onClick={() => setShowBugDex(false)} style={{ position: 'absolute', top: '5px', right: '10px', background: 'none', border: 'none', color: '#ff4757', fontSize: '10px', cursor: 'pointer' }}>X</button>
         </div>
       )}
     </div>

@@ -38,8 +38,8 @@ export const world1Map: MapData = {
   chests: [
     { 
       tileX: 8, tileY: 9, 
-      description: "Este cofre antigo requer um cálculo de soma simples para ser aberto.",
-      puzzle: "print(1 + 1)", 
+      description: "Este cofre antigo está com o sistema de saída corrompido (falta fechar o parêntese).",
+      puzzle: "print(1 + 1", 
       expected: "2", 
       reward: 20 
     }

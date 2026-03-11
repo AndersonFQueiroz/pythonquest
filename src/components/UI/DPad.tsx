@@ -40,13 +40,13 @@ const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
       {/* Direcionais */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 48px)', gap: '4px', pointerEvents: 'auto' }}>
         <div />
-        <button style={btnStyle} onPointerDown={() => onMoveStart('up')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>↑</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('up')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>▲</button>
         <div />
-        <button style={btnStyle} onPointerDown={() => onMoveStart('left')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>←</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('left')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>◀</button>
         <div style={{ ...btnStyle, backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }} />
-        <button style={btnStyle} onPointerDown={() => onMoveStart('right')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>→</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('right')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>▶</button>
         <div />
-        <button style={btnStyle} onPointerDown={() => onMoveStart('down')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>↓</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('down')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>▼</button>
         <div />
       </div>
 
