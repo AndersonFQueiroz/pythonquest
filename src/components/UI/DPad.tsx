@@ -2,63 +2,67 @@ import React from 'react';
 import type { Direction } from '../../hooks/useMapEngine';
 
 interface DPadProps {
-  onMove: (dir: Direction) => void;
+  onMoveStart: (dir: Direction) => void;
+  onMoveEnd: () => void;
   onInteract: () => void;
 }
 
-const DPad: React.FC<DPadProps> = ({ onMove, onInteract }) => {
+const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
   const btnStyle: React.CSSProperties = {
-    width: '40px',
-    height: '40px',
-    backgroundColor: 'var(--gb-darkest)',
-    border: '4px solid var(--gb-dark)',
-    color: 'var(--gb-white)',
-    display: 'flex',
-    justifyContent: 'center',
+    width: '48px', 
+    height: '48px', 
+    backgroundColor: '#3776ab',
+    border: '4px solid #141e30', 
+    color: '#ffffff',
+    display: 'flex', 
+    justifyContent: 'center', 
     alignItems: 'center',
-    fontSize: '18px',
-    cursor: 'pointer',
-    userSelect: 'none',
-    touchAction: 'none'
+    fontSize: '20px', 
+    cursor: 'pointer', 
+    userSelect: 'none', 
+    touchAction: 'none',
+    boxShadow: '0 4px 0 #1e4a7a',
+    borderRadius: '4px'
   };
 
   return (
     <div style={{
-      position: 'absolute',
-      bottom: '10px',
-      left: '0',
-      right: '0',
+      position: 'absolute', 
+      bottom: '15px', 
+      left: '0', 
+      right: '0', 
       padding: '0 20px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'flex-end', 
       pointerEvents: 'none'
     }}>
-      {/* D-Pad Direcional */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 40px)', gap: '2px', pointerEvents: 'auto' }}>
+      {/* Direcionais */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 48px)', gap: '4px', pointerEvents: 'auto' }}>
         <div />
-        <button style={btnStyle} onPointerDown={() => onMove('up')}>↑</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('up')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>↑</button>
         <div />
-        <button style={btnStyle} onPointerDown={() => onMove('left')}>←</button>
-        <div style={{ ...btnStyle, backgroundColor: 'transparent', border: 'none' }} />
-        <button style={btnStyle} onPointerDown={() => onMove('right')}>→</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('left')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>←</button>
+        <div style={{ ...btnStyle, backgroundColor: 'transparent', border: 'none', boxShadow: 'none' }} />
+        <button style={btnStyle} onPointerDown={() => onMoveStart('right')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>→</button>
         <div />
-        <button style={btnStyle} onPointerDown={() => onMove('down')}>↓</button>
+        <button style={btnStyle} onPointerDown={() => onMoveStart('down')} onPointerUp={onMoveEnd} onPointerLeave={onMoveEnd}>↓</button>
         <div />
       </div>
 
-      {/* Botão A de Interação */}
+      {/* Botão A */}
       <div style={{ pointerEvents: 'auto' }}>
         <button 
-          onPointerDown={onInteract}
-          style={{
-            ...btnStyle,
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            fontSize: '24px',
-            backgroundColor: '#c0392b', // Vermelho para destacar o botão A
-            border: '4px solid #96281b'
+          onPointerDown={onInteract} 
+          style={{ 
+            ...btnStyle, 
+            width: '70px', 
+            height: '70px', 
+            borderRadius: '50%', 
+            fontSize: '28px', 
+            backgroundColor: '#ff8c00', 
+            border: '4px solid #9e5200',
+            boxShadow: '0 6px 0 #6d3a00'
           }}
         >
           A

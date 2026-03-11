@@ -8,13 +8,13 @@ interface CharacterCreationProps {
 const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
   const setProfile = useGameStore(state => state.setProfile);
   const [name, setName] = useState('DEV_APRENDIZ');
-  const [color, setColor] = useState('#3498db');
+  const [color, setColor] = useState('#3776ab');
 
   const COLORS = [
-    { name: 'AZUL', hex: '#3498db' },
-    { name: 'VERMELHO', hex: '#e74c3c' },
-    { name: 'VERDE', hex: '#2ecc71' },
-    { name: 'AMARELO', hex: '#f1c40f' }
+    { name: 'AZUL', hex: '#3776ab' },
+    { name: 'AMARELO', hex: '#ffd43b' },
+    { name: 'LARANJA', hex: '#ff8c00' },
+    { name: 'VERDE', hex: '#2ecc71' }
   ];
 
   const handleStart = () => {
@@ -29,42 +29,46 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100%',
-      backgroundColor: 'var(--gb-white)',
+      background: 'linear-gradient(180deg, #141e30 0%, #243b55 100%)',
       padding: '20px',
-      textAlign: 'center'
+      textAlign: 'center',
+      color: '#fff'
     }}>
-      <h2 style={{ fontSize: '14px', marginBottom: '30px' }}>[ QUEM É VOCÊ? ]</h2>
+      <h2 style={{ fontSize: '12px', marginBottom: '30px', color: '#ffd43b' }}>[ REGISTRO DE DESENVOLVEDOR ]</h2>
       
-      <div style={{ marginBottom: '30px' }}>
-        <p style={{ fontSize: '8px', marginBottom: '10px' }}>SEU USERNAME:</p>
+      <div style={{ marginBottom: '30px', width: '100%' }}>
+        <p style={{ fontSize: '7px', marginBottom: '10px', color: '#3776ab' }}>USERNAME:</p>
         <input 
           value={name}
           onChange={(e) => setName(e.target.value.toUpperCase().slice(0, 12))}
           style={{
             fontFamily: '"Press Start 2P", monospace',
-            border: '2px solid var(--gb-darkest)',
-            padding: '10px',
+            border: '2px solid #3776ab',
+            padding: '12px',
             textAlign: 'center',
             fontSize: '10px',
-            backgroundColor: 'transparent',
-            outline: 'none'
+            backgroundColor: 'rgba(0,0,0,0.3)',
+            color: '#fff',
+            outline: 'none',
+            width: '80%'
           }}
         />
       </div>
 
       <div style={{ marginBottom: '40px' }}>
-        <p style={{ fontSize: '8px', marginBottom: '10px' }}>COR DO TRAJE:</p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <p style={{ fontSize: '7px', marginBottom: '10px', color: '#3776ab' }}>COR DO TRAJE:</p>
+        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
           {COLORS.map(c => (
             <div 
               key={c.hex}
               onClick={() => setColor(c.hex)}
               style={{
-                width: '30px',
-                height: '30px',
+                width: '35px',
+                height: '35px',
                 backgroundColor: c.hex,
-                border: color === c.hex ? '4px solid var(--gb-darkest)' : '2px solid #ccc',
-                cursor: 'pointer'
+                border: color === c.hex ? '4px solid #fff' : '2px solid #000',
+                cursor: 'pointer',
+                boxShadow: color === c.hex ? '0 0 10px rgba(255,255,255,0.5)' : 'none'
               }}
             />
           ))}
@@ -75,15 +79,16 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
         onClick={handleStart}
         style={{
           fontFamily: '"Press Start 2P", monospace',
-          padding: '10px 20px',
-          backgroundColor: 'var(--gb-dark)',
-          color: 'var(--gb-white)',
-          border: 'none',
+          padding: '15px 30px',
+          backgroundColor: '#ff8c00',
+          color: '#fff',
+          border: '4px solid #000',
           cursor: 'pointer',
-          fontSize: '10px'
+          fontSize: '10px',
+          boxShadow: '0 4px 0 #9e5200'
         }}
       >
-        INICIAR JORNADA
+        INICIAR AVENTURA
       </button>
     </div>
   );

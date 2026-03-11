@@ -1,12 +1,23 @@
 :root {
-  --gb-darkest: #0f380f;
-  --gb-dark: #306230;
-  --gb-light: #8bac0f;
-  --gb-lightest: #9bbc0f;
-  --gb-white: #e0f0c0;
+  /* Nova Paleta baseada na Logo */
+  --color-primary: #3776ab;    /* Azul Python */
+  --color-secondary: #ffd43b;  /* Amarelo Python */
+  --color-accent: #ff8c00;     /* Laranja da Logo */
+  --color-bg: #141e30;         /* Azul Marinho Profundo */
+  --color-ui-bg: rgba(20, 30, 48, 0.9);
+  --color-text: #ffffff;
+  --color-text-dark: #0f172a;
+  
+  /* Mantendo variáveis de tiles para compatibilidade, mas com novas cores */
+  --gb-darkest: #0f172a;
+  --gb-dark: #1e293b;
+  --gb-light: #3776ab;
+  --gb-lightest: #ffd43b;
+  --gb-white: #f8fafc;
+
   --tile-size: 32px;
-  --viewport-w: 480px; /* 15 tiles */
-  --viewport-h: 352px; /* 11 tiles */
+  --viewport-w: 480px;
+  --viewport-h: 352px;
 }
 
 * {
@@ -17,39 +28,54 @@
 }
 
 html, body {
-  background: #1a1a2e;
+  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
   font-family: "Press Start 2P", monospace;
-  margin: 0;
-  padding: 0;
   width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  color: var(--color-text);
 }
 
 #root {
   width: var(--viewport-w);
-  height: var(--viewport-h);
-  border: 4px solid var(--gb-darkest);
-  background-color: var(--gb-white);
+  height: 540px; /* Aumentado para acomodar UI */
+  border: 6px solid var(--color-primary);
+  border-radius: 8px;
+  background-color: var(--color-bg);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
-/* Scanline overlay */
-body::after {
+/* Efeito de Scanline mais moderno */
+#root::after {
   content: "";
-  position: fixed;
+  position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.07) 2px,
-    rgba(0, 0, 0, 0.07) 4px
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
   );
+  background-size: 100% 3px, 3px 100%;
   pointer-events: none;
   z-index: 9999;
+}
+
+button {
+  font-family: "Press Start 2P", monospace;
+  transition: all 0.2s;
+}
+
+button:active {
+  transform: scale(0.95);
 }

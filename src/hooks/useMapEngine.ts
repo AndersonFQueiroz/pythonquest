@@ -1,95 +1,123 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { MapData } from '../maps/world1';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { sounds } from '../lib/sounds';
+import { useGameStore } from './useGameStore';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-export function useMapEngine(map: MapData, onEncounter?: () => void, onPortal?: (targetMap: string, x: number, y: number) => void) {
-  const [playerPos, setPlayerPos] = useState(map.playerStart);
+export function useMapEngine(
+  map: any, 
+  onEncounter?: () => void, 
+  onPortal?: (targetMap: string, x: number, y: number) => void,
+  isDisabled: boolean = false
+) {
+  const { playerPos, setPlayerPos } = useGameStore();
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
+  
+  const keysPressed = useRef<Set<string>>(new Set());
+  const lastMoveTime = useRef(0);
+  const isMovingRef = useRef(false);
+  const MOVE_DELAY = 160; 
 
-  // Atualiza a posição inicial sempre que o mapa mudar
-  useEffect(() => {
-    setPlayerPos(map.playerStart);
-  }, [map]);
+  const teleport = useCallback((x: number, y: number) => {
+    setPlayerPos({ x, y });
+  }, [setPlayerPos]);
 
   const canMoveTo = useCallback((x: number, y: number) => {
     if (x < 0 || x >= map.width || y < 0 || y >= map.height) return false;
-    
-    // Colisão com tiles bloqueados
     const tile = map.tiles[y][x];
-    if ([3, 4, 5].includes(tile)) return false;
-
-    // Colisão com NPCs
-    const npcAtPos = map.npcs.find(npc => npc.tileX === x && npc.tileY === y);
-    if (npcAtPos) return false;
-
-    return true;
+    if ([3, 4, 5, 8, 10, 11, 13, 14].includes(tile)) return false;
+    return !map.npcs.some((npc: any) => npc.tileX === x && npc.tileY === y);
   }, [map]);
 
-  const move = useCallback((dir: Direction) => {
-    if (isMoving) return;
+  const executeStep = useCallback((dir: Direction | null) => {
+    if (!dir || isDisabled || isMovingRef.current) return;
+
+    const now = Date.now();
+    if (now - lastMoveTime.current < MOVE_DELAY) return;
 
     setDirection(dir);
-    let newX = playerPos.x;
-    let newY = playerPos.y;
+    
+    let nx = playerPos.x, ny = playerPos.y;
+    if (dir === 'up') ny--;
+    else if (dir === 'down') ny++;
+    else if (dir === 'left') nx--;
+    else if (dir === 'right') nx++;
 
-    if (dir === 'up') newY -= 1;
-    if (dir === 'down') newY += 1;
-    if (dir === 'left') newX -= 1;
-    if (dir === 'right') newX += 1;
-
-    if (canMoveTo(newX, newY)) {
+    if (canMoveTo(nx, ny)) {
+      lastMoveTime.current = now;
+      isMovingRef.current = true;
       setIsMoving(true);
-      setPlayerPos({ x: newX, y: newY });
+      setPlayerPos({ x: nx, y: ny });
       sounds.playStep();
-      
-      const targetTile = map.tiles[newY][newX];
-      
-      // Portal de Saída (ID 6)
-      if (targetTile === 6 || map.exits.some(e => e.tileX === newX && e.tileY === newY)) {
-        const exit = map.exits.find(e => e.tileX === newX && e.tileY === newY);
-        if (exit && onPortal) {
-           setTimeout(() => onPortal(exit.targetMap, exit.targetX, exit.targetY), 200);
-        }
-      } 
-      // Grama Alta (Encontros Aleatórios)
-      else if (targetTile === 1 && onEncounter) {
-        if (Math.random() < 0.2) {
-          setTimeout(() => onEncounter(), 200);
+
+      const exit = map.exits.find((e: any) => e.tileX === nx && e.tileY === ny);
+      if (exit && onPortal) {
+        keysPressed.current.clear();
+        setTimeout(() => onPortal(exit.targetMap, exit.targetX, exit.targetY), 50);
+      } else if (map.tiles[ny][nx] === 1 && onEncounter) {
+        if (Math.random() < 0.15) {
+            keysPressed.current.clear();
+            setTimeout(() => onEncounter(), 50);
         }
       }
-      
-      setTimeout(() => setIsMoving(false), 150);
+
+      setTimeout(() => {
+        isMovingRef.current = false;
+        setIsMoving(false);
+      }, MOVE_DELAY - 10);
     }
-  }, [playerPos, isMoving, canMoveTo, map, onEncounter, onPortal]);
-
-  const interact = useCallback(() => {
-    let checkX = playerPos.x;
-    let checkY = playerPos.y;
-
-    if (direction === 'up') checkY -= 1;
-    if (direction === 'down') checkY += 1;
-    if (direction === 'left') checkX -= 1;
-    if (direction === 'right') checkX += 1;
-
-    const npc = map.npcs.find(n => n.tileX === checkX && n.tileY === checkY);
-    return npc || null;
-  }, [playerPos, direction, map.npcs]);
+  }, [playerPos, canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      if (['w', 'arrowup'].includes(key)) move('up');
-      if (['s', 'arrowdown'].includes(key)) move('down');
-      if (['a', 'arrowleft'].includes(key)) move('left');
-      if (['d', 'arrowright'].includes(key)) move('right');
+    let frameId: number;
+    const tick = () => {
+      if (!isDisabled && !isMovingRef.current) {
+        let dir: Direction | null = null;
+        if (keysPressed.current.has('w') || keysPressed.current.has('arrowup')) dir = 'up';
+        else if (keysPressed.current.has('s') || keysPressed.current.has('arrowdown')) dir = 'down';
+        else if (keysPressed.current.has('a') || keysPressed.current.has('arrowleft')) dir = 'left';
+        else if (keysPressed.current.has('d') || keysPressed.current.has('arrowright')) dir = 'right';
+        if (dir) executeStep(dir);
+      }
+      frameId = requestAnimationFrame(tick);
     };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [executeStep, isDisabled]);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [move]);
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (isDisabled) return;
+      if (document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.tagName === 'INPUT') return;
+      keysPressed.current.add(e.key.toLowerCase());
+    };
+    const up = (e: KeyboardEvent) => {
+      keysPressed.current.delete(e.key.toLowerCase());
+    };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+    };
+  }, [isDisabled]);
 
-  return { playerPos, direction, isMoving, move, interact };
+  const interact = useCallback(() => {
+    let cx = playerPos.x, cy = playerPos.y;
+    if (direction === 'up') cy--;
+    else if (direction === 'down') cy++;
+    else if (direction === 'left') cx--;
+    else if (direction === 'right') cx++;
+
+    const npc = map.npcs.find((n: any) => n.tileX === cx && n.tileY === cy);
+    if (npc) return { type: 'npc', data: npc };
+    const sign = map.signs?.find((s: any) => s.tileX === cx && s.tileY === cy);
+    if (sign) return { type: 'sign', data: { name: 'PLACA', dialog: sign.messages } };
+    const chest = map.chests?.find((c: any) => c.tileX === cx && c.tileY === cy);
+    if (chest) return { type: 'chest', data: chest };
+    return null;
+  }, [playerPos, direction, map]);
+
+  return { playerPos, direction, isMoving, move: executeStep, interact, teleport };
 }

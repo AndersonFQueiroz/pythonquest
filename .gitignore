@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Project specific
+DOCUMENTACAO.md
+Temp-assets/
+temp-assets/
+.env
+.env.production

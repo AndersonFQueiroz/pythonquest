@@ -1,22 +1,16 @@
-# PYTHONQUEST — DOCUMENTAÇÃO TÉCNICA DETALHADA (Versão 1.5)
+# PYTHONQUEST — DOCUMENTAÇÃO TÉCNICA DETALHADA (Versão 1.6)
 
 Este documento detalha o funcionamento interno e as escolhas de engenharia do jogo **PythonQuest**.
 
 ---
 
-## 9. Sistema de NPCs e Diálogos (Storytelling)
-Implementado um motor de diálogos para guiar o jogador e fornecer contexto narrativo.
+## 10. Ambientação e Decoração Procedural
+Para reforçar a narrativa de um mundo corrompido, implementamos um sistema de decoração dinâmica no Canvas.
 
-### Características Técnicas:
-- **Estrutura Baseada em Dados:** NPCs são definidos diretamente na matriz do mapa com propriedades de `tileX`, `tileY` e um array de strings `dialog`.
-- **Componente DialogBox:**
-    - **Efeito Typewriter:** Texto renderizado caractere por caractere (30ms de intervalo) para simular consoles clássicos.
-    - **Páginas de Diálogo:** Suporte a múltiplas mensagens sequenciais.
-    - **Interatividade:** O diálogo pode ser acelerado ou avançado através de cliques ou toques na caixa.
-- **Lógica de Interação:**
-    - O Hook `useMapEngine` calcula a posição à frente do jogador baseado na sua `direction`.
-    - Se houver um NPC nessa coordenada, a função `interact()` retorna os dados do personagem para o estado global.
-- **Prevenção de Conflitos:** Batalhas aleatórias são desabilitadas automaticamente enquanto um diálogo está ativo para evitar interrupções na narrativa.
+### Novas Funcionalidades Visuais:
+- **Casas em Ruínas (Tiles 10 e 11):** Desenhadas com polígonos e linhas que simulam rachaduras e telhados quebrados.
+- **Zonas de Corrupção (Tile 12):** Implementado um motor de animação de "Glitch Frame". Esses tiles piscam entre preto e verde escuro e geram partículas vermelhas (faíscas) para indicar perigo iminente.
+- **Feedback Visual de História:** O ambiente agora reflete os diálogos da Mentora PEP-8, criando uma conexão direta entre o que o jogador lê e o que ele vê no mapa.
 
 ---
 **Documentação atualizada pelo Gemini CLI em 10/03/2026.**
