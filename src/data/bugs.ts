@@ -86,3 +86,40 @@ export const WORLD1_ENEMIES: BugEnemy[] = [
     ]
   }
 ];
+
+export const WORLD2_ENEMIES: BugEnemy[] = [
+  {
+    id: 'data_slime',
+    name: 'Slime de Dados',
+    level: 2,
+    hp: 120,
+    xpReward: 80,
+    goldReward: 30,
+    stages: [
+      {
+        description: 'O Slime se dividiu! Conte quantos itens existem na lista "corpos" usando a função len().',
+        problem: 'corpos = ["Esq", "Centro", "Dir"]\nprint(corpos)',
+        solution: 'corpos = ["Esq", "Centro", "Dir"]\nprint(len(corpos))',
+        expectedOutput: '3',
+        hint: 'A função len(lista) devolve o tamanho total da lista.'
+      }
+    ]
+  },
+  {
+    id: 'index_spider',
+    name: 'Aranha de Índices',
+    level: 2,
+    hp: 150,
+    xpReward: 100,
+    goldReward: 40,
+    stages: [
+      {
+        description: 'A Aranha te prendeu! Pegue a "Chave" que está na última posição da lista de teias.',
+        problem: 'teias = ["Mosca", "Graveto", "Chave"]\nprint(teias[0])',
+        solution: 'teias = ["Mosca", "Graveto", "Chave"]\nprint(teias[2])',
+        expectedOutput: 'Chave',
+        hint: 'O primeiro item é [0], o segundo é [1] e o terceiro é [2].'
+      }
+    ]
+  }
+];

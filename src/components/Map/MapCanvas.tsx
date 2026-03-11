@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import type { MapData } from '../../maps/world1';
+import type { MapData } from '../../maps/types';
 import { useMapEngine } from '../../hooks/useMapEngine';
 import { useGameStore } from '../../hooks/useGameStore';
 import DPad from '../UI/DPad';
 import { WORLD1_ENEMIES } from '../../data/bugs';
+import { BugSprite } from '../Battle/BugSprite';
 
 interface MapCanvasProps {
   map: MapData;
@@ -27,14 +28,16 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   const [hasTriggeredInitialDialog, setHasTriggeredInitialDialog] = useState(false);
   const [showBugDex, setShowBugDex] = useState(false);
   
-  const { playerPos, direction, isMoving, move, setManualDir, interact, teleport } = useMapEngine(
+  const { playerPos, isMoving, setManualDir, interact, teleport } = useMapEngine(
     map, 
     isDialogActive ? undefined : onEncounter, 
     isDialogActive ? undefined : onPortal, 
     isDialogActive
   );
   
-  const { name: playerName, color: playerColor, openedChests, correctedBugs } = useGameStore();
+  const { name: playerName, color: playerColor, openedChests, correctedBugs, merchantLocation } = useGameStore();
+
+  const isMerchantHere = merchantLocation === map.id;
 
   useEffect(() => {
     if (map.id === 'village' && !hasTriggeredInitialDialog && !isDialogActive) {
@@ -64,7 +67,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleInteract, isDialogActive]);
 
-  // Loop de renderização de alta performance
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -72,25 +74,23 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     if (!ctx) return;
 
     const now = Date.now();
-    const animFrame = Math.floor(now / 100); // 10 fps para animações de tiles
-
     const cameraX = Math.max(0, Math.min(playerPos.x * TILE_SIZE - VIEWPORT_W / 2 + TILE_SIZE / 2, map.width * TILE_SIZE - VIEWPORT_W));
     const cameraY = Math.max(0, Math.min(playerPos.y * TILE_SIZE - VIEWPORT_H / 2 + TILE_SIZE / 2, map.height * TILE_SIZE - VIEWPORT_H));
 
     ctx.clearRect(0, 0, VIEWPORT_W, VIEWPORT_H);
 
-    const drawLabel = (text: string, x: number, y: number) => {
+    const drawLabel = (text: string, x: number, y: number, color: string = 'rgba(15, 56, 15, 0.9)') => {
       ctx.font = '6px "Press Start 2P"';
       const metrics = ctx.measureText(text);
       const w = metrics.width + 8;
-      ctx.fillStyle = 'rgba(15, 56, 15, 0.9)';
+      ctx.fillStyle = color;
       ctx.fillRect(x - w/2, y - 10, w, 12);
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
       ctx.fillText(text, x, y - 2);
     };
 
-    // 1. Camada de Chão
+    // 1. Chão
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const tile = map.tiles[y][x];
@@ -104,7 +104,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       }
     }
 
-    // 2. Camada de Objetos
+    // 2. Objetos
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const tile = map.tiles[y][x];
@@ -112,16 +112,11 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         const ty = y * TILE_SIZE - cameraY;
 
         if (tile === 1) {
-          ctx.fillStyle = TILE_COLORS[1];
-          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+          ctx.fillStyle = TILE_COLORS[1]; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = '#306230';
           for(let i=0; i<3; i++) {
               const ox = i * 8 + 4;
-              ctx.beginPath();
-              ctx.moveTo(tx + ox, ty + 20);
-              ctx.lineTo(tx + ox + 4, ty + 12);
-              ctx.lineTo(tx + ox + 8, ty + 20);
-              ctx.fill();
+              ctx.beginPath(); ctx.moveTo(tx + ox, ty + 20); ctx.lineTo(tx + ox + 4, ty + 12); ctx.lineTo(tx + ox + 8, ty + 20); ctx.fill();
           }
         } else if (tile === 6) { 
           ctx.fillStyle = '#7f8c8d'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
@@ -145,23 +140,30 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         } else if (tile === 8) { 
           const isOpen = openedChests.includes(`${map.id}_${x}_${y}`);
           ctx.fillStyle = isOpen ? '#306230' : 'var(--gb-darkest)'; ctx.fillRect(tx + 4, ty + 12, 24, 16);
-          if (isOpen) {
-             ctx.fillStyle = '#0f380f'; ctx.fillRect(tx + 4, ty + 6, 24, 6);
-          } else {
+          if (isOpen) { ctx.fillStyle = '#0f380f'; ctx.fillRect(tx + 4, ty + 6, 24, 6); }
+          else {
              ctx.fillStyle = '#f1c40f'; ctx.fillRect(tx + 4, ty + 14, 24, 4);
-             if (animFrame % 10 < 5) { ctx.fillStyle = '#fff'; ctx.fillRect(tx + 14, ty + 16, 4, 4); }
+             if (Math.floor(now/200) % 10 < 5) { ctx.fillStyle = '#fff'; ctx.fillRect(tx + 14, ty + 16, 4, 4); }
           }
         } else if ([5, 10, 11].includes(tile)) { 
-           ctx.fillStyle = TILE_COLORS[tile] || '#000';
-           ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-           if (tile === 10) {
-               ctx.strokeStyle = '#0f380f'; ctx.beginPath(); ctx.moveTo(tx + 5, ty + 5); ctx.lineTo(tx + 15, ty + 25); ctx.stroke();
-           }
+           ctx.fillStyle = TILE_COLORS[tile] || '#000'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+           if (tile === 10) { ctx.strokeStyle = '#0f380f'; ctx.beginPath(); ctx.moveTo(tx + 5, ty + 5); ctx.lineTo(tx + 15, ty + 25); ctx.stroke(); }
         }
       }
     }
 
-    // 3. Matrix (Usando timestamp real para velocidade constante)
+    // 3. Mercador Viajante (DINÂMICO)
+    if (isMerchantHere) {
+        const mx = map.merchantPos.x * TILE_SIZE - cameraX;
+        const my = map.merchantPos.y * TILE_SIZE - cameraY;
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(mx + 8, my + 28, 16, 4); 
+        ctx.fillStyle = '#ff8c00'; ctx.fillRect(mx + 6, my + 4, 20, 24); 
+        ctx.fillStyle = '#000'; ctx.fillRect(mx + 10, my + 8, 12, 8); 
+        ctx.fillStyle = '#ffd43b'; ctx.fillRect(mx + 12, my + 10, 2, 2); ctx.fillRect(mx + 18, my + 10, 2, 2); 
+        drawLabel("MERCADOR", mx + 16, my - 4, '#ff8c00');
+    }
+
+    // 4. Matrix
     ctx.fillStyle = 'rgba(55, 118, 171, 0.2)'; ctx.font = '8px monospace';
     for(let i=0; i<15; i++) {
       const bx = (i * 32) % VIEWPORT_W;
@@ -169,7 +171,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       ctx.fillText(Math.random() > 0.5 ? "0" : "1", bx, by);
     }
 
-    // 4. NPCs
+    // 5. NPCs
     map.npcs.forEach(npc => {
       const nx = npc.tileX * TILE_SIZE - cameraX;
       const ny = npc.tileY * TILE_SIZE - cameraY;
@@ -182,11 +184,10 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       if (npc.name) drawLabel(npc.name, nx + 16, ny - 4);
     });
 
-    // 5. Player
+    // 6. Player
     const px = playerPos.x * TILE_SIZE - cameraX;
     const py = playerPos.y * TILE_SIZE - cameraY;
     const walkCycle = isMoving ? Math.sin(now / 100) * 4 : 0;
-    
     ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(px + 8, py + 28, 16, 4);
     ctx.fillStyle = 'var(--gb-darkest)';
     ctx.fillRect(px + 8, py + 24 + (isMoving ? walkCycle : 0), 6, 6);
@@ -198,14 +199,11 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     ctx.fillStyle = '#ffdbac'; ctx.fillRect(px + 10, py + 4, 12, 12);
     ctx.fillStyle = 'black'; ctx.fillRect(px + 13, py + 8, 2, 2); ctx.fillRect(px + 17, py + 8, 2, 2); 
     if (playerName) drawLabel(playerName, px + 16, py - 6);
-  }, [playerPos, map, isMoving, playerColor, openedChests, playerName, onInteract, hasTriggeredInitialDialog, isDialogActive]);
+  }, [playerPos, map, isMoving, playerColor, openedChests, playerName, onInteract, isMerchantHere, merchantLocation]);
 
   useEffect(() => {
     let requestRef: number;
-    const animate = () => {
-      render();
-      requestRef = requestAnimationFrame(animate);
-    };
+    const animate = () => { render(); requestRef = requestAnimationFrame(animate); };
     requestRef = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef);
   }, [render]);
@@ -215,22 +213,27 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       <canvas ref={canvasRef} width={VIEWPORT_W} height={VIEWPORT_H} style={{ display: 'block', backgroundColor: '#000' }} />
       <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab' }}>
         <button onClick={() => setShowBugDex(true)} style={{ position: 'absolute', right: '10px', top: '10px', padding: '5px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: 'none', cursor: 'pointer', zIndex: 50 }}>BUGDEX (B)</button>
-        <DPad onMoveStart={(dir) => !isDialogActive && move(dir)} onMoveEnd={() => move(null)} onInteract={handleInteract} />
+        <DPad onMoveStart={(dir) => !isDialogActive && setManualDir(dir)} onMoveEnd={() => setManualDir(null)} onInteract={handleInteract} />
       </div>
 
       {showBugDex && (
         <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(20, 30, 48, 0.95)', border: '4px solid #3776ab', zIndex: 100, padding: '15px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
             <h3 style={{ fontSize: '8px', marginBottom: '15px', textAlign: 'center', color: '#ffd43b' }}>[ BUGDEX - REINO 1 ]</h3>
             <div style={{ fontSize: '6px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
-                {WORLD1_ENEMIES.map(enemy => (
-                    <div key={enemy.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #3776ab', paddingBottom: '4px' }}>
-                        <span>{correctedBugs.includes(enemy.id) ? enemy.name : '???'}</span>
-                        <span style={{ color: correctedBugs.includes(enemy.id) ? '#2ecc71' : '#ff4757' }}>{correctedBugs.includes(enemy.id) ? '[ OK ]' : '[ !! ]'}</span>
-                    </div>
-                ))}
-            </div>
-            <div style={{ marginTop: '10px', textAlign: 'center', fontSize: '8px', color: '#ffd43b' }}>
-                PROGRESSO: {correctedBugs.length}/{WORLD1_ENEMIES.length}
+                {WORLD1_ENEMIES.map(enemy => {
+                    const isCaught = correctedBugs.includes(enemy.id);
+                    return (
+                        <div key={enemy.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #3776ab', paddingBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                <div style={{ transform: 'scale(0.5)', width: '20px', height: '20px' }}>
+                                    <BugSprite id={enemy.id} shadow={!isCaught} />
+                                </div>
+                                <span>{isCaught ? enemy.name : '???'}</span>
+                            </div>
+                            <span style={{ color: isCaught ? '#2ecc71' : '#ff4757' }}>{isCaught ? '[ OK ]' : '[ !! ]'}</span>
+                        </div>
+                    );
+                })}
             </div>
             <button onClick={() => setShowBugDex(false)} style={{ position: 'absolute', top: '5px', right: '10px', background: 'none', border: 'none', color: '#ff4757', fontSize: '10px', cursor: 'pointer' }}>X</button>
         </div>

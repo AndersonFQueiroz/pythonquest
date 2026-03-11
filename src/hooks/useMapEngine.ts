@@ -10,13 +10,14 @@ export function useMapEngine(
   onPortal?: (targetMap: string, x: number, y: number) => void,
   isDisabled: boolean = false
 ) {
-  const { playerPos, setPlayerPos } = useGameStore();
+  const { playerPos, setPlayerPos, merchantLocation } = useGameStore();
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
   
+  const activeDirRef = useRef<Direction | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
-  const lastMoveTime = useRef(0);
   const isMovingRef = useRef(false);
+  const lastMoveTime = useRef(0); // <-- ERRO CORRIGIDO AQUI
   const MOVE_DELAY = 160; 
 
   const teleport = useCallback((x: number, y: number) => {
@@ -27,8 +28,11 @@ export function useMapEngine(
     if (x < 0 || x >= map.width || y < 0 || y >= map.height) return false;
     const tile = map.tiles[y][x];
     if ([3, 4, 5, 8, 10, 11, 13, 14].includes(tile)) return false;
+    
+    if (merchantLocation === map.id && map.merchantPos.x === x && map.merchantPos.y === y) return false;
+
     return !map.npcs.some((npc: any) => npc.tileX === x && npc.tileY === y);
-  }, [map]);
+  }, [map, merchantLocation]);
 
   const executeStep = useCallback((dir: Direction | null) => {
     if (!dir || isDisabled || isMovingRef.current) return;
@@ -53,12 +57,14 @@ export function useMapEngine(
 
       const exit = map.exits.find((e: any) => e.tileX === nx && e.tileY === ny);
       if (exit && onPortal) {
-        keysPressed.current.clear();
-        setTimeout(() => onPortal(exit.targetMap, exit.targetX, exit.targetY), 50);
+          activeDirRef.current = null;
+          keysPressed.current.clear();
+          setTimeout(() => onPortal(exit.targetMap, exit.targetX, exit.targetY), 50);
       } else if (map.tiles[ny][nx] === 1 && onEncounter) {
         if (Math.random() < 0.15) {
-            keysPressed.current.clear();
-            setTimeout(() => onEncounter(), 50);
+          activeDirRef.current = null;
+          keysPressed.current.clear();
+          setTimeout(() => onEncounter(), 50);
         }
       }
 
@@ -67,7 +73,7 @@ export function useMapEngine(
         setIsMoving(false);
       }, MOVE_DELAY - 10);
     }
-  }, [playerPos, canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos]);
+  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos]);
 
   useEffect(() => {
     let frameId: number;
@@ -104,20 +110,29 @@ export function useMapEngine(
   }, [isDisabled]);
 
   const interact = useCallback(() => {
-    let cx = playerPos.x, cy = playerPos.y;
-    if (direction === 'up') cy--;
-    else if (direction === 'down') cy++;
-    else if (direction === 'left') cx--;
-    else if (direction === 'right') cx++;
+    const checkCoords = [
+        { x: playerPos.x, y: playerPos.y - 1 },
+        { x: playerPos.x, y: playerPos.y + 1 },
+        { x: playerPos.x - 1, y: playerPos.y },
+        { x: playerPos.x + 1, y: playerPos.y }
+    ];
 
-    const npc = map.npcs.find((n: any) => n.tileX === cx && n.tileY === cy);
-    if (npc) return { type: 'npc', data: npc };
-    const sign = map.signs?.find((s: any) => s.tileX === cx && s.tileY === cy);
-    if (sign) return { type: 'sign', data: { name: 'PLACA', dialog: sign.messages } };
-    const chest = map.chests?.find((c: any) => c.tileX === cx && c.tileY === cy);
-    if (chest) return { type: 'chest', data: chest };
+    if (merchantLocation === map.id) {
+        const isNear = checkCoords.some(c => c.x === map.merchantPos.x && c.y === map.merchantPos.y);
+        if (isNear) return { type: 'merchant' };
+    }
+
+    for (const coord of checkCoords) {
+        const npc = map.npcs.find((n: any) => n.tileX === coord.x && n.tileY === coord.y);
+        if (npc) return { type: 'npc', data: npc };
+        const sign = map.signs?.find((s: any) => s.tileX === coord.x && s.tileY === coord.y);
+        if (sign) return { type: 'sign', data: { name: 'PLACA', dialog: sign.messages } };
+        const chest = map.chests?.find((c: any) => c.tileX === coord.x && c.tileY === coord.y);
+        if (chest) return { type: 'chest', data: chest };
+    }
     return null;
-  }, [playerPos, direction, map]);
+  }, [playerPos, map, merchantLocation]);
 
-  return { playerPos, direction, isMoving, move: executeStep, interact, teleport };
+  // ERRO CORRIGIDO AQUI: Retornando move (executeStep) para o MapCanvas usar
+  return { playerPos, direction, isMoving, move: executeStep, setManualDir: (d: Direction | null) => activeDirRef.current = d, interact, teleport };
 }

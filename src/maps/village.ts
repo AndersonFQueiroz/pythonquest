@@ -1,4 +1,4 @@
-import type { MapData } from './world1';
+import type { MapData } from './types';
 
 export const villageMap: MapData = {
   id: "village",
@@ -42,14 +42,14 @@ export const villageMap: MapData = {
     { 
       tileX: 14, tileY: 4, 
       description: "Este cofre está com o parêntese de fechamento corrompido.",
-      puzzle: "print(5 + 5", // ERRO REAL
+      puzzle: "print(5 + 5", 
       expected: "10", 
       reward: 20 
     },
     { 
       tileX: 3, tileY: 11, 
       description: "O sistema deste cofre esqueceu que textos precisam de aspas.",
-      puzzle: "print(Hack)", // ERRO REAL
+      puzzle: "print(Hack)", 
       expected: "Hack", 
       reward: 50 
     }
@@ -61,5 +61,6 @@ export const villageMap: MapData = {
   exits: [
     { tileX: 18, tileY: 6, targetMap: "world1", targetX: 1, targetY: 6 },
     { tileX: 19, tileY: 6, targetMap: "world1", targetX: 1, targetY: 6 }
-  ]
+  ],
+  merchantPos: { x: 14, y: 11 } // Mercador na vila
 };

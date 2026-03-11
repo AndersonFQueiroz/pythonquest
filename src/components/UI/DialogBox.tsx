@@ -16,7 +16,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fullText = messages[currentMessageIndex];
-  const isTerminalGet = fullText.startsWith("ITEM_GET:TERMINAL_MÁGICO");
+  const isTerminalGet = fullText.includes("ITEM_GET:TERMINAL_MÁGICO");
   const isGoldGet = fullText.startsWith("ITEM_GET:") && fullText.endsWith("_GOLD");
 
   const startTyping = () => {
@@ -80,21 +80,52 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isTyping, currentMessageIndex, messages]);
 
+  // TELA DE CONQUISTA ESTILIZADA
   if (isTerminalGet || isGoldGet) {
     return (
       <div style={{
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        width: '320px', height: '180px', backgroundColor: 'rgba(20, 30, 48, 0.95)',
+        width: '320px', height: '220px', backgroundColor: 'rgba(20, 30, 48, 0.98)',
         border: '6px solid #ffd43b', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', zIndex: 2000, textAlign: 'center', padding: '20px',
-        boxShadow: '0 0 30px rgba(255, 212, 59, 0.3)'
+        boxShadow: '0 0 40px rgba(255, 212, 59, 0.4)'
       }} onClick={handleNext}>
-        <div style={{ fontSize: '10px', marginBottom: '20px', color: '#3776ab' }}>[ SISTEMA ATUALIZADO ]</div>
+        <div style={{ fontSize: '8px', marginBottom: '15px', color: '#3776ab' }}>[ NOVO ITEM OBTIDO ]</div>
+        
+        {/* ÍCONE DO TERMINAL BRILHANDO */}
+        {isTerminalGet && (
+            <div style={{
+                width: '60px', height: '45px', backgroundColor: '#000', border: '3px solid #3776ab',
+                borderRadius: '4px', position: 'relative', marginBottom: '20px',
+                boxShadow: '0 0 20px #3776ab', animation: 'glow 1.5s infinite alternate'
+            }}>
+                <div style={{ position: 'absolute', left: '10px', top: '10px', width: '10px', height: '2px', backgroundColor: '#ffd43b' }} />
+                <div style={{ position: 'absolute', left: '10px', top: '15px', width: '20px', height: '2px', backgroundColor: '#2ecc71' }} />
+                <div style={{ position: 'absolute', right: '10px', bottom: '10px', width: '15px', height: '15px', backgroundColor: '#3776ab', opacity: 0.3 }} />
+            </div>
+        )}
+
+        {/* ÍCONE DE OURO */}
+        {isGoldGet && (
+            <div style={{
+                width: '40px', height: '40px', backgroundColor: '#ffd43b', borderRadius: '50%',
+                border: '4px solid #f39c12', marginBottom: '20px', fontSize: '20px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f39c12',
+                animation: 'glow 1s infinite alternate'
+            }}>$</div>
+        )}
+
         <div style={{ fontSize: '12px', color: '#fff', fontWeight: 'bold', lineHeight: '1.5' }}>
-          VOCÊ OBTEVE:<br/>
-          <span style={{ color: '#ffd43b' }}>{displayedText}</span>
+          {displayedText}
         </div>
-        <div style={{ marginTop: '25px', fontSize: '7px', color: '#aaa' }}>[ PRESSIONE ENTER ]</div>
+        <div style={{ marginTop: '20px', fontSize: '7px', color: '#aaa' }}>[ PRESSIONE ENTER ]</div>
+
+        <style>{`
+            @keyframes glow {
+                from { filter: drop-shadow(0 0 5px #ffd43b); transform: scale(1); }
+                to { filter: drop-shadow(0 0 20px #3776ab); transform: scale(1.1); }
+            }
+        `}</style>
       </div>
     );
   }

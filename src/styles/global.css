@@ -79,3 +79,40 @@ button {
 button:active {
   transform: scale(0.95);
 }
+
+/* ------------------------------------- */
+/* SPRITES DOS INIMIGOS (BUGMONS)        */
+/* ------------------------------------- */
+
+.bug-sprite { position: relative; width: 40px; height: 40px; animation: float 2s infinite ease-in-out; }
+
+/* WASP */
+.wasp .body-wasp { width: 20px; height: 30px; background: #ffd43b; border: 2px solid #000; border-radius: 10px; position: relative; }
+.wasp .wing-l, .wasp .wing-r { width: 15px; height: 10px; background: rgba(255,255,255,0.5); position: absolute; top: 5px; border-radius: 50%; }
+.wasp .wing-l { left: -10px; transform: rotate(-30deg); }
+.wasp .wing-r { right: -10px; transform: rotate(30deg); }
+.wasp .stinger { width: 4px; height: 8px; background: #000; position: absolute; bottom: -5px; left: 8px; clip-path: polygon(50% 100%, 0 0, 100% 0); }
+
+/* GOBLIN */
+.goblin .body-goblin { width: 30px; height: 30px; background: #2ecc71; border: 2px solid #000; border-radius: 5px; position: relative; }
+.goblin .ear-l, .goblin .ear-r { width: 10px; height: 10px; background: #27ae60; position: absolute; top: 5px; }
+.goblin .ear-l { left: -8px; transform: skewY(20deg); }
+.goblin .ear-r { right: -8px; transform: skewY(-20deg); }
+
+/* BAT */
+.bat .body-bat { width: 24px; height: 24px; background: #34495e; border: 2px solid #000; border-radius: 50%; position: relative; }
+.bat .wing-bat-l, .bat .wing-bat-r { width: 20px; height: 15px; background: #2c3e50; position: absolute; top: 0; animation: flap 0.5s infinite; }
+.bat .wing-bat-l { left: -15px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+.bat .wing-bat-r { right: -15px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+
+/* GHOST */
+.ghost .body-ghost { width: 28px; height: 35px; background: #fff; border: 2px solid #000; border-radius: 15px 15px 0 0; position: relative; opacity: 0.8; }
+.ghost .ghost-tail { width: 28px; height: 10px; background: #fff; position: absolute; bottom: -8px; clip-path: polygon(0 0, 20% 100%, 40% 0, 60% 100%, 80% 0, 100% 100%, 100% 0); }
+
+.eye-l, .eye-r { width: 4px; height: 4px; background: #000; position: absolute; top: 8px; }
+.wasp .eye-l, .wasp .eye-r, .bat .eye-l, .bat .eye-r { background: #ff0000; }
+.eye-l { left: 6px; } .eye-r { right: 6px; }
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.5); } }
+@keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
