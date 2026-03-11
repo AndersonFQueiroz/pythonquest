@@ -1,27 +1,22 @@
-# PYTHONQUEST — DOCUMENTAÇÃO TÉCNICA DETALHADA (Versão 1.4)
+# PYTHONQUEST — DOCUMENTAÇÃO TÉCNICA DETALHADA (Versão 1.5)
 
 Este documento detalha o funcionamento interno e as escolhas de engenharia do jogo **PythonQuest**.
 
 ---
 
-## 1. Engenharia de Áudio (SFX Procedural)
-... (mantido) ...
+## 9. Sistema de NPCs e Diálogos (Storytelling)
+Implementado um motor de diálogos para guiar o jogador e fornecer contexto narrativo.
 
----
-
-## 7. Catálogo de Bugs e Pedagogia (Fases de Batalha)
-As batalhas foram aprimoradas para um sistema de múltiplos estágios.
-- **Inimigos Multi-Estágio:** Cada BUG agora possui uma lista de `stages`. Derrotar um estágio drena uma porcentagem proporcional do HP total do inimigo.
-- **Editor de Código Híbrido:** O componente `CodeEditor` foi dividido em uma área de visualização (Read-only) para o erro e uma área de entrada para a solução. Isso impede que o jogador destrua o contexto do desafio.
-- **UX de Desenvolvedor:** Implementado suporte a atalhos de teclado no editor:
-    - `Enter`: Valida e executa o código imediatamente.
-    - `Shift + Enter`: Insere uma nova linha.
-
----
-
-## 8. Motor Python (Pyodide Integration)
-- O motor Pyodide é inicializado de forma assíncrona.
-- O jogo detecta automaticamente erros de sintaxe vs. erros de lógica (saída incorreta), fornecendo feedbacks distintos e didáticos para cada caso.
+### Características Técnicas:
+- **Estrutura Baseada em Dados:** NPCs são definidos diretamente na matriz do mapa com propriedades de `tileX`, `tileY` e um array de strings `dialog`.
+- **Componente DialogBox:**
+    - **Efeito Typewriter:** Texto renderizado caractere por caractere (30ms de intervalo) para simular consoles clássicos.
+    - **Páginas de Diálogo:** Suporte a múltiplas mensagens sequenciais.
+    - **Interatividade:** O diálogo pode ser acelerado ou avançado através de cliques ou toques na caixa.
+- **Lógica de Interação:**
+    - O Hook `useMapEngine` calcula a posição à frente do jogador baseado na sua `direction`.
+    - Se houver um NPC nessa coordenada, a função `interact()` retorna os dados do personagem para o estado global.
+- **Prevenção de Conflitos:** Batalhas aleatórias são desabilitadas automaticamente enquanto um diálogo está ativo para evitar interrupções na narrativa.
 
 ---
 **Documentação atualizada pelo Gemini CLI em 10/03/2026.**

@@ -5,7 +5,7 @@ export interface MapData {
   height: number;
   tiles: number[][];
   playerStart: { x: number; y: number };
-  npcs: any[];
+  npcs: { id: string, name: string, tileX: number, tileY: number, dialog: string[] }[];
   chests: any[];
   exits: any[];
 }
@@ -33,13 +33,12 @@ export const world1Map: MapData = {
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 2, y: 2 },
-  npcs: [
-    { id: "pep8_intro", tileX: 8, tileY: 6, dialog: ["Olá, Recruta!", "Bem-vindo à Floresta das Variáveis."] }
-  ],
+  npcs: [],
   chests: [
     { tileX: 8, tileY: 9, reward: { xp: 50, gold: 20 }, opened: false }
   ],
   exits: [
+    { tileX: 0, tileY: 6, targetMap: "village", targetX: 17, targetY: 6 },
     { tileX: 18, tileY: 13, targetMap: "world2", targetX: 1, targetY: 1 }
   ]
-};
+  };

@@ -4,15 +4,27 @@ import { sounds } from '../lib/sounds';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-export function useMapEngine(map: MapData, onEncounter?: () => void) {
+export function useMapEngine(map: MapData, onEncounter?: () => void, onPortal?: (targetMap: string, x: number, y: number) => void) {
   const [playerPos, setPlayerPos] = useState(map.playerStart);
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
 
+  // Atualiza a posição inicial sempre que o mapa mudar
+  useEffect(() => {
+    setPlayerPos(map.playerStart);
+  }, [map]);
+
   const canMoveTo = useCallback((x: number, y: number) => {
     if (x < 0 || x >= map.width || y < 0 || y >= map.height) return false;
+    
+    // Colisão com tiles bloqueados
     const tile = map.tiles[y][x];
     if ([3, 4, 5].includes(tile)) return false;
+
+    // Colisão com NPCs
+    const npcAtPos = map.npcs.find(npc => npc.tileX === x && npc.tileY === y);
+    if (npcAtPos) return false;
+
     return true;
   }, [map]);
 
@@ -34,7 +46,16 @@ export function useMapEngine(map: MapData, onEncounter?: () => void) {
       sounds.playStep();
       
       const targetTile = map.tiles[newY][newX];
-      if (targetTile === 1 && onEncounter) {
+      
+      // Portal de Saída (ID 6)
+      if (targetTile === 6 || map.exits.some(e => e.tileX === newX && e.tileY === newY)) {
+        const exit = map.exits.find(e => e.tileX === newX && e.tileY === newY);
+        if (exit && onPortal) {
+           setTimeout(() => onPortal(exit.targetMap, exit.targetX, exit.targetY), 200);
+        }
+      } 
+      // Grama Alta (Encontros Aleatórios)
+      else if (targetTile === 1 && onEncounter) {
         if (Math.random() < 0.2) {
           setTimeout(() => onEncounter(), 200);
         }
@@ -42,7 +63,20 @@ export function useMapEngine(map: MapData, onEncounter?: () => void) {
       
       setTimeout(() => setIsMoving(false), 150);
     }
-  }, [playerPos, isMoving, canMoveTo, map, onEncounter]);
+  }, [playerPos, isMoving, canMoveTo, map, onEncounter, onPortal]);
+
+  const interact = useCallback(() => {
+    let checkX = playerPos.x;
+    let checkY = playerPos.y;
+
+    if (direction === 'up') checkY -= 1;
+    if (direction === 'down') checkY += 1;
+    if (direction === 'left') checkX -= 1;
+    if (direction === 'right') checkX += 1;
+
+    const npc = map.npcs.find(n => n.tileX === checkX && n.tileY === checkY);
+    return npc || null;
+  }, [playerPos, direction, map.npcs]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -57,5 +91,5 @@ export function useMapEngine(map: MapData, onEncounter?: () => void) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [move]);
 
-  return { playerPos, direction, isMoving, move };
+  return { playerPos, direction, isMoving, move, interact };
 }
