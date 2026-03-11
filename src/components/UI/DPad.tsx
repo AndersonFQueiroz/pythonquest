@@ -1,5 +1,5 @@
 import React from 'react';
-import { Direction } from '../../hooks/useMapEngine';
+import type { Direction } from '../../hooks/useMapEngine';
 
 interface DPadProps {
   onMove: (dir: Direction) => void;

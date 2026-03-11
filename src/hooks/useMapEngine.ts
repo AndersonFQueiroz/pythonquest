@@ -1,21 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
-import { MapData } from '../maps/world1';
+import type { MapData } from '../maps/world1';
+import { sounds } from '../lib/sounds';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-export function useMapEngine(map: MapData) {
+export function useMapEngine(map: MapData, onEncounter?: () => void) {
   const [playerPos, setPlayerPos] = useState(map.playerStart);
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
 
   const canMoveTo = useCallback((x: number, y: number) => {
-    // Limites do mapa
     if (x < 0 || x >= map.width || y < 0 || y >= map.height) return false;
-    
-    // Colisão com tiles bloqueados (3: árvore, 4: água, 5: parede)
     const tile = map.tiles[y][x];
     if ([3, 4, 5].includes(tile)) return false;
-
     return true;
   }, [map]);
 
@@ -34,11 +31,18 @@ export function useMapEngine(map: MapData) {
     if (canMoveTo(newX, newY)) {
       setIsMoving(true);
       setPlayerPos({ x: newX, y: newY });
+      sounds.playStep();
       
-      // Simula o tempo de caminhada de 1 tile (debounce)
+      const targetTile = map.tiles[newY][newX];
+      if (targetTile === 1 && onEncounter) {
+        if (Math.random() < 0.2) {
+          setTimeout(() => onEncounter(), 200);
+        }
+      }
+      
       setTimeout(() => setIsMoving(false), 150);
     }
-  }, [playerPos, isMoving, canMoveTo]);
+  }, [playerPos, isMoving, canMoveTo, map, onEncounter]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

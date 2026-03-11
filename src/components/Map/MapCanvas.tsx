@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from 'react';
-import { MapData } from '../../maps/world1';
+import type { MapData } from '../../maps/world1';
 import { useMapEngine } from '../../hooks/useMapEngine';
+import { useGameStore } from '../../hooks/useGameStore';
 import DPad from '../UI/DPad';
 
 interface MapCanvasProps {
   map: MapData;
+  onEncounter?: () => void;
 }
 
 const TILE_SIZE = 32;
@@ -23,9 +25,13 @@ const TILE_COLORS: Record<number, string> = {
   9: '#0f380f', // Boss
 };
 
-const MapCanvas: React.FC<MapCanvasProps> = ({ map }) => {
+const MapCanvas: React.FC<MapCanvasProps> = ({ map, onEncounter }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { playerPos, move } = useMapEngine(map);
+  const { playerPos, move, isMoving } = useMapEngine(map, onEncounter);
+  
+  // Pegando os estados separadamente para evitar re-renders infinitos
+  const playerName = useGameStore(state => state.name);
+  const playerColor = useGameStore(state => state.color);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,7 +39,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map }) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Cálculo da Câmera (Offset)
     const cameraX = Math.max(0, Math.min(
       playerPos.x * TILE_SIZE - VIEWPORT_W / 2 + TILE_SIZE / 2,
       map.width * TILE_SIZE - VIEWPORT_W
@@ -43,7 +48,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map }) => {
       map.height * TILE_SIZE - VIEWPORT_H
     ));
 
-    // Render Loop
     const render = () => {
       ctx.clearRect(0, 0, VIEWPORT_W, VIEWPORT_H);
 
@@ -52,39 +56,61 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map }) => {
         for (let x = 0; x < map.width; x++) {
           const tile = map.tiles[y][x];
           ctx.fillStyle = TILE_COLORS[tile] || '#000';
-          ctx.fillRect(
-            x * TILE_SIZE - cameraX,
-            y * TILE_SIZE - cameraY,
-            TILE_SIZE,
-            TILE_SIZE
-          );
-          
-          // Desenhar grade leve para debug
-          ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-          ctx.strokeRect(
-            x * TILE_SIZE - cameraX,
-            y * TILE_SIZE - cameraY,
-            TILE_SIZE,
-            TILE_SIZE
-          );
+          ctx.fillRect(x * TILE_SIZE - cameraX, y * TILE_SIZE - cameraY, TILE_SIZE, TILE_SIZE);
         }
       }
 
-      // Desenhar Player (Círculo ou Quadrado por enquanto)
-      ctx.fillStyle = 'red';
-      ctx.fillRect(
-        playerPos.x * TILE_SIZE - cameraX + 4,
-        playerPos.y * TILE_SIZE - cameraY + 4,
-        TILE_SIZE - 8,
-        TILE_SIZE - 8
-      );
+      // DESENHAR PERSONAGEM ANIMADO
+      const px = playerPos.x * TILE_SIZE - cameraX;
+      const py = playerPos.y * TILE_SIZE - cameraY;
+      const walkCycle = isMoving ? Math.sin(Date.now() / 50) * 4 : 0;
+
+      // Sombra
+      ctx.fillStyle = 'rgba(0,0,0,0.2)';
+      ctx.fillRect(px + 8, py + 28, 16, 4);
+
+      // Pernas
+      ctx.fillStyle = 'var(--gb-darkest)';
+      ctx.fillRect(px + 8, py + 24 + (isMoving ? walkCycle : 0), 6, 6);
+      ctx.fillRect(px + 18, py + 24 + (isMoving ? -walkCycle : 0), 6, 6);
+
+      // Braço Esq
+      ctx.fillStyle = playerColor;
+      ctx.fillRect(px + 4, py + 16 + (isMoving ? -walkCycle : 0), 4, 8);
+
+      // Corpo
+      ctx.fillStyle = playerColor;
+      ctx.fillRect(px + 8, py + 16, 16, 12);
+
+      // Braço Dir
+      ctx.fillStyle = playerColor;
+      ctx.fillRect(px + 24, py + 16 + (isMoving ? walkCycle : 0), 4, 8);
+
+      // Cabeça
+      ctx.fillStyle = '#ffdbac';
+      ctx.fillRect(px + 10, py + 4, 12, 12);
+
+      // Cabelo
+      ctx.fillStyle = 'var(--gb-darkest)';
+      ctx.fillRect(px + 10, py + 4, 12, 4);
+
+      // Olhos
+      ctx.fillStyle = 'black';
+      ctx.fillRect(px + 13, py + 8, 2, 2);
+      ctx.fillRect(px + 17, py + 8, 2, 2);
+
+      // NOME DO JOGADOR
+      ctx.fillStyle = 'var(--gb-darkest)';
+      ctx.font = '8px "Press Start 2P"';
+      ctx.textAlign = 'center';
+      ctx.fillText(playerName, px + 16, py - 6);
 
       requestAnimationFrame(render);
     };
 
     const animationId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animationId);
-  }, [playerPos, map]);
+  }, [playerPos, map, playerColor, playerName, isMoving]);
 
   return (
     <div style={{ position: 'relative', width: VIEWPORT_W, height: VIEWPORT_H }}>
