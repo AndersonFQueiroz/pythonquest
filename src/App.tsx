@@ -52,7 +52,7 @@ function App() {
   const { 
     gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
     resetPlayer, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
-    correctedBugs, setUnlockArrow
+    correctedBugs, setUnlockArrow, debugIgnoreBlocks, setDebugIgnoreBlocks
   } = useGameStore();
 
   // Monitora progresso de Bugmons para liberar o próximo Reino
@@ -68,7 +68,6 @@ function App() {
     if (currentBugs) {
         const cleared = currentBugs.every(id => correctedBugs.includes(id));
         if (cleared) {
-            const alreadyCleared = currentBugs.every(id => correctedBugs.includes(id)); // redundante mas ok
             // Só dispara se acabamos de completar
             const count = correctedBugs.filter(id => currentBugs.includes(id)).length;
             if (count === 4) {
@@ -140,7 +139,7 @@ function App() {
       setChestCode(''); setChestError(null);
       setActiveDialog({ name: 'COFRE CORROMPIDO', messages: [chest.description] });
     }
-  }, [activeDialog, activeChest, showNotebook, showShop, currentMap.id, openedChests, addNote]);
+  }, [activeDialog, activeChest, showNotebook, showShop, currentMap.id, openedChests, addNote, hasTerminal]);
 
   const handleExecuteChest = async () => {
     if (!activeChest) return;
@@ -211,8 +210,21 @@ function App() {
       
       {(gameState === 'map' || gameState === 'battle') && (
         <>
-          <div style={{ backgroundColor: '#0f172a', color: '#fff', padding: '5px', fontSize: '7px', textAlign: 'center', borderBottom: '2px solid #3776ab' }}>
+          <div style={{ backgroundColor: '#0f172a', color: '#fff', padding: '5px', fontSize: '7px', textAlign: 'center', borderBottom: '2px solid #3776ab', position: 'relative' }}>
             {hasNotebook ? '[ WASD = Andar | E = Interagir | C = Caderno ]' : '[ WASD = Andar | E/ENTER = Interagir ]'}
+            
+            {/* BOTÃO DEBUG - APENAS PARA TESTES */}
+            <button 
+                onClick={() => setDebugIgnoreBlocks(!debugIgnoreBlocks)}
+                style={{
+                    position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)',
+                    fontSize: '5px', padding: '2px 5px', cursor: 'pointer',
+                    backgroundColor: debugIgnoreBlocks ? '#2ecc71' : '#ff4757',
+                    color: '#fff', border: 'none', borderRadius: '2px', fontFamily: '"Press Start 2P"'
+                }}
+            >
+                {debugIgnoreBlocks ? 'LOCK: OFF' : 'LOCK: ON'}
+            </button>
           </div>
           <StatusBar />
           <div style={{ flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: '#000' }}>

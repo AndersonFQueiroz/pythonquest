@@ -31,6 +31,7 @@ interface PlayerState {
   openedChests: string[];
   correctedBugs: string[];
   showUnlockArrow: boolean;
+  debugIgnoreBlocks: boolean;
   
   merchantLocation: string;
   merchantMessage: string | null;
@@ -51,6 +52,7 @@ interface PlayerState {
   openChest: (chestId: string) => void;
   recordBugDefeat: (bugId: string) => boolean;
   setUnlockArrow: (show: boolean) => void;
+  setDebugIgnoreBlocks: (val: boolean) => void;
   resetPlayer: () => void;
   moveMerchant: () => void;
   clearMerchantMessage: () => void;
@@ -73,6 +75,7 @@ export const useGameStore = create<PlayerState>((set, get) => ({
   openedChests: [],
   correctedBugs: [],
   showUnlockArrow: false,
+  debugIgnoreBlocks: false,
   
   merchantLocation: 'village',
   merchantMessage: null,
@@ -195,6 +198,7 @@ export const useGameStore = create<PlayerState>((set, get) => ({
   setCurrentMap: (mapId) => set({ currentMapId: mapId }),
   openChest: (chestId) => set((state) => ({ openedChests: [...state.openedChests, chestId] })),
   setUnlockArrow: (show) => set({ showUnlockArrow: show }),
+  setDebugIgnoreBlocks: (val) => set({ debugIgnoreBlocks: val }),
   recordBugDefeat: (bugId) => {
     const state = get();
     if (!state.correctedBugs.includes(bugId)) {

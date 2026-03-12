@@ -301,10 +301,44 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(nx + 16, ny + 8 + hover, 6, 0, Math.PI * 2); ctx.fill();
           ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 2 + hover, 12, 4);
           ctx.fillStyle = '#000'; ctx.fillRect(nx + 13, ny + 7 + hover, 2, 2); ctx.fillRect(nx + 17, ny + 7 + hover, 2, 2);
+      } else if (npc.id.startsWith('guard')) {
+          // GUARDAS DE ELITE (DETALHADOS)
+          const plumeColor = isCave ? '#9b59b6' : (isTower ? '#00d2ff' : (isOasis ? '#f1c40f' : '#e74c3c'));
+          // Armadura
+          ctx.fillStyle = '#7f8c8d'; ctx.fillRect(nx + 6, ny + 14, 20, 14); 
+          ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 1; ctx.strokeRect(nx + 6, ny + 14, 20, 14);
+          // Elmo
+          ctx.fillStyle = '#95a5a6'; ctx.fillRect(nx + 10, ny + 4, 12, 10);
+          ctx.fillStyle = '#2c3e50'; ctx.fillRect(nx + 11, ny + 7, 10, 3); // Visor
+          // Pluma do Elmo
+          ctx.fillStyle = plumeColor; ctx.fillRect(nx + 14, ny, 4, 4);
+          // Lança de Energia
+          ctx.strokeStyle = '#bdc3c7'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(nx + 28, ny + 4); ctx.lineTo(nx + 28, ny + 28); ctx.stroke();
+          ctx.fillStyle = plumeColor; ctx.fillRect(nx + 26, ny + 2, 4, 6); // Ponta da lança
       } else {
-          ctx.fillStyle = '#9b59b6'; ctx.fillRect(nx + 8, ny + 16, 16, 12); 
+          // HABITANTES DA VILA DETALHADOS
+          const hairColors = ['#4b2c20', '#6d4c41', '#222', '#d35400'];
+          const shirtColors = ['#3498db', '#2ecc71', '#e67e22', '#9b59b6'];
+          const hair = hairColors[(nx + ny) % hairColors.length];
+          const shirt = shirtColors[(nx * ny) % shirtColors.length];
+          
+          // Tronco e Braços
+          ctx.fillStyle = shirt; ctx.fillRect(nx + 8, ny + 16, 16, 12); 
+          ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 6, ny + 18, 2, 8); ctx.fillRect(nx + 24, ny + 18, 2, 8);
+          // Cabeça
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
-          ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 8, 2, 3); ctx.fillRect(nx + 18, ny + 8, 2, 3);
+          // Cabelo Estilizado
+          ctx.fillStyle = hair;
+          if ((nx + ny) % 2 === 0) {
+              ctx.fillRect(nx + 10, ny + 2, 12, 6); // Cabelo cheio
+          } else {
+              ctx.fillRect(nx + 10, ny + 4, 12, 3); // Cabelo curto
+              ctx.fillRect(nx + 20, ny + 4, 2, 8); // Franja lateral
+          }
+          // Olhos detalhados
+          ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 9, 2, 2); ctx.fillRect(nx + 18, ny + 9, 2, 2);
+          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 12, ny + 9, 1, 1); ctx.fillRect(nx + 18, ny + 9, 1, 1);
       }
       if (npc.name && !['boole', 'iterador', 'genio'].includes(npc.id)) drawLabel(npc.name, nx + 16, ny - 4);
       if (npc.id === 'boole') drawLabel("JUIZ BOOLE", nx + 16, ny - 6, '#3498db');

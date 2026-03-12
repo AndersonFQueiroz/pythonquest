@@ -11,7 +11,7 @@ export function useMapEngine(
   isDisabled: boolean = false,
   onAutoInteract?: (interaction: any) => void
 ) {
-  const { playerPos, setPlayerPos, merchantLocation, correctedBugs } = useGameStore();
+  const { playerPos, setPlayerPos, merchantLocation, correctedBugs, debugIgnoreBlocks } = useGameStore();
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
   
@@ -20,6 +20,8 @@ export function useMapEngine(
   const isMovingRef = useRef(false);
   const lastMoveTime = useRef(0); 
   const MOVE_DELAY = 160; 
+
+  const hasTriggeredUnlockDialog = useRef<Record<string, boolean>>({});
 
   const teleport = useCallback((x: number, y: number) => {
     setPlayerPos({ x, y });
@@ -32,8 +34,18 @@ export function useMapEngine(
     
     if (merchantLocation === map.id && map.merchantPos.x === x && map.merchantPos.y === y) return false;
 
+    // Adiciona bloqueio físico aos guardas destravados se não falarmos com eles ainda
+    if (map.lockConfig && x === map.lockConfig.gatePos.x && y === map.lockConfig.gatePos.y) {
+        const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
+        if (clearedCount >= 4 || debugIgnoreBlocks) {
+             if (!hasTriggeredUnlockDialog.current[map.id]) {
+                 return false;
+             }
+        }
+    }
+
     return !map.npcs.some((npc: any) => npc.tileX === x && npc.tileY === y);
-  }, [map, merchantLocation]);
+  }, [map, merchantLocation, correctedBugs, debugIgnoreBlocks]);
 
   const executeStep = useCallback((dir: Direction | null) => {
     if (!dir || isDisabled || isMovingRef.current) return;
@@ -49,15 +61,29 @@ export function useMapEngine(
     else if (dir === 'left') nx--;
     else if (dir === 'right') nx++;
 
-    // LÓGICA DE BLOQUEIO POR MISSÃO (CUMPRIR REQUISITOS DE BUGMONS)
+    // LÓGICA DE BLOQUEIO POR MISSÃO E FORÇAR DIÁLOGO DE SUCESSO
     if (map.lockConfig && nx === map.lockConfig.gatePos.x && ny === map.lockConfig.gatePos.y) {
         const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
-        if (clearedCount < 4) {
+        
+        // Bloqueado (Ainda não capturou todos)
+        if (clearedCount < 4 && !debugIgnoreBlocks) {
             activeDirRef.current = null;
             keysPressed.current.clear();
             onAutoInteract?.({ 
                 type: 'npc', 
                 data: { name: 'BLOQUEADO', dialog: map.lockConfig.guardDialog } 
+            });
+            return;
+        }
+
+        // Liberado, mas precisa forçar o diálogo de vitória primeiro
+        if ((clearedCount >= 4 || debugIgnoreBlocks) && !hasTriggeredUnlockDialog.current[map.id]) {
+            activeDirRef.current = null;
+            keysPressed.current.clear();
+            hasTriggeredUnlockDialog.current[map.id] = true;
+            onAutoInteract?.({ 
+                type: 'npc', 
+                data: { name: 'GUARDIÃO', dialog: map.lockConfig.unlockDialog } 
             });
             return;
         }
@@ -88,7 +114,7 @@ export function useMapEngine(
         setIsMoving(false);
       }, MOVE_DELAY - 10);
     }
-  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos, playerPos, correctedBugs, onAutoInteract]);
+  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos, playerPos, correctedBugs, onAutoInteract, debugIgnoreBlocks]);
 
   useEffect(() => {
     let frameId: number;
@@ -142,7 +168,7 @@ export function useMapEngine(
         if (npc) {
             // Se for um guarda desbloqueado, usa diálogo de desbloqueio
             if (npc.id.startsWith('guard') && map.lockConfig) {
-                const cleared = map.lockConfig.requiredBugs.every((id: string) => correctedBugs.includes(id));
+                const cleared = debugIgnoreBlocks || map.lockConfig.requiredBugs.every((id: string) => correctedBugs.includes(id));
                 if (cleared) return { type: 'npc', data: { name: npc.name, dialog: map.lockConfig.unlockDialog } };
             }
             return { type: 'npc', data: npc };
@@ -153,7 +179,7 @@ export function useMapEngine(
         if (chest) return { type: 'chest', data: chest };
     }
     return null;
-  }, [playerPos, map, merchantLocation, correctedBugs]);
+  }, [playerPos, map, merchantLocation, correctedBugs, debugIgnoreBlocks]);
 
   return { playerPos, direction, isMoving, move: executeStep, setManualDir: (d: Direction | null) => activeDirRef.current = d, interact, teleport };
 }
