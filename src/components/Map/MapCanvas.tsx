@@ -21,7 +21,7 @@ const VIEWPORT_W = 480;
 const VIEWPORT_H = 352;
 
 const TILE_COLORS: Record<number, string> = {
-  0: '#9bbc0f', 1: '#8bac0f', 2: '#e0f0c0', 3: '#306230', 4: '#0f380f', 5: '#0f380f', 6: '#7f8c8d', 7: '#3498db', 8: '#f1c40f', 10: '#bdc3c7', 11: '#c0392b', 12: '#000000', 13: '#e0f0c0', 14: '#8bac0f', 15: '#e74c3c', 16: '#d35400', 17: '#00d2ff', 18: '#9b59b6', 19: '#e67e22'
+  0: '#9bbc0f', 1: '#8bac0f', 2: '#e0f0c0', 3: '#306230', 4: '#0f380f', 5: '#0f380f', 6: '#7f8c8d', 7: '#3498db', 8: '#f1c40f', 10: '#bdc3c7', 11: '#c0392b', 12: '#000000', 13: '#e0f0c0', 14: '#8bac0f', 15: '#e74c3c', 16: '#d35400', 17: '#00d2ff', 18: '#9b59b6', 19: '#e67e22', 20: '#2ecc71', 21: '#f39c12', 22: '#00d2ff'
 };
 
 const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInteract, onPortal, onOpenNotebook, isDialogActive }) => {
@@ -100,10 +100,13 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
     const isCave = map.id === 'world2';
     const isTower = map.id === 'world3';
+    const isOasis = map.id === 'world4';
+    
     let floorColor = TILE_COLORS[0];
     let pathColor = TILE_COLORS[2];
     if (isCave) { floorColor = '#1e293b'; pathColor = '#334155'; }
     else if (isTower) { floorColor = '#0f172a'; pathColor = '#1e293b'; }
+    else if (isOasis) { floorColor = '#f1c40f'; pathColor = '#e67e22'; }
 
     ctx.fillStyle = floorColor;
     ctx.fillRect(0, 0, VIEWPORT_W, VIEWPORT_H);
@@ -115,10 +118,19 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         const ty = y * TILE_SIZE - cameraY;
         if (tx < -TILE_SIZE || tx > VIEWPORT_W || ty < -TILE_SIZE || ty > VIEWPORT_H) return;
 
+        // CHÃO BASE (0) - Adiciona detalhes sutis na floresta
+        if (tile === 0 && !isCave && !isTower && !isOasis) {
+            ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            ctx.fillRect(tx + 4, ty + 4, 2, 2); ctx.fillRect(tx + 20, ty + 18, 2, 2);
+        }
+
+        // CAMINHOS
         if (tile === 2 || tile === 12) {
           ctx.fillStyle = pathColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
         }
 
+        // MATO
         if (tile === 1) {
           ctx.fillStyle = isCave ? 'rgba(46, 204, 113, 0.2)' : TILE_COLORS[1]; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = isCave ? '#2ecc71' : '#306230';
@@ -128,110 +140,116 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           }
         }
 
-        if (tile === 6) { // PONTES
+        // PONTES / PORTAIS - DETALHADAS
+        if (tile === 6) {
           ctx.fillStyle = '#7f8c8d'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 2; ctx.strokeRect(tx + 2, ty + 2, TILE_SIZE - 4, TILE_SIZE - 4);
           ctx.fillStyle = '#95a5a6'; ctx.fillRect(tx + 4, ty + 6, 10, 6); ctx.fillRect(tx + 18, ty + 12, 10, 6); ctx.fillRect(tx + 6, ty + 22, 12, 4);
           ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(tx, ty + TILE_SIZE - 4, TILE_SIZE, 4);
         }
 
-        if (tile === 7) { // ÁGUA
-          ctx.fillStyle = '#3498db'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+        // ÁGUA
+        if (tile === 7 || tile === 22) {
+          ctx.fillStyle = tile === 22 ? '#00d2ff' : '#3498db';
+          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = 'rgba(255,255,255,0.3)';
-          const wave = Math.sin(now / 500) * 4;
+          const wave = Math.sin(now / 500 + (x+y)) * 4;
           ctx.fillRect(tx + 4 + wave, ty + 8, 8, 2);
           ctx.fillRect(tx + 16 - wave, ty + 20, 8, 2);
         }
 
-        if (tile === 15) { // FLORES
-          const colors = ['#e74c3c', '#f1c40f', '#9b59b6'];
-          ctx.fillStyle = colors[(x + y) % colors.length];
-          ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 4, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 1.5, 0, Math.PI * 2); ctx.fill();
+        // PALMEIRA (REINO 4)
+        if (tile === 20) {
+          ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+          ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14, ty + 16, 4, 16);
+          ctx.fillStyle = '#2ecc71';
+          const sway = Math.sin(now / 800) * 2;
+          ctx.beginPath(); ctx.moveTo(tx + 16 + sway, ty + 4); ctx.lineTo(tx + 4 + sway, ty + 16); ctx.lineTo(tx + 28 + sway, ty + 16); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(tx + 16 - sway, ty + 10); ctx.lineTo(tx + 0 - sway, ty + 22); ctx.lineTo(tx + 32 - sway, ty + 22); ctx.fill();
         }
 
-        if (tile === 16) { // ENGRENAGENS (ANIMADAS)
-          ctx.save();
-          ctx.translate(tx + 16, ty + 16);
-          ctx.rotate((now / 1000) * ( (x+y)%2 === 0 ? 1 : -1 ));
-          ctx.fillStyle = '#7f8c8d';
-          for(let i=0; i<8; i++) {
-              ctx.rotate(Math.PI/4);
-              ctx.fillRect(-12, -12, 24, 24);
+        // DUNAS / PAREDES (21, 4, 5)
+        if (tile === 21 || tile === 4 || tile === 5) {
+          ctx.fillStyle = tile === 21 ? '#f39c12' : (isCave || isTower ? '#334155' : '#0f380f');
+          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+          if (isCave || isTower || isOasis) {
+              ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
+              ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(tx, ty + TILE_SIZE - 4, TILE_SIZE, 4);
           }
-          ctx.fillStyle = '#95a5a6';
-          ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = floorColor;
-          ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
+        }
+
+        // ENGRENAGENS
+        if (tile === 16) {
+          ctx.save(); ctx.translate(tx + 16, ty + 16); ctx.rotate((now / 1000) * ( (x+y)%2 === 0 ? 1 : -1 ));
+          ctx.fillStyle = '#7f8c8d';
+          for(let i=0; i<8; i++) { ctx.rotate(Math.PI/4); ctx.fillRect(-12, -12, 24, 24); }
+          ctx.fillStyle = '#95a5a6'; ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = floorColor; ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI*2); ctx.fill();
           ctx.restore();
         }
 
-        if (tile === 17) { // CIRCUITOS NEON
+        // CIRCUITOS
+        if (tile === 17) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2;
-          ctx.globalAlpha = 0.3 + Math.sin(now / 300) * 0.2;
-          ctx.beginPath();
-          ctx.moveTo(tx, ty + 16); ctx.lineTo(tx + 32, ty + 16);
+          ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.globalAlpha = 0.3 + Math.sin(now / 300) * 0.2;
+          ctx.beginPath(); ctx.moveTo(tx, ty + 16); ctx.lineTo(tx + 32, ty + 16);
           if ((x+y)%2 === 0) { ctx.moveTo(tx + 16, ty); ctx.lineTo(tx + 16, ty + 32); }
-          ctx.stroke();
-          ctx.globalAlpha = 1.0;
-          ctx.fillStyle = '#00d2ff'; ctx.fillRect(tx + 14, ty + 14, 4, 4);
+          ctx.stroke(); ctx.globalAlpha = 1.0; ctx.fillStyle = '#00d2ff'; ctx.fillRect(tx + 14, ty + 14, 4, 4);
         }
 
-        if (tile === 18) { // CRISTAIS (CAVERNA)
+        // CRISTAIS
+        if (tile === 18) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.fillStyle = '#9b59b6';
-          const glow = 0.5 + Math.sin(now / 400) * 0.5;
-          ctx.globalAlpha = glow;
-          ctx.beginPath();
-          ctx.moveTo(tx + 16, ty + 4);
-          ctx.lineTo(tx + 24, ty + 24);
-          ctx.lineTo(tx + 8, ty + 24);
-          ctx.fill();
-          ctx.globalAlpha = 1.0;
-          ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
-          ctx.stroke();
+          ctx.fillStyle = '#9b59b6'; const glow = 0.5 + Math.sin(now / 400) * 0.5;
+          ctx.globalAlpha = glow; ctx.beginPath(); ctx.moveTo(tx + 16, ty + 4); ctx.lineTo(tx + 24, ty + 24); ctx.lineTo(tx + 8, ty + 24); ctx.fill();
+          ctx.globalAlpha = 1.0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
         }
 
-        if (tile === 19) { // MAGMA / LAVA (ANIMADO)
+        // MAGMA
+        if (tile === 19) {
           ctx.fillStyle = '#e67e22'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.fillStyle = '#d35400';
-          const flow = Math.sin(now / 600) * 6;
-          ctx.fillRect(tx + 4 + flow, ty + 4, 12, 4);
-          ctx.fillRect(tx + 16 - flow, ty + 20, 12, 4);
+          ctx.fillStyle = '#d35400'; const flow = Math.sin(now / 600) * 6;
+          ctx.fillRect(tx + 4 + flow, ty + 4, 12, 4); ctx.fillRect(tx + 16 - flow, ty + 20, 12, 4);
         }
 
-        if (tile === 10) { // PAREDES CASA
+        // CASAS (10, 11)
+        if (tile === 10) {
           ctx.fillStyle = '#bdc3c7'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#95a5a6'; ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(tx, ty+10); ctx.lineTo(tx+TILE_SIZE, ty+10); ctx.moveTo(tx, ty+20); ctx.lineTo(tx+TILE_SIZE, ty+20); ctx.stroke();
           if (x % 2 === 0) { ctx.fillStyle = '#2c3e50'; ctx.fillRect(tx + 10, ty + 4, 12, 10); ctx.strokeStyle = '#fff'; ctx.strokeRect(tx + 10, ty + 4, 12, 10); }
         }
-
-        if (tile === 11) { // TELHADO CASA
+        if (tile === 11) {
           ctx.fillStyle = '#c0392b'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#96281b'; ctx.beginPath();
           for(let i=0; i<TILE_SIZE; i+=8) { ctx.moveTo(tx + i, ty); ctx.lineTo(tx + i, ty + TILE_SIZE); }
           for(let j=0; j<TILE_SIZE; j+=8) { ctx.moveTo(tx, ty + j); ctx.lineTo(tx + TILE_SIZE, ty + j); }
-          ctx.stroke();
-          ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
+          ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
         }
 
-        if (tile === 3) {
-          const sway = Math.sin(now / 1000) * 2;
-          ctx.fillStyle = isCave ? '#475569' : '#306230'; ctx.fillRect(tx + sway, ty, TILE_SIZE, TILE_SIZE);
-        }
-
-        if (tile === 4 || tile === 5) {
-          ctx.fillStyle = isCave || isTower ? '#334155' : '#0f380f'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-        }
-
+        // PLACA (13) e FLORES (15)
         if (tile === 13) {
           ctx.fillStyle = '#4b2c20'; ctx.fillRect(tx + 14, ty + 16, 4, 16); 
           ctx.fillStyle = '#fdf6e3'; ctx.fillRect(tx + 4, ty + 6, 24, 14); 
           ctx.strokeStyle = '#4b2c20'; ctx.lineWidth = 2; ctx.strokeRect(tx + 4, ty + 6, 24, 14);
         }
+        if (tile === 15) {
+          const colors = ['#e74c3c', '#f1c40f', '#9b59b6']; ctx.fillStyle = colors[(x + y) % colors.length];
+          ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 4, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 1.5, 0, Math.PI * 2); ctx.fill();
+        }
 
+        // ÁRVORE DETALHADA (3) - Restaurando detalhes do Reino 1
+        if (tile === 3) {
+          const sway = Math.sin(now / 1000) * 2;
+          ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14 + sway, ty + 16, 4, 16); // Tronco
+          ctx.fillStyle = isCave ? '#475569' : '#306230';
+          ctx.beginPath(); ctx.arc(tx + 16 + sway, ty + 12, 10, 0, Math.PI * 2); ctx.fill(); // Copa
+          ctx.beginPath(); ctx.arc(tx + 8 + sway, ty + 18, 8, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(tx + 24 + sway, ty + 18, 8, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // BAÚ (8)
         if (tile === 8) {
           const isOpen = openedChests.includes(`${map.id}_${x}_${y}`);
           ctx.fillStyle = isOpen ? '#306230' : '#141e30'; ctx.fillRect(tx + 4, ty + 12, 24, 16);
@@ -240,6 +258,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       });
     });
 
+    // 3. MERCADOR
     if (isMerchantHere) {
         const mx = Math.floor(map.merchantPos.x * TILE_SIZE - cameraX);
         const my = Math.floor(map.merchantPos.y * TILE_SIZE - cameraY);
@@ -248,75 +267,66 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         ctx.fillStyle = '#d35400'; ctx.fillRect(mx + 4, my + 14, 4, 12); ctx.fillRect(mx + 24, my + 14, 4, 12);
         ctx.fillStyle = '#ff8c00'; ctx.fillRect(mx + 8, my + 2, 16, 12);
         ctx.fillStyle = '#0f172a'; ctx.fillRect(mx + 10, my + 5, 12, 7);
-        ctx.fillStyle = '#00d2ff';
-        const eyeGlow = 0.4 + Math.sin(now / 200) * 0.4;
-        ctx.globalAlpha = eyeGlow;
+        ctx.fillStyle = '#00d2ff'; ctx.globalAlpha = 0.4 + Math.sin(now / 200) * 0.4;
         ctx.fillRect(mx + 12, my + 7, 2, 2); ctx.fillRect(mx + 18, my + 7, 2, 2);
         ctx.globalAlpha = 1.0;
         drawLabel("MERCADOR", mx + 16, my - 6, '#ff8c00');
     }
 
+    // 4. NPCs
     map.npcs.forEach(npc => {
       const nx = Math.floor(npc.tileX * TILE_SIZE - cameraX);
       const ny = Math.floor(npc.tileY * TILE_SIZE - cameraY);
       if (nx < -TILE_SIZE || nx > VIEWPORT_W || ny < -TILE_SIZE || ny > VIEWPORT_H) return;
-      
-      // Sombra base para todos
       ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(nx + 8, ny + 28, 16, 4);
 
       if (npc.id === 'pep8') {
-          // MENTORA PEP-8
           ctx.fillStyle = '#2e7d32'; ctx.fillRect(nx + 6, ny + 14, 20, 14); 
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
           ctx.fillStyle = '#e0e0e0'; ctx.fillRect(nx + 10, ny + 2, 12, 6);
           ctx.fillRect(nx + 8, ny + 4, 4, 10); ctx.fillRect(nx + 20, ny + 4, 4, 10);
           ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 9, 2, 2); ctx.fillRect(nx + 18, ny + 9, 2, 2);
       } else if (npc.id === 'aloca') {
-          // ALQUIMISTA ALOCA (Reino 1)
-          ctx.fillStyle = '#8e44ad'; ctx.fillRect(nx + 8, ny + 14, 16, 14); // Túnica roxa
-          ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12); // Rosto
-          ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 4, 12, 3); // Cabelo loiro
-          // Potes flutuantes
+          ctx.fillStyle = '#8e44ad'; ctx.fillRect(nx + 8, ny + 14, 16, 14); 
+          ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
+          ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 4, 12, 3);
           const pots = ['#e74c3c', '#3498db', '#f1c40f'];
           pots.forEach((color, i) => {
               const offX = Math.sin(now / 400 + i) * 15;
               const offY = Math.cos(now / 400 + i) * 10 - 10;
               ctx.fillStyle = color; ctx.fillRect(nx + 16 + offX, ny + 16 + offY, 6, 8);
-              ctx.fillStyle = 'white'; ctx.font = '4px monospace'; ctx.fillText("VNO"[i], nx + 18 + offX, ny + 22 + offY);
           });
       } else if (npc.id === 'boole') {
-          // JUIZ BOOLE (Reino 2)
-          ctx.fillStyle = '#34495e'; ctx.fillRect(nx + 4, ny + 2, 24, 28); // Base de pedra
-          // Lado True (Azul)
+          ctx.fillStyle = '#34495e'; ctx.fillRect(nx + 4, ny + 2, 24, 28);
           ctx.fillStyle = '#3498db'; ctx.fillRect(nx + 4, ny + 2, 12, 28);
-          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 6, ny + 10, 3, 3); // Olho azul
-          // Lado False (Vermelho)
           ctx.fillStyle = '#e74c3c'; ctx.fillRect(nx + 16, ny + 2, 12, 28);
-          ctx.fillStyle = '#000'; ctx.fillRect(nx + 23, ny + 10, 3, 3); // Olho vermelho
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(nx + 4, ny + 2, 24, 28);
       } else if (npc.id === 'iterador') {
-          // ITERADOR-X (Reino 3)
           const shakeX = Math.sin(now / 50) * 2;
-          ctx.fillStyle = '#7f8c8d'; ctx.fillRect(nx + 8 + shakeX, ny + 14, 16, 14); // Corpo
-          ctx.fillStyle = '#2c3e50'; ctx.fillRect(nx + 6 + shakeX, ny + 4, 20, 14); // Cabeça Monitor
+          ctx.fillStyle = '#7f8c8d'; ctx.fillRect(nx + 8 + shakeX, ny + 14, 16, 14);
+          ctx.fillStyle = '#2c3e50'; ctx.fillRect(nx + 6 + shakeX, ny + 4, 20, 14);
           ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.strokeRect(nx + 6 + shakeX, ny + 4, 20, 14);
-          ctx.fillStyle = '#00d2ff'; ctx.font = '10px Arial'; ctx.fillText("∞", nx + 16 + shakeX, ny + 14); // Símbolo Infinito
-          // Engrenagem no peito
-          ctx.save();
-          ctx.translate(nx + 16 + shakeX, ny + 21);
-          ctx.rotate(now / 200);
-          ctx.fillStyle = '#d35400'; ctx.fillRect(-4, -4, 8, 8);
-          ctx.restore();
+          ctx.fillStyle = '#00d2ff'; ctx.font = '10px Arial'; ctx.fillText("∞", nx + 16 + shakeX, ny + 14);
+      } else if (npc.id === 'genio') {
+          const hover = Math.sin(now / 300) * 5;
+          ctx.fillStyle = 'rgba(155, 89, 182, 0.4)'; ctx.beginPath(); ctx.arc(nx + 16, ny + 24, 12, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#9b59b6'; ctx.beginPath(); ctx.moveTo(nx + 8, ny + 20 + hover);
+          ctx.quadraticCurveTo(nx + 16, ny + 32 + hover, nx + 24, ny + 20 + hover); ctx.lineTo(nx + 20, ny + 10 + hover); ctx.lineTo(nx + 12, ny + 10 + hover); ctx.fill();
+          ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(nx + 16, ny + 8 + hover, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 2 + hover, 12, 4);
+          ctx.fillStyle = '#000'; ctx.fillRect(nx + 13, ny + 7 + hover, 2, 2); ctx.fillRect(nx + 17, ny + 7 + hover, 2, 2);
       } else {
           ctx.fillStyle = '#9b59b6'; ctx.fillRect(nx + 8, ny + 16, 16, 12); 
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
           ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 8, 2, 3); ctx.fillRect(nx + 18, ny + 8, 2, 3);
       }
-      if (npc.name && npc.id !== 'boole' && npc.id !== 'iterador') drawLabel(npc.name, nx + 16, ny - 4);
+      if (npc.name && !['boole', 'iterador', 'genio'].includes(npc.id)) drawLabel(npc.name, nx + 16, ny - 4);
       if (npc.id === 'boole') drawLabel("JUIZ BOOLE", nx + 16, ny - 6, '#3498db');
       if (npc.id === 'iterador') drawLabel("ITERADOR-X", nx + 16, ny - 6, '#00d2ff');
+      if (npc.id === 'genio') drawLabel("GÊNIO DEF", nx + 16, ny - 12 + Math.sin(now / 300) * 5, '#f1c40f');
     });
 
+    // PLAYER
     const px = Math.floor(playerPos.x * TILE_SIZE - cameraX);
     const py = Math.floor(playerPos.y * TILE_SIZE - cameraY);
     const walkCycle = isMoving ? Math.sin(now / 100) * 4 : 0;

@@ -63,7 +63,8 @@ export const world3Map: MapData = {
 ] }
   ],
   exits: [
-    { tileX: 0, tileY: 7, targetMap: "world2", targetX: 9, targetY: 10 }
+    { tileX: 0, tileY: 7, targetMap: "world2", targetX: 9, targetY: 10 },
+    { tileX: 7, tileY: 18, targetMap: "world4", targetX: 1, targetY: 7 }
   ],
   merchantPos: { x: 10, y: 4 }
 };

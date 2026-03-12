@@ -10,6 +10,7 @@ import { world1Map } from './maps/world1';
 import { villageMap } from './maps/village';
 import { world2Map } from './maps/world2';
 import { world3Map } from './maps/world3';
+import { world4Map } from './maps/world4';
 import { sounds } from './lib/sounds';
 import { logger } from './lib/logger'; // Importar logger
 import { useGameStore } from './hooks/useGameStore';
@@ -136,6 +137,7 @@ function App() {
       if (targetMapId === 'world1') target = world1Map;
       else if (targetMapId === 'world2') target = world2Map;
       else if (targetMapId === 'world3') target = world3Map;
+      else if (targetMapId === 'world4') target = world4Map;
       else target = villageMap;
       setCurrentMap(target);
       setPlayerPos({ x, y });
