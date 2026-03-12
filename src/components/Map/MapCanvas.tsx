@@ -34,7 +34,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     isDialogActive ? undefined : onEncounter, 
     isDialogActive ? undefined : onPortal, 
     isDialogActive,
-    onInteract // Passado para diálogos automáticos
+    onInteract 
   );
   
   const { name: playerName, color: playerColor, hasTerminal, hasNotebook, openedChests, correctedBugs, merchantLocation, showUnlockArrow } = useGameStore();
@@ -43,8 +43,8 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
   useEffect(() => {
     if (map.id === 'final_boss' && bossStage === 'sitting') {
-        const dist = Math.abs(playerPos.x - 10) + Math.abs(playerPos.y - 10);
-        if (dist <= 4) {
+        const dist = Math.abs(playerPos.x - 12) + Math.abs(playerPos.y - 10);
+        if (dist <= 5) {
             setBossStage('rising');
             setTimeout(() => {
                 setBossStage('standing');
@@ -81,10 +81,8 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isDialogActive) return;
-      
       const target = e.target as HTMLElement;
       if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') return;
-
       if (e.key.toLowerCase() === 'e' || e.key === 'Enter') handleInteractBtn();
       if (e.key.toLowerCase() === 'b') setShowBugDex(prev => !prev);
     };
@@ -119,6 +117,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     const isTower = map.id === 'world3';
     const isOasis = map.id === 'world4';
     const isCastle = map.id === 'world5';
+    const isFinal = map.id === 'final_boss';
     
     let floorColor = TILE_COLORS[0];
     let pathColor = TILE_COLORS[2];
@@ -126,6 +125,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     else if (isTower) { floorColor = '#0f172a'; pathColor = '#1e293b'; }
     else if (isOasis) { floorColor = '#f1c40f'; pathColor = '#e67e22'; }
     else if (isCastle) { floorColor = '#1e293b'; pathColor = '#3776ab'; }
+    else if (isFinal) { floorColor = '#000'; pathColor = '#c0392b'; }
 
     ctx.fillStyle = floorColor;
     ctx.fillRect(0, 0, VIEWPORT_W, VIEWPORT_H);
@@ -140,18 +140,15 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         // CHÃO BASE (0)
         if (tile === 0) {
             ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-            if (!isCave && !isTower && !isOasis && !isCastle) {
-                ctx.fillStyle = 'rgba(0,0,0,0.05)';
-                ctx.fillRect(tx + 4, ty + 4, 2, 2); ctx.fillRect(tx + 20, ty + 18, 2, 2);
+            if (isFinal) {
+                ctx.strokeStyle = '#96281b'; ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(tx, ty + 16); ctx.lineTo(tx + 32, ty + 16); ctx.moveTo(tx + 16, ty); ctx.lineTo(tx + 16, ty + 32); ctx.stroke();
             }
         }
 
         // CAMINHOS (2, 12)
         if (tile === 2 || tile === 12) {
           ctx.fillStyle = pathColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          if (isCastle) {
-              ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.strokeRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          }
         }
 
         // MATO (1)
@@ -167,22 +164,14 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
         // PORTAIS / PONTES (6)
         if (tile === 6) {
-          ctx.fillStyle = isCastle ? '#ffd43b' : '#7f8c8d';
+          ctx.fillStyle = isCastle ? '#ffd43b' : (isFinal ? '#c0392b' : '#7f8c8d');
           ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 2; ctx.strokeRect(tx + 2, ty + 2, TILE_SIZE - 4, TILE_SIZE - 4);
-          if (isCastle) {
-              const glow = 0.5 + Math.sin(now/200)*0.5;
-              ctx.fillStyle = `rgba(255, 212, 59, ${glow})`;
-              ctx.fillRect(tx + 4, ty + 4, TILE_SIZE - 8, TILE_SIZE - 8);
-          } else {
-              ctx.fillStyle = '#95a5a6'; ctx.fillRect(tx + 4, ty + 6, 10, 6); ctx.fillRect(tx + 18, ty + 12, 10, 6);
-          }
-          ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(tx, ty + TILE_SIZE - 4, TILE_SIZE, 4);
         }
 
-        // ÁGUA (7, 22)
-        if (tile === 7 || tile === 22) {
-          ctx.fillStyle = tile === 22 ? '#00d2ff' : '#3498db';
+        // ÁGUA / MAGMA (7, 22, 19)
+        if (tile === 7 || tile === 22 || tile === 19) {
+          ctx.fillStyle = tile === 19 ? '#c0392b' : (tile === 22 ? '#00d2ff' : '#3498db');
           ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = 'rgba(255,255,255,0.3)';
           const wave = Math.sin(now / 500 + (x+y)) * 4;
@@ -190,64 +179,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillRect(tx + 16 - wave, ty + 20, 8, 2);
         }
 
-        // PALMEIRA (20)
-        if (tile === 20) {
-          ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14, ty + 16, 4, 16);
-          ctx.fillStyle = '#2ecc71';
-          const sway = Math.sin(now / 800) * 2;
-          ctx.beginPath(); ctx.moveTo(tx + 16 + sway, ty + 4); ctx.lineTo(tx + 4 + sway, ty + 16); ctx.lineTo(tx + 28 + sway, ty + 16); ctx.fill();
-          ctx.beginPath(); ctx.moveTo(tx + 16 - sway, ty + 10); ctx.lineTo(tx + 0 - sway, ty + 22); ctx.lineTo(tx + 32 - sway, ty + 22); ctx.fill();
-        }
-
-        // MARMORIZADO / CRISTAL FLOOR (23)
-        if (tile === 23) {
-            ctx.fillStyle = '#f8fafc'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-            ctx.strokeStyle = '#e2e8f0'; ctx.strokeRect(tx, ty, TILE_SIZE, TILE_SIZE);
-            ctx.fillStyle = 'rgba(55, 118, 171, 0.05)'; ctx.fillRect(tx + 4, ty + 4, 24, 24);
-        }
-
-        // CIRCUITOS OURO (24)
-        if (tile === 24) {
-            ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-            ctx.strokeStyle = '#ffd43b'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(tx, ty + 16); ctx.lineTo(tx + 32, ty + 16);
-            if ((x+y)%2 === 0) { ctx.moveTo(tx + 16, ty); ctx.lineTo(tx + 16, ty + 32); }
-            ctx.stroke();
-            const glow = 0.5 + Math.sin(now/300)*0.5;
-            ctx.fillStyle = `rgba(255, 212, 59, ${glow})`;
-            ctx.fillRect(tx + 14, ty + 14, 4, 4);
-        }
-
-        // FLOATING CRYSTALS (25)
-        if (tile === 25) {
-            ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-            const float = Math.sin(now / 600 + (x*y)) * 5;
-            ctx.fillStyle = '#3776ab';
-            ctx.beginPath();
-            ctx.moveTo(tx + 16, ty + 8 + float);
-            ctx.lineTo(tx + 24, ty + 20 + float);
-            ctx.lineTo(tx + 16, ty + 32 + float);
-            ctx.lineTo(tx + 8, ty + 20 + float);
-            ctx.fill();
-            ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-        }
-
-        // DUNAS / PAREDES (21, 4, 5)
-        if (tile === 21 || tile === 4 || tile === 5) {
-          ctx.fillStyle = tile === 21 ? '#f39c12' : (isCave || isTower || isCastle ? '#334155' : '#0f380f');
-          if (isCastle && (tile === 4 || tile === 5)) ctx.fillStyle = '#1e293b';
-          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          if (isCave || isTower || isOasis || isCastle) {
-              ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
-              ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(tx, ty + TILE_SIZE - 4, TILE_SIZE, 4);
-          }
-          if (isCastle) {
-              ctx.strokeStyle = '#3776ab'; ctx.lineWidth = 1; ctx.strokeRect(tx + 4, ty + 4, TILE_SIZE - 8, TILE_SIZE - 8);
-          }
-        }
-
-        // ENGRENAGENS (16)
+        // REINO 3: ENGRENAGENS (16)
         if (tile === 16) {
           ctx.save(); ctx.translate(tx + 16, ty + 16); ctx.rotate((now / 1000) * ( (x+y)%2 === 0 ? 1 : -1 ));
           ctx.fillStyle = '#7f8c8d';
@@ -257,7 +189,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.restore();
         }
 
-        // CIRCUITOS NEON (17)
+        // REINO 2: CIRCUITOS NEON (17) / CRISTAIS (18)
         if (tile === 17) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.globalAlpha = 0.3 + Math.sin(now / 300) * 0.2;
@@ -265,8 +197,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           if ((x+y)%2 === 0) { ctx.moveTo(tx + 16, ty); ctx.lineTo(tx + 16, ty + 32); }
           ctx.stroke(); ctx.globalAlpha = 1.0; ctx.fillStyle = '#00d2ff'; ctx.fillRect(tx + 14, ty + 14, 4, 4);
         }
-
-        // CRISTAIS (18)
         if (tile === 18) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = '#9b59b6'; const glow = 0.5 + Math.sin(now / 400) * 0.5;
@@ -274,56 +204,43 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.globalAlpha = 1.0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
         }
 
-        // MAGMA (19)
-        if (tile === 19) {
-          ctx.fillStyle = '#e67e22'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.fillStyle = '#d35400'; const flow = Math.sin(now / 600) * 6;
-          ctx.fillRect(tx + 4 + flow, ty + 4, 12, 4); ctx.fillRect(tx + 16 - flow, ty + 20, 12, 4);
-        }
+        // REINO 5: MARMORIZADO (23) / CIRCUITOS (24) / CRYSTALS (25)
+        if (tile === 23) { ctx.fillStyle = '#f8fafc'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#e2e8f0'; ctx.strokeRect(tx, ty, TILE_SIZE, TILE_SIZE); }
+        if (tile === 24) { ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#ffd43b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(tx, ty + 16); ctx.lineTo(tx + 32, ty + 16); ctx.stroke(); }
+        if (tile === 25) { ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); const float = Math.sin(now / 600 + (x*y)) * 5; ctx.fillStyle = '#3776ab'; ctx.beginPath(); ctx.moveTo(tx + 16, ty + 8 + float); ctx.lineTo(tx + 24, ty + 20 + float); ctx.lineTo(tx + 16, ty + 32 + float); ctx.lineTo(tx + 8, ty + 20 + float); ctx.fill(); }
 
-        // CASAS (10, 11)
-        if (tile === 10) {
-          ctx.fillStyle = '#bdc3c7'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.strokeStyle = '#95a5a6'; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(tx, ty+10); ctx.lineTo(tx+TILE_SIZE, ty+10); ctx.moveTo(tx, ty+20); ctx.lineTo(tx+TILE_SIZE, ty+20); ctx.stroke();
-          if (x % 2 === 0) { ctx.fillStyle = '#2c3e50'; ctx.fillRect(tx + 10, ty + 4, 12, 10); ctx.strokeStyle = '#fff'; ctx.strokeRect(tx + 10, ty + 4, 12, 10); }
-        }
-        if (tile === 11) {
-          ctx.fillStyle = '#c0392b'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-          ctx.strokeStyle = '#96281b'; ctx.beginPath();
-          for(let i=0; i<TILE_SIZE; i+=8) { ctx.moveTo(tx + i, ty); ctx.lineTo(tx + i, ty + TILE_SIZE); }
-          for(let j=0; j<TILE_SIZE; j+=8) { ctx.moveTo(tx, ty + j); ctx.lineTo(tx + TILE_SIZE, ty + j); }
-          ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
-        }
+        // REINO 4: PALMEIRA (20) / DUNAS (21)
+        if (tile === 20) { ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14, ty + 16, 4, 16); ctx.fillStyle = '#2ecc71'; const sway = Math.sin(now / 800) * 2; ctx.beginPath(); ctx.moveTo(tx + 16 + sway, ty + 4); ctx.lineTo(tx + 4 + sway, ty + 16); ctx.lineTo(tx + 28 + sway, ty + 16); ctx.fill(); ctx.beginPath(); ctx.moveTo(tx + 16 - sway, ty + 10); ctx.lineTo(tx + 0 - sway, ty + 22); ctx.lineTo(tx + 32 - sway, ty + 22); ctx.fill(); }
+        if (tile === 21) { ctx.fillStyle = '#f39c12'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4); }
 
-        // PLACA (13) e FLORES (15)
-        if (tile === 13) {
-          ctx.fillStyle = '#4b2c20'; ctx.fillRect(tx + 14, ty + 16, 4, 16); 
-          ctx.fillStyle = '#fdf6e3'; ctx.fillRect(tx + 4, ty + 6, 24, 14); 
-          ctx.strokeStyle = '#4b2c20'; ctx.lineWidth = 2; ctx.strokeRect(tx + 4, ty + 6, 24, 14);
-        }
-        if (tile === 15) {
-          const colors = ['#e74c3c', '#f1c40f', '#9b59b6']; ctx.fillStyle = colors[(x + y) % colors.length];
-          ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 4, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 1.5, 0, Math.PI * 2); ctx.fill();
+        // PAREDES / SÓLIDOS (4, 5)
+        if (tile === 4 || tile === 5) {
+          ctx.fillStyle = isCave || isTower || isCastle || isFinal ? '#334155' : '#0f380f';
+          if (isFinal) ctx.fillStyle = '#1a1a1a';
+          ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
+          if (isCave || isTower || isOasis || isCastle || isFinal) {
+              ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
+              ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(tx, ty + TILE_SIZE - 4, TILE_SIZE, 4);
+          }
         }
 
         // ÁRVORE (3)
         if (tile === 3) {
           const sway = Math.sin(now / 1000) * 2;
-          ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14 + sway, ty + 16, 4, 16); 
-          ctx.fillStyle = isCave ? '#475569' : '#306230';
+          ctx.fillStyle = '#795548'; // Tronco
+          ctx.fillRect(tx + 14 + sway, ty + 16, 4, 16); 
+          ctx.fillStyle = isCave ? '#475569' : (isFinal ? '#000' : '#306230');
+          // Copa da árvore (3 círculos)
           ctx.beginPath(); ctx.arc(tx + 16 + sway, ty + 12, 10, 0, Math.PI * 2); ctx.fill(); 
           ctx.beginPath(); ctx.arc(tx + 8 + sway, ty + 18, 8, 0, Math.PI * 2); ctx.fill();
           ctx.beginPath(); ctx.arc(tx + 24 + sway, ty + 18, 8, 0, Math.PI * 2); ctx.fill();
         }
 
-        // BAÚ (8)
-        if (tile === 8) {
-          const isOpen = openedChests.includes(`${map.id}_${x}_${y}`);
-          ctx.fillStyle = isOpen ? '#306230' : '#141e30'; ctx.fillRect(tx + 4, ty + 12, 24, 16);
-          if (!isOpen) { ctx.fillStyle = '#f1c40f'; ctx.fillRect(tx + 4, ty + 14, 24, 4); if (Math.floor(now/200) % 10 < 5) { ctx.fillStyle = '#fff'; ctx.fillRect(tx + 14, ty + 16, 4, 4); } }
-        }
+        // CASAS (10, 11) / PLACA (13) / BAÚ (8)
+        if (tile === 10) { ctx.fillStyle = '#bdc3c7'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#95a5a6'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx, ty+10); ctx.lineTo(tx+TILE_SIZE, ty+10); ctx.moveTo(tx, ty+20); ctx.lineTo(tx+TILE_SIZE, ty+20); ctx.stroke(); if (x % 2 === 0) { ctx.fillStyle = '#2c3e50'; ctx.fillRect(tx + 10, ty + 4, 12, 10); ctx.strokeStyle = '#fff'; ctx.strokeRect(tx + 10, ty + 4, 12, 10); } }
+        if (tile === 11) { ctx.fillStyle = '#c0392b'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#96281b'; ctx.beginPath(); for(let i=0; i<TILE_SIZE; i+=8) { ctx.moveTo(tx + i, ty); ctx.lineTo(tx + i, ty + TILE_SIZE); } for(let j=0; j<TILE_SIZE; j+=8) { ctx.moveTo(tx, ty + j); ctx.lineTo(tx + TILE_SIZE, ty + j); } ctx.stroke(); }
+        if (tile === 13) { ctx.fillStyle = '#4b2c20'; ctx.fillRect(tx + 14, ty + 16, 4, 16); ctx.fillStyle = '#fdf6e3'; ctx.fillRect(tx + 4, ty + 6, 24, 14); ctx.strokeStyle = '#4b2c20'; ctx.lineWidth = 2; ctx.strokeRect(tx + 4, ty + 6, 24, 14); }
+        if (tile === 8) { const isOpen = openedChests.includes(`${map.id}_${x}_${y}`); ctx.fillStyle = isOpen ? '#306230' : '#141e30'; ctx.fillRect(tx + 4, ty + 12, 24, 16); if (!isOpen) { ctx.fillStyle = '#f1c40f'; ctx.fillRect(tx + 4, ty + 14, 24, 4); if (Math.floor(now/200) % 10 < 5) { ctx.fillStyle = '#fff'; ctx.fillRect(tx + 14, ty + 16, 4, 4); } } }
       });
     });
 
@@ -333,7 +250,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         const my = Math.floor(map.merchantPos.y * TILE_SIZE - cameraY);
         ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(mx + 8, my + 28, 16, 4);
         ctx.fillStyle = '#e67e22'; ctx.fillRect(mx + 6, my + 12, 20, 16); 
-        ctx.fillStyle = '#d35400'; ctx.fillRect(mx + 4, my + 14, 4, 12); ctx.fillRect(mx + 24, my + 14, 4, 12);
         ctx.fillStyle = '#ff8c00'; ctx.fillRect(mx + 8, my + 2, 16, 12);
         ctx.fillStyle = '#0f172a'; ctx.fillRect(mx + 10, my + 5, 12, 7);
         ctx.fillStyle = '#00d2ff';
@@ -348,10 +264,23 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     map.npcs.forEach(npc => {
       const nx = Math.floor(npc.tileX * TILE_SIZE - cameraX);
       const ny = Math.floor(npc.tileY * TILE_SIZE - cameraY);
-      if (nx < -TILE_SIZE || nx > VIEWPORT_W || ny < -TILE_SIZE || ny > VIEWPORT_H) return;
-      ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(nx + 8, ny + 28, 16, 4);
+      if (nx < -TILE_SIZE*4 || nx > VIEWPORT_W + TILE_SIZE*4 || ny < -TILE_SIZE*4 || ny > VIEWPORT_H + TILE_SIZE*4) return;
 
-      if (npc.id === 'pep8') {
+      if (npc.id === 'malwarech') {
+          // MALWARECH (DEMÔNIO GIGANTE SUPREMO)
+          const sizeMult = bossStage === 'sitting' ? 2.5 : (bossStage === 'rising' ? 3.0 : 4.5);
+          const centerX = nx + 16;
+          const bossY = ny - (bossStage !== 'sitting' ? 60 : 0);
+          ctx.fillStyle = '#000'; ctx.fillRect(centerX - 64, ny - 32, 128, 80);
+          ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 3; ctx.strokeRect(centerX - 64, ny - 32, 128, 80);
+          ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.moveTo(centerX - 50, ny - 32); ctx.lineTo(centerX, ny - 120); ctx.lineTo(centerX + 50, ny - 32); ctx.fill(); ctx.stroke();
+          const bodyW = 16 * sizeMult; const bodyH = 32 * sizeMult;
+          if (bossStage !== 'sitting') { ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.moveTo(centerX, bossY); ctx.lineTo(centerX - 120, bossY - 80); ctx.lineTo(centerX - 60, bossY + 40); ctx.fill(); ctx.beginPath(); ctx.moveTo(centerX, bossY); ctx.lineTo(centerX + 120, bossY - 80); ctx.lineTo(centerX + 60, bossY + 40); ctx.fill(); }
+          ctx.fillStyle = '#c0392b'; ctx.fillRect(centerX - bodyW/2, bossY + 32 - bodyH, bodyW, bodyH);
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(centerX - 15, bossY - 30); ctx.bezierCurveTo(centerX - 60, bossY - 80, centerX - 80, bossY + 20, centerX - 50, bossY - 90); ctx.moveTo(centerX + 15, bossY - 30); ctx.bezierCurveTo(centerX + 60, bossY - 80, centerX + 80, bossY + 20, centerX + 50, bossY - 90); ctx.stroke();
+          ctx.fillStyle = '#c0392b'; ctx.fillRect(centerX - 20, bossY - 40, 40, 35);
+          ctx.fillStyle = '#ffd43b'; const glow = 0.7 + Math.sin(now/100)*0.3; ctx.globalAlpha = glow; ctx.beginPath(); ctx.arc(centerX - 12, bossY - 20, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(centerX + 12, bossY - 20, 6, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0;
+      } else if (npc.id === 'pep8') {
           ctx.fillStyle = '#2e7d32'; ctx.fillRect(nx + 6, ny + 14, 20, 14); 
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
           ctx.fillStyle = '#e0e0e0'; ctx.fillRect(nx + 10, ny + 2, 12, 6);
@@ -362,15 +291,10 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
           ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 4, 12, 3);
           const pots = ['#e74c3c', '#3498db', '#f1c40f'];
-          pots.forEach((color, i) => {
-              const offX = Math.sin(now / 400 + i) * 15;
-              const offY = Math.cos(now / 400 + i) * 10 - 10;
-              ctx.fillStyle = color; ctx.fillRect(nx + 16 + offX, ny + 16 + offY, 6, 8);
-          });
+          pots.forEach((color, i) => { const offX = Math.sin(now / 400 + i) * 15; const offY = Math.cos(now / 400 + i) * 10 - 10; ctx.fillStyle = color; ctx.fillRect(nx + 16 + offX, ny + 16 + offY, 6, 8); });
       } else if (npc.id === 'boole') {
           ctx.fillStyle = '#34495e'; ctx.fillRect(nx + 4, ny + 2, 24, 28);
-          ctx.fillStyle = '#3498db'; ctx.fillRect(nx + 4, ny + 2, 12, 28);
-          ctx.fillStyle = '#e74c3c'; ctx.fillRect(nx + 16, ny + 2, 12, 28);
+          ctx.fillStyle = '#3498db'; ctx.fillRect(nx + 4, ny + 2, 12, 28); ctx.fillStyle = '#e74c3c'; ctx.fillRect(nx + 16, ny + 2, 12, 28);
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(nx + 4, ny + 2, 24, 28);
       } else if (npc.id === 'iterador') {
           const shakeX = Math.sin(now / 50) * 2;
@@ -401,27 +325,22 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#95a5a6'; ctx.fillRect(nx + 10, ny + 4, 12, 10);
           ctx.fillStyle = '#2c3e50'; ctx.fillRect(nx + 11, ny + 7, 10, 3);
           ctx.fillStyle = plumeColor; ctx.fillRect(nx + 14, ny, 4, 4);
-          ctx.strokeStyle = '#bdc3c7'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.moveTo(nx + 28, ny + 4); ctx.lineTo(nx + 28, ny + 28); ctx.stroke();
-          ctx.fillStyle = plumeColor; ctx.fillRect(nx + 26, ny + 2, 4, 6);
+          ctx.strokeStyle = '#bdc3c7'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(nx + 28, ny + 4); ctx.lineTo(nx + 28, ny + 28); ctx.stroke(); ctx.fillStyle = plumeColor; ctx.fillRect(nx + 26, ny + 2, 4, 6);
       } else {
-          const hairColors = ['#4b2c20', '#6d4c41', '#222', '#d35400'];
-          const shirtColors = ['#3498db', '#2ecc71', '#e67e22', '#9b59b6'];
-          const hair = hairColors[(nx + ny) % hairColors.length];
-          const shirt = shirtColors[(nx * ny) % shirtColors.length];
+          const hairColors = ['#4b2c20', '#6d4c41', '#222', '#d35400']; const shirtColors = ['#3498db', '#2ecc71', '#e67e22', '#9b59b6']; const hair = hairColors[(nx + ny) % hairColors.length]; const shirt = shirtColors[(nx * ny) % shirtColors.length];
           ctx.fillStyle = shirt; ctx.fillRect(nx + 8, ny + 16, 16, 12); 
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 6, ny + 18, 2, 8); ctx.fillRect(nx + 24, ny + 18, 2, 8);
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12);
           ctx.fillStyle = hair;
           if ((nx + ny) % 2 === 0) { ctx.fillRect(nx + 10, ny + 2, 12, 6); } else { ctx.fillRect(nx + 10, ny + 4, 12, 3); ctx.fillRect(nx + 20, ny + 4, 2, 8); }
-          ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 9, 2, 2); ctx.fillRect(nx + 18, ny + 9, 2, 2);
-          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 12, ny + 9, 1, 1); ctx.fillRect(nx + 18, ny + 9, 1, 1);
+          ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 9, 2, 2); ctx.fillRect(nx + 18, ny + 9, 2, 2); ctx.fillStyle = '#fff'; ctx.fillRect(nx + 12, ny + 9, 1, 1); ctx.fillRect(nx + 18, ny + 9, 1, 1);
       }
-      if (npc.name && !['boole', 'iterador', 'genio', 'arquiteto'].includes(npc.id)) drawLabel(npc.name, nx + 16, ny - 4);
+      if (npc.name && !['boole', 'iterador', 'genio', 'arquiteto', 'malwarech'].includes(npc.id)) drawLabel(npc.name, nx + 16, ny - 4);
       if (npc.id === 'boole') drawLabel("JUIZ BOOLE", nx + 16, ny - 6, '#3498db');
       if (npc.id === 'iterador') drawLabel("ITERADOR-X", nx + 16, ny - 6, '#00d2ff');
       if (npc.id === 'genio') drawLabel("GÊNIO DEF", nx + 16, ny - 12 + Math.sin(now / 300) * 5, '#f1c40f');
       if (npc.id === 'arquiteto') drawLabel("ARQUITETO INSTÂNCIA", nx + 16, ny - 12 + Math.sin(now / 500) * 3, '#3498db');
+      if (npc.id === 'malwarech') drawLabel("MALWARECH", nx + 16, ny - 100 + (bossStage !== 'sitting' ? -40 : 0), '#ff4757');
     });
 
     const px = Math.floor(playerPos.x * TILE_SIZE - cameraX);
@@ -456,7 +375,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     ctx.restore();
 
     if (playerName) drawLabel(playerName, px + 16, py - 10);
-  }, [playerPos, map, isMoving, playerColor, hasTerminal, openedChests, playerName, handleInteractBtn, isMerchantHere, merchantLocation]);
+  }, [playerPos, map, isMoving, playerColor, hasTerminal, openedChests, playerName, handleInteractBtn, isMerchantHere, merchantLocation, bossStage]);
 
   useEffect(() => {
     let requestRef: number;
