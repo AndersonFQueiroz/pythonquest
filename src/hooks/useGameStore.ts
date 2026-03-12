@@ -30,6 +30,7 @@ interface PlayerState {
   currentMapId: string;
   openedChests: string[];
   correctedBugs: string[];
+  showUnlockArrow: boolean;
   
   merchantLocation: string;
   merchantMessage: string | null;
@@ -49,6 +50,7 @@ interface PlayerState {
   setCurrentMap: (mapId: string) => void;
   openChest: (chestId: string) => void;
   recordBugDefeat: (bugId: string) => boolean;
+  setUnlockArrow: (show: boolean) => void;
   resetPlayer: () => void;
   moveMerchant: () => void;
   clearMerchantMessage: () => void;
@@ -70,6 +72,7 @@ export const useGameStore = create<PlayerState>((set, get) => ({
   currentMapId: 'village',
   openedChests: [],
   correctedBugs: [],
+  showUnlockArrow: false,
   
   merchantLocation: 'village',
   merchantMessage: null,
@@ -191,6 +194,7 @@ export const useGameStore = create<PlayerState>((set, get) => ({
   setPlayerPos: (pos) => set({ playerPos: pos }),
   setCurrentMap: (mapId) => set({ currentMapId: mapId }),
   openChest: (chestId) => set((state) => ({ openedChests: [...state.openedChests, chestId] })),
+  setUnlockArrow: (show) => set({ showUnlockArrow: show }),
   recordBugDefeat: (bugId) => {
     const state = get();
     if (!state.correctedBugs.includes(bugId)) {

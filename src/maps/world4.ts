@@ -24,7 +24,7 @@ export const world4Map: MapData = {
     [5, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA PARA REINO 5
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 13, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 5 (x=12, y=18)
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -39,6 +39,14 @@ export const world4Map: MapData = {
         "E não esqueça o 'return'! É assim que a função te entrega o resultado do desejo.",
         "Vá em frente, crie suas próprias magias!"
       ]
+    },
+    {
+        id: "guard7", name: "Guia do Deserto L", tileX: 11, tileY: 18,
+        dialog: ["A tempestade de areia bloqueou a saída para o Reino de OOP!", "O Gênio Def disse que só as funções certas podem limpar o ar."]
+    },
+    {
+        id: "guard8", name: "Guia do Deserto R", tileX: 13, tileY: 18,
+        dialog: ["Existem 4 Bugs de escopo e retorno à solta.", "Limpe o oásis para podermos prosseguir para o Reino Final."]
     }
   ],
   chests: [
@@ -65,5 +73,11 @@ export const world4Map: MapData = {
   exits: [
     { tileX: 0, tileY: 7, targetMap: "world3", targetX: 7, targetY: 18 }
   ],
-  merchantPos: { x: 5, y: 2 }
+  merchantPos: { x: 5, y: 2 },
+  lockConfig: {
+      requiredBugs: ['def_dragon', 'return_raven', 'param_pig', 'scope_scorp'],
+      gatePos: { x: 12, y: 18 },
+      guardDialog: ["As funções de purificação ainda não foram ativadas!", "Derrote os 4 Dragões e Escorpiões do deserto para liberar o caminho."],
+      unlockDialog: ["O escopo foi limpo! O Gênio Def abriu os portões da classe.", "O Reino da Programação Orientada a Objetos te espera!"]
+  }
 };

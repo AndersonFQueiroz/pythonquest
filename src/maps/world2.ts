@@ -4,7 +4,7 @@ export const world2Map: MapData = {
   id: "world2",
   name: "Caverna das Decisões",
   width: 20,
-  height: 20, // Aumentada para mais exploração
+  height: 20,
   tiles: [
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
@@ -24,7 +24,7 @@ export const world2Map: MapData = {
     [5, 4, 0, 19, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 19, 0, 0, 4, 5],
     [5, 4, 0, 19, 19, 0, 0, 0, 0, 2, 0, 0, 0, 0, 19, 19, 0, 0, 4, 5],
     [5, 4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5],
-    [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 3
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 3 (x=9, y=18)
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -37,6 +37,14 @@ export const world2Map: MapData = {
         "Não existe meio caminho nas minhas cavernas. Ou o teste passa, ou você fica no escuro!",
         "Lembre-se: 'True' ou 'False', não existe 'Talvez'."
       ]
+    },
+    {
+        id: "guard3", name: "Guarda Lógico L", tileX: 8, tileY: 18,
+        dialog: ["O Juiz Boole ordenou o fechamento deste portal!", "Existem muitas decisões pendentes (Bugs) nesta caverna."]
+    },
+    {
+        id: "guard4", name: "Guarda Lógico R", tileX: 10, tileY: 18,
+        dialog: ["Limpe os erros de lógica das Cavernas para liberar a passagem.", "Não permitiremos 'Talvez' no Reino das Repetições!"]
     }
   ],
   chests: [
@@ -66,5 +74,11 @@ export const world2Map: MapData = {
     { tileX: 0, tileY: 7, targetMap: "world1", targetX: 17, targetY: 6 },
     { tileX: 9, tileY: 18, targetMap: "world3", targetX: 1, targetY: 7 }
   ],
-  merchantPos: { x: 14, y: 5 }
+  merchantPos: { x: 14, y: 5 },
+  lockConfig: {
+      requiredBugs: ['if_slime', 'bool_bat', 'else_troll', 'logic_snake'],
+      gatePos: { x: 9, y: 18 },
+      guardDialog: ["O portal para a Torre está lacrado!", "Capture os 4 Bugmons de lógica para provar que você sabe tomar decisões!"],
+      unlockDialog: ["A condição foi satisfeita! O IF retornou True.", "A passagem para a Torre das Repetições está aberta. Avante!"]
+  }
 };

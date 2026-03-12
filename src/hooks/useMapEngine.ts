@@ -8,9 +8,10 @@ export function useMapEngine(
   map: any, 
   onEncounter?: () => void, 
   onPortal?: (targetMap: string, x: number, y: number) => void,
-  isDisabled: boolean = false
+  isDisabled: boolean = false,
+  onAutoInteract?: (interaction: any) => void
 ) {
-  const { playerPos, setPlayerPos, merchantLocation } = useGameStore();
+  const { playerPos, setPlayerPos, merchantLocation, correctedBugs } = useGameStore();
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
   
@@ -27,7 +28,7 @@ export function useMapEngine(
   const canMoveTo = useCallback((x: number, y: number) => {
     if (x < 0 || x >= map.width || y < 0 || y >= map.height) return false;
     const tile = map.tiles[y][x];
-    if ([3, 4, 5, 8, 10, 11, 13, 14].includes(tile)) return false;
+    if ([3, 4, 5, 8, 10, 11, 13, 14, 21].includes(tile)) return false;
     
     if (merchantLocation === map.id && map.merchantPos.x === x && map.merchantPos.y === y) return false;
 
@@ -47,6 +48,20 @@ export function useMapEngine(
     else if (dir === 'down') ny++;
     else if (dir === 'left') nx--;
     else if (dir === 'right') nx++;
+
+    // LÓGICA DE BLOQUEIO POR MISSÃO (CUMPRIR REQUISITOS DE BUGMONS)
+    if (map.lockConfig && nx === map.lockConfig.gatePos.x && ny === map.lockConfig.gatePos.y) {
+        const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
+        if (clearedCount < 4) {
+            activeDirRef.current = null;
+            keysPressed.current.clear();
+            onAutoInteract?.({ 
+                type: 'npc', 
+                data: { name: 'BLOQUEADO', dialog: map.lockConfig.guardDialog } 
+            });
+            return;
+        }
+    }
 
     if (canMoveTo(nx, ny)) {
       lastMoveTime.current = now;
@@ -73,7 +88,7 @@ export function useMapEngine(
         setIsMoving(false);
       }, MOVE_DELAY - 10);
     }
-  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos, playerPos]); // ADICIONADO playerPos
+  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos, playerPos, correctedBugs, onAutoInteract]);
 
   useEffect(() => {
     let frameId: number;
@@ -124,14 +139,21 @@ export function useMapEngine(
 
     for (const coord of checkCoords) {
         const npc = map.npcs.find((n: any) => n.tileX === coord.x && n.tileY === coord.y);
-        if (npc) return { type: 'npc', data: npc };
+        if (npc) {
+            // Se for um guarda desbloqueado, usa diálogo de desbloqueio
+            if (npc.id.startsWith('guard') && map.lockConfig) {
+                const cleared = map.lockConfig.requiredBugs.every((id: string) => correctedBugs.includes(id));
+                if (cleared) return { type: 'npc', data: { name: npc.name, dialog: map.lockConfig.unlockDialog } };
+            }
+            return { type: 'npc', data: npc };
+        }
         const sign = map.signs?.find((s: any) => s.tileX === coord.x && s.tileY === coord.y);
         if (sign) return { type: 'sign', data: { name: 'PLACA', dialog: sign.messages } };
         const chest = map.chests?.find((c: any) => c.tileX === coord.x && c.tileY === coord.y);
         if (chest) return { type: 'chest', data: chest };
     }
     return null;
-  }, [playerPos, map, merchantLocation]);
+  }, [playerPos, map, merchantLocation, correctedBugs]);
 
   return { playerPos, direction, isMoving, move: executeStep, setManualDir: (d: Direction | null) => activeDirRef.current = d, interact, teleport };
 }

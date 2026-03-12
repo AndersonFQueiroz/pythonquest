@@ -32,12 +32,20 @@ export const world1Map: MapData = {
         "Mas cuidado: se o pote se chama 'idade', não tente colocar um texto dentro dele sem aspas, ou o frasco explode!",
         "Lembre-se: Variáveis são caixas com nomes."
       ]
+    },
+    {
+        id: "guard1", name: "Sentinela Alpha", tileX: 17, tileY: 5,
+        dialog: ["O acesso à Caverna está bloqueado por instabilidades na Sintaxe!", "Capture todos os 4 Bugmons desta floresta para restaurar a ponte."]
+    },
+    {
+        id: "guard2", name: "Sentinela Beta", tileX: 17, tileY: 7,
+        dialog: ["Ninguém passa sem autorização da Mentora PEP-8.", "Corrija os erros de variáveis para prosseguir."]
     }
   ],
   chests: [
     { 
       tileX: 11, tileY: 9, 
-      description: "Este cofre ensina sobre Case Sensitivity. Variáveis com nomes diferentes (maiúsculas vs minúsculas) são coisas distintas no Python!",
+      description: "Este cofre ensina sobre os 'Dois Pontos' (:). No Python, toda estrutura de controle (if, for, def) precisa terminar com : para o computador saber que o bloco começou!",
       puzzle: "# Alguém criou 'chave', mas tentou usar 'Chave'.\nchave = 123\nprint(Chave)", 
       expected: "123", 
       reward: 30 
@@ -61,5 +69,11 @@ export const world1Map: MapData = {
     { tileX: 0, tileY: 6, targetMap: "village", targetX: 17, targetY: 6 },
     { tileX: 18, tileY: 6, targetMap: "world2", targetX: 1, targetY: 7 }
   ],
-  merchantPos: { x: 15, y: 2 }
+  merchantPos: { x: 15, y: 2 },
+  lockConfig: {
+      requiredBugs: ['syntax_wasp', 'type_goblin', 'name_bat', 'print_ghost'],
+      gatePos: { x: 18, y: 6 },
+      guardDialog: ["Ainda detectamos erros de sintaxe nesta área!", "A ponte para a Caverna das Decisões só abrirá quando todos os 4 Bugmons forem capturados."],
+      unlockDialog: ["Incrível! A lógica da floresta foi restaurada.", "O caminho para a Caverna está livre agora. Siga com cuidado, Aprendiz!"]
+  }
 };

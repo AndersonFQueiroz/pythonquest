@@ -33,10 +33,11 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     map, 
     isDialogActive ? undefined : onEncounter, 
     isDialogActive ? undefined : onPortal, 
-    isDialogActive
+    isDialogActive,
+    onInteract // Passado para diálogos automáticos
   );
   
-  const { name: playerName, color: playerColor, hasTerminal, hasNotebook, openedChests, correctedBugs, merchantLocation } = useGameStore();
+  const { name: playerName, color: playerColor, hasTerminal, hasNotebook, openedChests, correctedBugs, merchantLocation, showUnlockArrow } = useGameStore();
 
   const isMerchantHere = merchantLocation === map.id;
 
@@ -118,19 +119,16 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         const ty = y * TILE_SIZE - cameraY;
         if (tx < -TILE_SIZE || tx > VIEWPORT_W || ty < -TILE_SIZE || ty > VIEWPORT_H) return;
 
-        // CHÃO BASE (0) - Adiciona detalhes sutis na floresta
         if (tile === 0 && !isCave && !isTower && !isOasis) {
             ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
             ctx.fillStyle = 'rgba(0,0,0,0.05)';
             ctx.fillRect(tx + 4, ty + 4, 2, 2); ctx.fillRect(tx + 20, ty + 18, 2, 2);
         }
 
-        // CAMINHOS
         if (tile === 2 || tile === 12) {
           ctx.fillStyle = pathColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
         }
 
-        // MATO
         if (tile === 1) {
           ctx.fillStyle = isCave ? 'rgba(46, 204, 113, 0.2)' : TILE_COLORS[1]; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = isCave ? '#2ecc71' : '#306230';
@@ -140,7 +138,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           }
         }
 
-        // PONTES / PORTAIS - DETALHADAS
         if (tile === 6) {
           ctx.fillStyle = '#7f8c8d'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 2; ctx.strokeRect(tx + 2, ty + 2, TILE_SIZE - 4, TILE_SIZE - 4);
@@ -148,7 +145,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(tx, ty + TILE_SIZE - 4, TILE_SIZE, 4);
         }
 
-        // ÁGUA
         if (tile === 7 || tile === 22) {
           ctx.fillStyle = tile === 22 ? '#00d2ff' : '#3498db';
           ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
@@ -158,7 +154,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillRect(tx + 16 - wave, ty + 20, 8, 2);
         }
 
-        // PALMEIRA (REINO 4)
         if (tile === 20) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14, ty + 16, 4, 16);
@@ -168,7 +163,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.beginPath(); ctx.moveTo(tx + 16 - sway, ty + 10); ctx.lineTo(tx + 0 - sway, ty + 22); ctx.lineTo(tx + 32 - sway, ty + 22); ctx.fill();
         }
 
-        // DUNAS / PAREDES (21, 4, 5)
         if (tile === 21 || tile === 4 || tile === 5) {
           ctx.fillStyle = tile === 21 ? '#f39c12' : (isCave || isTower ? '#334155' : '#0f380f');
           ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
@@ -178,7 +172,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           }
         }
 
-        // ENGRENAGENS
         if (tile === 16) {
           ctx.save(); ctx.translate(tx + 16, ty + 16); ctx.rotate((now / 1000) * ( (x+y)%2 === 0 ? 1 : -1 ));
           ctx.fillStyle = '#7f8c8d';
@@ -188,7 +181,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.restore();
         }
 
-        // CIRCUITOS
         if (tile === 17) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.globalAlpha = 0.3 + Math.sin(now / 300) * 0.2;
@@ -197,7 +189,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.stroke(); ctx.globalAlpha = 1.0; ctx.fillStyle = '#00d2ff'; ctx.fillRect(tx + 14, ty + 14, 4, 4);
         }
 
-        // CRISTAIS
         if (tile === 18) {
           ctx.fillStyle = floorColor; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = '#9b59b6'; const glow = 0.5 + Math.sin(now / 400) * 0.5;
@@ -205,14 +196,12 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.globalAlpha = 1.0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
         }
 
-        // MAGMA
         if (tile === 19) {
           ctx.fillStyle = '#e67e22'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.fillStyle = '#d35400'; const flow = Math.sin(now / 600) * 6;
           ctx.fillRect(tx + 4 + flow, ty + 4, 12, 4); ctx.fillRect(tx + 16 - flow, ty + 20, 12, 4);
         }
 
-        // CASAS (10, 11)
         if (tile === 10) {
           ctx.fillStyle = '#bdc3c7'; ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
           ctx.strokeStyle = '#95a5a6'; ctx.lineWidth = 1;
@@ -227,7 +216,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(tx, ty, TILE_SIZE, 4);
         }
 
-        // PLACA (13) e FLORES (15)
         if (tile === 13) {
           ctx.fillStyle = '#4b2c20'; ctx.fillRect(tx + 14, ty + 16, 4, 16); 
           ctx.fillStyle = '#fdf6e3'; ctx.fillRect(tx + 4, ty + 6, 24, 14); 
@@ -239,17 +227,15 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(tx + 16, ty + 16, 1.5, 0, Math.PI * 2); ctx.fill();
         }
 
-        // ÁRVORE DETALHADA (3) - Restaurando detalhes do Reino 1
         if (tile === 3) {
           const sway = Math.sin(now / 1000) * 2;
-          ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14 + sway, ty + 16, 4, 16); // Tronco
+          ctx.fillStyle = '#795548'; ctx.fillRect(tx + 14 + sway, ty + 16, 4, 16); 
           ctx.fillStyle = isCave ? '#475569' : '#306230';
-          ctx.beginPath(); ctx.arc(tx + 16 + sway, ty + 12, 10, 0, Math.PI * 2); ctx.fill(); // Copa
+          ctx.beginPath(); ctx.arc(tx + 16 + sway, ty + 12, 10, 0, Math.PI * 2); ctx.fill(); 
           ctx.beginPath(); ctx.arc(tx + 8 + sway, ty + 18, 8, 0, Math.PI * 2); ctx.fill();
           ctx.beginPath(); ctx.arc(tx + 24 + sway, ty + 18, 8, 0, Math.PI * 2); ctx.fill();
         }
 
-        // BAÚ (8)
         if (tile === 8) {
           const isOpen = openedChests.includes(`${map.id}_${x}_${y}`);
           ctx.fillStyle = isOpen ? '#306230' : '#141e30'; ctx.fillRect(tx + 4, ty + 12, 24, 16);
@@ -258,7 +244,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       });
     });
 
-    // 3. MERCADOR
     if (isMerchantHere) {
         const mx = Math.floor(map.merchantPos.x * TILE_SIZE - cameraX);
         const my = Math.floor(map.merchantPos.y * TILE_SIZE - cameraY);
@@ -267,13 +252,14 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         ctx.fillStyle = '#d35400'; ctx.fillRect(mx + 4, my + 14, 4, 12); ctx.fillRect(mx + 24, my + 14, 4, 12);
         ctx.fillStyle = '#ff8c00'; ctx.fillRect(mx + 8, my + 2, 16, 12);
         ctx.fillStyle = '#0f172a'; ctx.fillRect(mx + 10, my + 5, 12, 7);
-        ctx.fillStyle = '#00d2ff'; ctx.globalAlpha = 0.4 + Math.sin(now / 200) * 0.4;
+        ctx.fillStyle = '#00d2ff';
+        const eyeGlow = 0.4 + Math.sin(now / 200) * 0.4;
+        ctx.globalAlpha = eyeGlow;
         ctx.fillRect(mx + 12, my + 7, 2, 2); ctx.fillRect(mx + 18, my + 7, 2, 2);
         ctx.globalAlpha = 1.0;
         drawLabel("MERCADOR", mx + 16, my - 6, '#ff8c00');
     }
 
-    // 4. NPCs
     map.npcs.forEach(npc => {
       const nx = Math.floor(npc.tileX * TILE_SIZE - cameraX);
       const ny = Math.floor(npc.tileY * TILE_SIZE - cameraY);
@@ -326,7 +312,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       if (npc.id === 'genio') drawLabel("GÊNIO DEF", nx + 16, ny - 12 + Math.sin(now / 300) * 5, '#f1c40f');
     });
 
-    // PLAYER
     const px = Math.floor(playerPos.x * TILE_SIZE - cameraX);
     const py = Math.floor(playerPos.y * TILE_SIZE - cameraY);
     const walkCycle = isMoving ? Math.sin(now / 100) * 4 : 0;
@@ -401,6 +386,27 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         <DPad onMoveStart={(dir) => !isDialogActive && setManualDir(dir)} onMoveEnd={() => setManualDir(null)} onInteract={handleInteractBtn} />
       </div>
 
+      {/* SETA DE DESBLOQUEIO (GUIDE ARROW) */}
+      {showUnlockArrow && map.lockConfig && (
+          <div style={{ 
+              position: 'absolute', 
+              left: '50%', 
+              top: '50px', 
+              transform: 'translateX(-50%)', 
+              zIndex: 5000, 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              pointerEvents: 'none',
+              animation: 'bounceArrow 0.5s infinite alternate'
+          }}>
+              <div style={{ backgroundColor: '#ff8c00', color: '#fff', padding: '10px', border: '4px solid #fff', borderRadius: '8px', fontSize: '10px', fontFamily: '"Press Start 2P"', boxShadow: '0 0 20px rgba(255,140,0,0.8)' }}>
+                  REINO LIBERADO!
+              </div>
+              <div style={{ width: 0, height: 0, borderLeft: '15px solid transparent', borderRight: '15px solid transparent', borderTop: '20px solid #fff', marginTop: '-4px' }} />
+          </div>
+      )}
+
       {showBugDex && (
         <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(20, 30, 48, 0.95)', border: '4px solid #3776ab', zIndex: 100, padding: '15px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
             <h3 style={{ fontSize: '8px', marginBottom: '15px', textAlign: 'center', color: '#ffd43b', borderBottom: '2px solid #3776ab', paddingBottom: '10px' }}>[ ENCICLOPÉDIA BUGDEX ]</h3>
@@ -414,6 +420,9 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
             <button onClick={() => setShowBugDex(false)} style={{ position: 'absolute', top: '5px', right: '10px', background: 'none', border: 'none', color: '#ff4757', fontSize: '10px', cursor: 'pointer' }}>X</button>
         </div>
       )}
+      <style>{`
+          @keyframes bounceArrow { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(-15px); } }
+      `}</style>
     </div>
   );
 };

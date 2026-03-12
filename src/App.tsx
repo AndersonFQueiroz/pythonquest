@@ -51,8 +51,34 @@ function App() {
   const { runCode } = usePyodide();
   const { 
     gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
-    resetPlayer, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal
+    resetPlayer, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
+    correctedBugs, setUnlockArrow
   } = useGameStore();
+
+  // Monitora progresso de Bugmons para liberar o próximo Reino
+  useEffect(() => {
+    const kingdomBugs = {
+        'world1': ['syntax_wasp', 'type_goblin', 'name_bat', 'print_ghost'],
+        'world2': ['if_slime', 'bool_bat', 'else_troll', 'logic_snake'],
+        'world3': ['for_spider', 'while_worm', 'range_rat', 'break_beetle'],
+        'world4': ['def_dragon', 'return_raven', 'param_pig', 'scope_scorp']
+    };
+
+    const currentBugs = kingdomBugs[currentMap.id as keyof typeof kingdomBugs];
+    if (currentBugs) {
+        const cleared = currentBugs.every(id => correctedBugs.includes(id));
+        if (cleared) {
+            const alreadyCleared = currentBugs.every(id => correctedBugs.includes(id)); // redundante mas ok
+            // Só dispara se acabamos de completar
+            const count = correctedBugs.filter(id => currentBugs.includes(id)).length;
+            if (count === 4) {
+                // Ativa a seta por 5 segundos
+                setUnlockArrow(true);
+                setTimeout(() => setUnlockArrow(false), 5000);
+            }
+        }
+    }
+  }, [correctedBugs, currentMap.id, setUnlockArrow]);
 
   const handleStartGame = () => { sounds.playSelect(); setGameState('char_creation'); };
   

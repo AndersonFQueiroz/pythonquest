@@ -10,4 +10,10 @@ export interface MapData {
   signs?: any[];
   exits: any[];
   merchantPos: { x: number, y: number };
+  lockConfig?: {
+      requiredBugs: string[];
+      gatePos: { x: number, y: number };
+      guardDialog: string[];
+      unlockDialog: string[];
+  };
 }

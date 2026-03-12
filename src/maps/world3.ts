@@ -4,7 +4,7 @@ export const world3Map: MapData = {
   id: "world3",
   name: "Torre das Repetições",
   width: 20,
-  height: 20, // Aumentada para mais verticalidade
+  height: 20,
   tiles: [
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 16, 0, 0, 0, 5, 17, 17, 17, 5, 0, 0, 0, 16, 5, 0, 0, 0, 16, 5],
@@ -24,7 +24,7 @@ export const world3Map: MapData = {
     [5, 16, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 5],
     [5, 0, 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 4
+    [5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 4 (x=7, y=18)
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -37,6 +37,14 @@ export const world3Map: MapData = {
         "Eu esqueci meu 'break' em algum lugar da torre... não cometa o mesmo erro!",
         "REPETINDO... REPETINDO..."
       ]
+    },
+    {
+        id: "guard5", name: "Dreno de Loop L", tileX: 6, tileY: 18,
+        dialog: ["Detectamos um vazamento de memória infinito!", "O sistema travou este portal por segurança."]
+    },
+    {
+        id: "guard6", name: "Dreno de Loop R", tileX: 8, tileY: 18,
+        dialog: ["O loop só será quebrado quando você capturar os 4 Bugs da torre.", "Use o comando 'break' mental e limpe a área!"]
     }
   ],
   chests: [
@@ -66,5 +74,11 @@ export const world3Map: MapData = {
     { tileX: 0, tileY: 7, targetMap: "world2", targetX: 9, targetY: 10 },
     { tileX: 7, tileY: 18, targetMap: "world4", targetX: 1, targetY: 7 }
   ],
-  merchantPos: { x: 10, y: 4 }
+  merchantPos: { x: 10, y: 4 },
+  lockConfig: {
+      requiredBugs: ['for_spider', 'while_worm', 'range_rat', 'break_beetle'],
+      gatePos: { x: 7, y: 18 },
+      guardDialog: ["O sistema está em loop infinito!", "Capture os 4 Bugmons desta torre para enviar um sinal de BREAK e abrir a porta."],
+      unlockDialog: ["Sinal de BREAK recebido! O sistema parou de repetir o erro.", "O caminho para o Oásis está liberado. Boa sorte nas dunas!"]
+  }
 };
