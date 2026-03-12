@@ -39,11 +39,11 @@ export const world2Map: MapData = {
       ]
     },
     {
-        id: "guard3", name: "Guarda Lógico L", tileX: 8, tileY: 18,
+        id: "guard3", name: "IF_ARIUS", tileX: 8, tileY: 18,
         dialog: ["O Juiz Boole ordenou o fechamento deste portal!", "Existem muitas decisões pendentes (Bugs) nesta caverna."]
     },
     {
-        id: "guard4", name: "Guarda Lógico R", tileX: 10, tileY: 18,
+        id: "guard4", name: "EL_SUS", tileX: 10, tileY: 18,
         dialog: ["Limpe os erros de lógica das Cavernas para liberar a passagem.", "Não permitiremos 'Talvez' no Reino das Repetições!"]
     }
   ],
@@ -74,7 +74,7 @@ export const world2Map: MapData = {
     { tileX: 0, tileY: 7, targetMap: "world1", targetX: 17, targetY: 6 },
     { tileX: 9, tileY: 18, targetMap: "world3", targetX: 1, targetY: 7 }
   ],
-  merchantPos: { x: 14, y: 5 },
+  merchantPos: { x: 15, y: 9 },
   lockConfig: {
       requiredBugs: ['if_slime', 'bool_bat', 'else_troll', 'logic_snake'],
       gatePos: { x: 9, y: 18 },

@@ -11,6 +11,7 @@ import { villageMap } from './maps/village';
 import { world2Map } from './maps/world2';
 import { world3Map } from './maps/world3';
 import { world4Map } from './maps/world4';
+import { world5Map } from './maps/world5';
 import { sounds } from './lib/sounds';
 import { logger } from './lib/logger'; // Importar logger
 import { useGameStore } from './hooks/useGameStore';
@@ -38,11 +39,13 @@ function App() {
   const [gameState, setGameState] = useState<GameState>('title');
   const [currentMap, setCurrentMap] = useState(villageMap);
   const [flash, setFlash] = useState(false);
+  const [shake, setShake] = useState(false);
   const [activeDialog, setActiveDialog] = useState<{ name: string, messages: string[], onFinish?: () => void } | null>(null);
   
   const [areaTitle, setAreaTitle] = useState<string | null>(null);
   const [showNotebook, setShowNotebook] = useState(false);
   const [showShop, setShowShop] = useState(false);
+  const [shopMessage, setShopMessage] = useState<string | null>(null);
 
   const [activeChest, setActiveChest] = useState<any | null>(null);
   const [chestCode, setChestCode] = useState('');
@@ -91,6 +94,11 @@ function App() {
     setAreaTitle(name);
     setTimeout(() => setAreaTitle(null), 4000);
   };
+
+  const triggerShake = useCallback(() => {
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  }, []);
 
   const triggerBattle = useCallback(() => {
     if (activeDialog || activeChest || showNotebook || showShop) return;
@@ -151,6 +159,7 @@ function App() {
         setActiveDialog({ name: 'SISTEMA', messages: ['Código validado!', `Recebido ${activeChest.reward} GOLD.`] });
     } else {
         sounds.playHit(); 
+        triggerShake();
         setChestError(result.success ? `Saída incorreta: "${result.output}"` : result.error.split('\n').pop() || 'Erro');
     }
   };
@@ -163,6 +172,7 @@ function App() {
       else if (targetMapId === 'world2') target = world2Map;
       else if (targetMapId === 'world3') target = world3Map;
       else if (targetMapId === 'world4') target = world4Map;
+      else if (targetMapId === 'world5') target = world5Map;
       else target = villageMap;
       setCurrentMap(target);
       setPlayerPos({ x, y });
@@ -203,7 +213,7 @@ function App() {
   }, [hasNotebook, gameState, activeChest, activeDialog, showShop]);
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+    <div className={shake ? 'shake' : ''} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
       
       {gameState === 'title' && <TitleScreen onStart={handleStartGame} />}
       {gameState === 'char_creation' && <CharacterCreation onFinish={handleFinishCreation} />}
@@ -292,7 +302,14 @@ function App() {
             {showShop && (
                 <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(15, 23, 42, 0.98)', border: '4px solid #ff8c00', zIndex: 2000, padding: '20px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
                     <h3 style={{ fontSize: '10px', textAlign: 'center', marginBottom: '15px', color: '#ff8c00' }}>[ LOJA DO MERCADOR ]</h3>
-                    <div style={{ fontSize: '8px', textAlign: 'right', marginBottom: '10px', color: '#ffd43b' }}>SEU OURO: {gold} G</div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center' }}>
+                        <div style={{ fontSize: '6px', color: shopMessage?.includes('INSUFICIENTE') ? '#ff4757' : '#2ecc71', height: '10px' }}>
+                            {shopMessage}
+                        </div>
+                        <div style={{ fontSize: '8px', color: '#ffd43b' }}>SEU OURO: {gold} G</div>
+                    </div>
+
                     <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {MERCHANT_STOCK.map(item => (
                             <div key={item.id} style={{ padding: '10px', border: '1px solid #3776ab', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' }}>
@@ -305,11 +322,21 @@ function App() {
                                         <div style={{ fontSize: '5px', marginTop: '4px', opacity: 0.8, lineHeight: '1.4' }}>{item.description}</div>
                                     </div>
                                 </div>
-                                <button onClick={() => { sounds.playSelect(); const r = buyItem(item); if(!r.success) alert(r.message); }} style={{ padding: '8px', backgroundColor: '#3776ab', color: '#fff', border: 'none', fontSize: '6px', cursor: 'pointer', boxShadow: '0 2px 0 #0f172a' }}>COMPRAR</button>
+                                <button 
+                                    onClick={() => { 
+                                        sounds.playSelect(); 
+                                        const r = buyItem(item); 
+                                        setShopMessage(r.message);
+                                        setTimeout(() => setShopMessage(null), 3000);
+                                    }} 
+                                    style={{ padding: '8px', backgroundColor: '#3776ab', color: '#fff', border: 'none', fontSize: '6px', cursor: 'pointer', boxShadow: '0 2px 0 #0f172a' }}
+                                >
+                                    COMPRAR
+                                </button>
                             </div>
                         ))}
                     </div>
-                    <button onClick={() => setShowShop(false)} style={{ marginTop: '10px', padding: '10px', backgroundColor: '#ff4757', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '8px' }}>SAIR DA LOJA</button>
+                    <button onClick={() => { setShowShop(false); setShopMessage(null); }} style={{ marginTop: '10px', padding: '10px', backgroundColor: '#ff4757', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '8px' }}>SAIR DA LOJA</button>
                 </div>
             )}
 

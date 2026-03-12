@@ -28,6 +28,9 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
   const [showEditor, setShowEditor] = useState(false);
   const [userCode, setUserCode] = useState('');
   const [chestError, setChestError] = useState<string | null>(null);
+  
+  const [shake, setShake] = useState(false);
+  const [captureFlash, setCaptureFlash] = useState(false);
 
   const currentStage: BugStage = enemy.stages[currentStageIndex];
   const hasDocItem = inventory.some(i => i.id === 'doc_offline' && i.quantity > 0);
@@ -60,6 +63,7 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
       const damage = isLastStage ? enemyHp : enemy.hp / enemy.stages.length;
       setEnemyHp(prev => Math.max(0, prev - damage));
       if (isLastStage) {
+        setCaptureFlash(true);
         gainXp(enemy.xpReward); gainGold(enemy.goldReward); recordBugDefeat(enemy.id);
         setMessage(`VITÓRIA! +${enemy.xpReward} XP e +${enemy.goldReward} GOLD.`);
         setTimeout(onWin, 3000);
@@ -71,6 +75,8 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
       }
     } else {
       sounds.playHit();
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       const { isDead } = takeDamage(20); 
       if (isDead) {
         setMessage('SISTEMA CRÍTICO! Você desmaiou...');
@@ -129,7 +135,7 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
   });
 
   return (
-    <div style={{ width: '100%', height: '100%', backgroundColor: '#141e30', display: 'flex', flexDirection: 'column', padding: '10px', position: 'relative' }}>
+    <div className={`${shake ? 'shake' : ''} ${captureFlash ? 'capture-flash' : ''}`} style={{ width: '100%', height: '100%', backgroundColor: '#141e30', display: 'flex', flexDirection: 'column', padding: '10px', position: 'relative' }}>
       
       {showEditor && (
         <CodeEditor problem={currentStage.problem} code={userCode} onChange={setUserCode} onExecute={handleExecute} onClose={() => setShowEditor(false)} errorFeedback={chestError} />

@@ -18,12 +18,12 @@ export const world4Map: MapData = {
     [5, 0, 21, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 21, 0, 5],
     [5, 0, 21, 21, 21, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 21, 21, 21, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 22, 22, 22, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 5],
-    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5], // ÁREAS DE BATALHA
-    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5],
-    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 5],
-    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5], // Caminho (2) adicionado no meio do mato
+    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    [5, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 0, 2, 0, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 5], // ABERTURA NA DUNA
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
+    [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 13, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 5 (x=12, y=18)
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
@@ -41,11 +41,11 @@ export const world4Map: MapData = {
       ]
     },
     {
-        id: "guard7", name: "Guia do Deserto L", tileX: 11, tileY: 18,
+        id: "guard7", name: "PARAM_US", tileX: 11, tileY: 18,
         dialog: ["A tempestade de areia bloqueou a saída para o Reino de OOP!", "O Gênio Def disse que só as funções certas podem limpar o ar."]
     },
     {
-        id: "guard8", name: "Guia do Deserto R", tileX: 13, tileY: 18,
+        id: "guard8", name: "RETURNO", tileX: 13, tileY: 18,
         dialog: ["Existem 4 Bugs de escopo e retorno à solta.", "Limpe o oásis para podermos prosseguir para o Reino Final."]
     }
   ],
@@ -60,18 +60,21 @@ export const world4Map: MapData = {
   ],
   signs: [
     { tileX: 23, tileY: 7, messages: [
-    "BEM-VINDO AO OÁSIS DAS FUNÇÕES!",
-    "Cansado de escrever a mesma coisa várias vezes? As FUNÇÕES são a solução.",
-    "Imagine uma fábrica: você entra com matéria-prima (parâmetros) e sai com um produto (return).",
-    "SINTAXE: def meu_desejo(item):\n  return 'Você ganhou ' + item",
-    "Para ativar a fábrica, basta chamá-la: meu_desejo('Ouro').",
-    "Funções mantêm seu código limpo e organizado, como um oásis no deserto.",
-    "DICA: O Python só executa a função quando você a 'chama' pelo nome!",
-    "Atravesse as dunas e mostre que você domina a arte de encapsular lógica. Boa sorte!"
+    "BEM-VINDO AO TEMPLO DAS FUNÇÕES!",
+    "Você já percebeu que fica repetindo o mesmo código em lugares diferentes? Função resolve isso.",
+    "Uma função é um bloco de código com nome. Você escreve uma vez e usa quantas vezes quiser.",
+    "Pense em uma receita de bolo. Você escreve a receita uma vez e pode fazer o bolo sempre que quiser.",
+    "Para criar uma função use def seguido do nome e parênteses. Depois : e 4 espaços na linha de baixo.",
+    "Os parâmetros são as informações que você passa para a função trabalhar. Como os ingredientes da receita.",
+    "O return é o resultado que a função devolve para você. Sem return ela executa mas não entrega nada.",
+    "IMPORTANTE: a função só roda quando você a chama pelo nome. Escrever def apenas cria, não executa.",
+    "Você pode chamar a mesma função mil vezes com ingredientes diferentes e ter mil resultados diferentes.",
+    "Os Bugs deste templo se escondem dentro de funções quebradas. Encontre o erro e invoque o poder. Boa sorte!"
 ] }
   ],
   exits: [
-    { tileX: 0, tileY: 7, targetMap: "world3", targetX: 7, targetY: 18 }
+    { tileX: 0, tileY: 7, targetMap: "world3", targetX: 7, targetY: 18 },
+    { tileX: 12, tileY: 18, targetMap: "world5", targetX: 1, targetY: 7 }
   ],
   merchantPos: { x: 5, y: 2 },
   lockConfig: {

@@ -34,11 +34,11 @@ export const world1Map: MapData = {
       ]
     },
     {
-        id: "guard1", name: "Sentinela Alpha", tileX: 17, tileY: 5,
+        id: "guard1", name: "VAR_ION", tileX: 17, tileY: 5,
         dialog: ["O acesso à Caverna está bloqueado por instabilidades na Sintaxe!", "Capture todos os 4 Bugmons desta floresta para restaurar a ponte."]
     },
     {
-        id: "guard2", name: "Sentinela Beta", tileX: 17, tileY: 7,
+        id: "guard2", name: "ATRIB_US", tileX: 17, tileY: 7,
         dialog: ["Ninguém passa sem autorização da Mentora PEP-8.", "Corrija os erros de variáveis para prosseguir."]
     }
   ],

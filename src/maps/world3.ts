@@ -39,11 +39,11 @@ export const world3Map: MapData = {
       ]
     },
     {
-        id: "guard5", name: "Dreno de Loop L", tileX: 6, tileY: 18,
+        id: "guard5", name: "WHIL_US", tileX: 6, tileY: 18,
         dialog: ["Detectamos um vazamento de memória infinito!", "O sistema travou este portal por segurança."]
     },
     {
-        id: "guard6", name: "Dreno de Loop R", tileX: 8, tileY: 18,
+        id: "guard6", name: "LOOP_AR", tileX: 8, tileY: 18,
         dialog: ["O loop só será quebrado quando você capturar os 4 Bugs da torre.", "Use o comando 'break' mental e limpe a área!"]
     }
   ],

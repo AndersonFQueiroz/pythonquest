@@ -11,7 +11,7 @@ export function useMapEngine(
   isDisabled: boolean = false,
   onAutoInteract?: (interaction: any) => void
 ) {
-  const { playerPos, setPlayerPos, merchantLocation, correctedBugs, debugIgnoreBlocks } = useGameStore();
+  const { playerPos, setPlayerPos, merchantLocation, correctedBugs, debugIgnoreBlocks, hasTriggeredUnlock, setTriggeredUnlock } = useGameStore();
   const [direction, setDirection] = useState<Direction>('down');
   const [isMoving, setIsMoving] = useState(false);
   
@@ -20,8 +20,6 @@ export function useMapEngine(
   const isMovingRef = useRef(false);
   const lastMoveTime = useRef(0); 
   const MOVE_DELAY = 160; 
-
-  const hasTriggeredUnlockDialog = useRef<Record<string, boolean>>({});
 
   const teleport = useCallback((x: number, y: number) => {
     setPlayerPos({ x, y });
@@ -38,14 +36,14 @@ export function useMapEngine(
     if (map.lockConfig && x === map.lockConfig.gatePos.x && y === map.lockConfig.gatePos.y) {
         const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
         if (clearedCount >= 4 || debugIgnoreBlocks) {
-             if (!hasTriggeredUnlockDialog.current[map.id]) {
+             if (!hasTriggeredUnlock[map.id]) {
                  return false;
              }
         }
     }
 
     return !map.npcs.some((npc: any) => npc.tileX === x && npc.tileY === y);
-  }, [map, merchantLocation, correctedBugs, debugIgnoreBlocks]);
+  }, [map, merchantLocation, correctedBugs, debugIgnoreBlocks, hasTriggeredUnlock]);
 
   const executeStep = useCallback((dir: Direction | null) => {
     if (!dir || isDisabled || isMovingRef.current) return;
@@ -77,10 +75,10 @@ export function useMapEngine(
         }
 
         // Liberado, mas precisa forçar o diálogo de vitória primeiro
-        if ((clearedCount >= 4 || debugIgnoreBlocks) && !hasTriggeredUnlockDialog.current[map.id]) {
+        if ((clearedCount >= 4 || debugIgnoreBlocks) && !hasTriggeredUnlock[map.id]) {
             activeDirRef.current = null;
             keysPressed.current.clear();
-            hasTriggeredUnlockDialog.current[map.id] = true;
+            setTriggeredUnlock(map.id);
             onAutoInteract?.({ 
                 type: 'npc', 
                 data: { name: 'GUARDIÃO', dialog: map.lockConfig.unlockDialog } 
