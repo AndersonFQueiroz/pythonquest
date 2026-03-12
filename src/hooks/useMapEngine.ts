@@ -17,7 +17,7 @@ export function useMapEngine(
   const activeDirRef = useRef<Direction | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
   const isMovingRef = useRef(false);
-  const lastMoveTime = useRef(0); // <-- ERRO CORRIGIDO AQUI
+  const lastMoveTime = useRef(0); 
   const MOVE_DELAY = 160; 
 
   const teleport = useCallback((x: number, y: number) => {
@@ -73,7 +73,7 @@ export function useMapEngine(
         setIsMoving(false);
       }, MOVE_DELAY - 10);
     }
-  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos]);
+  }, [canMoveTo, map, onEncounter, onPortal, isDisabled, setPlayerPos, playerPos]); // ADICIONADO playerPos
 
   useEffect(() => {
     let frameId: number;
@@ -133,6 +133,5 @@ export function useMapEngine(
     return null;
   }, [playerPos, map, merchantLocation]);
 
-  // ERRO CORRIGIDO AQUI: Retornando move (executeStep) para o MapCanvas usar
   return { playerPos, direction, isMoving, move: executeStep, setManualDir: (d: Direction | null) => activeDirRef.current = d, interact, teleport };
 }

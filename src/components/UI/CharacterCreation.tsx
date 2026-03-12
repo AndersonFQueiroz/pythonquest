@@ -12,9 +12,9 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
 
   const COLORS = [
     { name: 'AZUL', hex: '#3776ab' },
-    { name: 'AMARELO', hex: '#ffd43b' },
-    { name: 'LARANJA', hex: '#ff8c00' },
-    { name: 'VERDE', hex: '#2ecc71' }
+    { name: 'PRETO', hex: '#221f1f' },
+    { name: 'LARANJA', hex: '#e26116' },
+    { name: 'VERMELHO', hex: '#cc2e2e' }
   ];
 
   const handleStart = () => {

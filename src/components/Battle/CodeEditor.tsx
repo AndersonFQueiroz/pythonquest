@@ -11,6 +11,9 @@ interface CodeEditorProps {
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ problem, code, onChange, onExecute, onClose, errorFeedback }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Impede que a tecla disparada aqui ative atalhos no App.tsx ou MapCanvas
+    e.stopPropagation();
+    
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onExecute();

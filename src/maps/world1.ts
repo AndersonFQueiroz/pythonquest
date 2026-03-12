@@ -7,26 +7,36 @@ export const world1Map: MapData = {
   height: 15,
   tiles: [
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-    [5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5],
-    [5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5],
-    [5, 2, 0, 3, 3, 0, 0, 1, 1, 1, 0, 0, 0, 3, 3, 0, 0, 0, 2, 5],
-    [5, 2, 0, 3, 3, 0, 0, 1, 1, 1, 0, 0, 0, 3, 3, 0, 0, 0, 2, 5],
-    [5, 2, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5], // Placa (13) adicionada aqui
-    [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 5],
-    [5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5],
-    [5, 2, 0, 4, 4, 4, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 0, 0, 2, 5],
-    [5, 2, 0, 4, 4, 4, 0, 0, 8, 0, 0, 0, 0, 4, 4, 4, 0, 0, 2, 5],
-    [5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5],
-    [5, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 5],
-    [5, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 5],
-    [5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5],
+    [5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5],
+    [5, 3, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 3, 5],
+    [5, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 5],
+    [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 3, 5],
+    [5, 3, 0, 2, 3, 15, 0, 0, 0, 0, 0, 0, 0, 15, 3, 3, 2, 0, 3, 5],
+    [2, 2, 2, 2, 3, 0, 7, 7, 7, 0, 13, 0, 0, 0, 3, 3, 2, 2, 6, 5], // ENTRADA E SAÍDA
+    [5, 3, 0, 2, 3, 0, 7, 7, 7, 0, 0, 0, 0, 0, 3, 3, 2, 0, 3, 5],
+    [5, 3, 0, 2, 3, 0, 0, 0, 0, 0, 4, 4, 4, 0, 3, 3, 2, 0, 3, 5],
+    [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 4, 8, 4, 0, 3, 3, 2, 0, 3, 5], // Cofre escondido
+    [5, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 5],
+    [5, 3, 15, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 15, 3, 5], // Campos de batalha
+    [5, 3, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 3, 5],
+    [5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
-  playerStart: { x: 2, y: 6 },
-  npcs: [],
+  playerStart: { x: 1, y: 6 },
+  npcs: [
+    {
+      id: "aloca", name: "Alquimista Aloca", tileX: 6, tileY: 5,
+      dialog: [
+        "Olá, viajante! Na minha bancada, nada existe sem um nome.",
+        "Se você quer guardar um segredo, coloque-o num pote e dê um nome a ele.",
+        "Mas cuidado: se o pote se chama 'idade', não tente colocar um texto dentro dele sem aspas, ou o frasco explode!",
+        "Lembre-se: Variáveis são caixas com nomes."
+      ]
+    }
+  ],
   chests: [
     { 
-      tileX: 8, tileY: 9, 
+      tileX: 11, tileY: 9, 
       description: "Este cofre ensina sobre Case Sensitivity. Variáveis com nomes diferentes (maiúsculas vs minúsculas) são coisas distintas no Python!",
       puzzle: "# Alguém criou 'chave', mas tentou usar 'Chave'.\nchave = 123\nprint(Chave)", 
       expected: "123", 
@@ -34,20 +44,22 @@ export const world1Map: MapData = {
     }
   ],
   signs: [
-    { tileX: 2, tileY: 5, messages: [
-        "[ AULA 1: VARIÁVEIS E TIPOS ]",
-        "Variáveis são recipientes que guardam informações.",
-        "Para criar uma: NOME = VALOR",
-        "Ex: vidas = 3 (Inteiro/Número)",
-        "Ex: msg = 'Oi' (String/Texto - Use ASPAS!)",
-        "REGRAS: Nomes não podem ter espaços nem começar com números.",
-        "DICA: O Python diferencia letras maiúsculas de minúsculas!"
-    ] },
-    { tileX: 17, tileY: 6, messages: ["CAMINHO PARA O REINO 2: CAVERNA DAS DECISÕES"] }
+    { tileX: 10, tileY: 6, messages: [
+    "BEM-VINDO À FLORESTA DAS VARIÁVEIS!",
+    "Imagine uma caixa com um nome escrito nela. Você guarda algo dentro e depois busca pelo nome. Isso é uma variável.",
+    "Para criar uma variável é simples: escreva o nome, coloque = e coloque o valor. Ex: vida = 100",
+    "Texto precisa de aspas. Ex: nome = 'Anderson'. Sem aspas o Python pensa que é outra variável.",
+    "Números não usam aspas. Ex: idade = 20. Com aspas viraria texto e você não poderia fazer contas.",
+    "Para mostrar o valor de uma variável na tela use print(). Ex: print(nome) mostra Anderson.",
+    "Você pode trocar o valor quando quiser. vida = 100, depois vida = 50. A caixa guarda o mais recente.",
+    "ATENÇÃO: Python diferencia maiúsculas de minúsculas. Vida, vida e VIDA são três variáveis diferentes.",
+    "Nomes de variáveis não podem ter espaços nem começar com números. Use underline: minha_vida = 100.",
+    "Esta floresta está cheia de variáveis corrompidas. Corrija o código e restaure a ordem. Boa sorte!"
+] }
   ],
   exits: [
     { tileX: 0, tileY: 6, targetMap: "village", targetX: 17, targetY: 6 },
     { tileX: 18, tileY: 6, targetMap: "world2", targetX: 1, targetY: 7 }
   ],
-  merchantPos: { x: 12, y: 2 }
+  merchantPos: { x: 15, y: 2 }
 };
