@@ -9,7 +9,7 @@ interface DialogBoxProps {
 }
 
 const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => {
-  const { gainTerminal } = useGameStore();
+  const { gainTerminal, gainNotebook } = useGameStore();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
@@ -17,6 +17,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
 
   const fullText = messages[currentMessageIndex];
   const isTerminalGet = fullText.includes("ITEM_GET:TERMINAL_MÁGICO");
+  const isNotebookGet = fullText.includes("ITEM_GET:CADERNO_DE_ANOTAÇÕES");
   const isGoldGet = fullText.startsWith("ITEM_GET:") && fullText.endsWith("_GOLD");
 
   const startTyping = () => {
@@ -29,6 +30,13 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
       setDisplayedText("TERMINAL MÁGICO");
       setIsTyping(false);
       gainTerminal();
+      return;
+    }
+
+    if (isNotebookGet) {
+      setDisplayedText("CADERNO DE ANOTAÇÕES");
+      setIsTyping(false);
+      gainNotebook();
       return;
     }
 
@@ -81,7 +89,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
   }, [isTyping, currentMessageIndex, messages]);
 
   // TELA DE CONQUISTA ESTILIZADA
-  if (isTerminalGet || isGoldGet) {
+  if (isTerminalGet || isGoldGet || isNotebookGet) {
     return (
       <div style={{
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
@@ -102,6 +110,20 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
                 <div style={{ position: 'absolute', left: '10px', top: '10px', width: '10px', height: '2px', backgroundColor: '#ffd43b' }} />
                 <div style={{ position: 'absolute', left: '10px', top: '15px', width: '20px', height: '2px', backgroundColor: '#2ecc71' }} />
                 <div style={{ position: 'absolute', right: '10px', bottom: '10px', width: '15px', height: '15px', backgroundColor: '#3776ab', opacity: 0.3 }} />
+            </div>
+        )}
+
+        {/* ÍCONE DO CADERNO BRILHANDO */}
+        {isNotebookGet && (
+            <div style={{
+                width: '45px', height: '60px', backgroundColor: '#fff', border: '3px solid #ff8c00',
+                borderRadius: '4px', position: 'relative', marginBottom: '20px',
+                boxShadow: '0 0 20px #ff8c00', animation: 'glow 1.5s infinite alternate'
+            }}>
+                <div style={{ position: 'absolute', left: '5px', top: '10px', width: '30px', height: '2px', backgroundColor: '#333' }} />
+                <div style={{ position: 'absolute', left: '5px', top: '20px', width: '30px', height: '2px', backgroundColor: '#333' }} />
+                <div style={{ position: 'absolute', left: '5px', top: '30px', width: '20px', height: '2px', backgroundColor: '#333' }} />
+                <div style={{ position: 'absolute', right: '5px', top: '5px', width: '10px', height: '10px', backgroundColor: '#ff8c00', borderRadius: '50%' }} />
             </div>
         )}
 
@@ -144,7 +166,7 @@ const DialogBox: React.FC<DialogBoxProps> = ({ name, messages, onComplete }) => 
       <div style={{ fontSize: '8px', color: '#ffd43b', marginBottom: '8px', fontWeight: 'bold' }}>
         {name.toUpperCase()}
       </div>
-      <div style={{ fontSize: '8px', lineHeight: '1.6', flex: 1, color: '#fff' }}>
+      <div style={{ fontSize: '8px', lineHeight: '1.6', flex: 1, color: '#fff', whiteSpace: 'pre-wrap' }}>
         {displayedText}
         {!isTyping && <span style={{ marginLeft: '8px', color: '#3776ab', animation: 'blink 0.8s infinite' }}>▶</span>}
       </div>

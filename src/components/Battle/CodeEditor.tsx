@@ -29,9 +29,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ problem, code, onChange, onExec
         <button onClick={onClose} style={{ color: '#ff4757', border: 'none', background: 'none', cursor: 'pointer', fontFamily: '"Press Start 2P"', fontSize: '10px' }}>X</button>
       </div>
 
-      <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid #1e293b' }}>
-        <p style={{ color: '#ff8c00', fontSize: '7px', marginBottom: '5px' }}># CÓDIGO CORROMPIDO:</p>
-        <code style={{ color: '#ff4757', fontSize: '12px', fontFamily: 'monospace' }}>{problem}</code>
+      {/* CÓDIGO CORROMPIDO COM QUEBRA DE LINHA FIXADA */}
+      <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid #1e293b', overflowX: 'auto' }}>
+        <p style={{ color: '#ff8c00', fontSize: '7px', marginBottom: '8px' }}># CÓDIGO CORROMPIDO:</p>
+        <pre style={{ 
+            color: '#ff4757', 
+            fontSize: '11px', 
+            fontFamily: 'monospace', 
+            whiteSpace: 'pre-wrap', 
+            wordBreak: 'break-all',
+            margin: 0,
+            lineHeight: '1.4'
+        }}>
+            {problem}
+        </pre>
       </div>
 
       <p style={{ color: '#3776ab', fontSize: '7px', marginBottom: '5px' }}># DIGITE A CORREÇÃO:</p>
@@ -46,7 +57,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ problem, code, onChange, onExec
         style={{
           flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid #3776ab',
           color: '#ffd43b', fontFamily: 'monospace', fontSize: '14px', padding: '10px',
-          resize: 'none', outline: 'none'
+          resize: 'none', outline: 'none', lineHeight: '1.4'
         }}
       />
 

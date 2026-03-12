@@ -28,9 +28,10 @@ export const villageMap: MapData = {
       id: "pep8", name: "Mentora PEP-8", tileX: 4, tileY: 5, 
       dialog: [
         "Aprendiz! A Vila está colapsando.",
-        "As pessoas aqui perderam a fala e os cofres estão trancados por algoritmos.",
-        " ITEM_GET:TERMINAL_MÁGICO",
-        "Tente ler as placas ou abrir um cofre para treinar antes da floresta."
+        "Recebi ordens para te entregar o TERMINAL MÁGICO e seu CADERNO DE ANOTAÇÕES.",
+        "Use o Terminal para depurar Bugs e o Caderno para consultar o que aprendeu!",
+        "ITEM_GET:TERMINAL_MÁGICO",
+        "ITEM_GET:CADERNO_DE_ANOTAÇÕES"
       ] 
     },
     {

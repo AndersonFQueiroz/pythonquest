@@ -1,5 +1,19 @@
 import { create } from 'zustand';
 
+interface PlayerNote {
+  title: string;
+  content: string[];
+}
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  quantity: number;
+  type: 'consumable' | 'permanent';
+}
+
 interface PlayerState {
   name: string;
   color: string;
@@ -9,28 +23,33 @@ interface PlayerState {
   xp: number;
   gold: number;
   hasTerminal: boolean;
+  hasNotebook: boolean;
+  notebookNotes: PlayerNote[];
+  inventory: InventoryItem[];
   playerPos: { x: number, y: number };
   currentMapId: string;
   openedChests: string[];
   correctedBugs: string[];
   
-  // MERCADOR
   merchantLocation: string;
   merchantMessage: string | null;
-  battleCountSinceMove: number; // Contador para movimentação
+  battleCountSinceMove: number;
 
   setProfile: (name: string, color: string) => void;
   gainTerminal: () => void;
+  gainNotebook: () => void;
+  addNote: (title: string, content: string[]) => void;
   gainXp: (amount: number) => { leveledUp: boolean };
   deductXp: (amount: number) => void;
   gainGold: (amount: number) => void;
+  buyItem: (item: InventoryItem) => { success: boolean, message: string };
+  useItem: (itemId: string) => boolean;
   takeDamage: (amount: number) => { isDead: boolean };
   setPlayerPos: (pos: { x: number, y: number }) => void;
   setCurrentMap: (mapId: string) => void;
   openChest: (chestId: string) => void;
   recordBugDefeat: (bugId: string) => boolean;
   resetPlayer: () => void;
-  
   moveMerchant: () => void;
   clearMerchantMessage: () => void;
 }
@@ -44,6 +63,9 @@ export const useGameStore = create<PlayerState>((set, get) => ({
   xp: 0,
   gold: 100,
   hasTerminal: false,
+  hasNotebook: false,
+  notebookNotes: [],
+  inventory: [],
   playerPos: { x: 2, y: 6 },
   currentMapId: 'village',
   openedChests: [],
@@ -55,7 +77,49 @@ export const useGameStore = create<PlayerState>((set, get) => ({
 
   setProfile: (name, color) => set({ name, color }),
   gainTerminal: () => set({ hasTerminal: true }),
+  gainNotebook: () => set({ hasNotebook: true }),
   
+  addNote: (title, content) => set((state) => {
+    if (state.notebookNotes.some(n => n.title === title)) return state;
+    return { notebookNotes: [...state.notebookNotes, { title, content }] };
+  }),
+
+  buyItem: (item) => {
+    const state = get();
+    if (state.gold < item.price) return { success: false, message: "OURO INSUFICIENTE!" };
+    
+    const existing = state.inventory.find(i => i.id === item.id);
+    let newInventory;
+    
+    if (item.type === 'permanent') {
+        if (existing) return { success: false, message: "VOCÊ JÁ POSSUI ESTE UPGRADE!" };
+        newInventory = [...state.inventory, { ...item, quantity: 1 }];
+        if (item.id === 'ssd_1tb') set({ maxHp: state.maxHp + 20, hp: state.hp + 20 });
+    } else {
+        if (existing) {
+            newInventory = state.inventory.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+        } else {
+            newInventory = [...state.inventory, { ...item, quantity: 1 }];
+        }
+    }
+
+    set({ gold: state.gold - item.price, inventory: newInventory });
+    return { success: true, message: "COMPRA REALIZADA!" };
+  },
+
+  useItem: (itemId) => {
+    const state = get();
+    const item = state.inventory.find(i => i.id === itemId);
+    if (!item || item.quantity <= 0) return false;
+
+    const newInventory = state.inventory.map(i => 
+        i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i
+    ).filter(i => i.quantity > 0 || i.type === 'permanent');
+
+    set({ inventory: newInventory });
+    return true;
+  },
+
   deductXp: (amount) => set((state) => ({ xp: Math.max(0, state.xp - amount) })),
 
   gainXp: (amount) => {
@@ -81,14 +145,15 @@ export const useGameStore = create<PlayerState>((set, get) => ({
   },
 
   moveMerchant: () => {
-    const locations = ['village', 'world1'];
+    const locations = ['village', 'world1', 'world2'];
     const currentLocation = get().merchantLocation;
     const available = locations.filter(l => l !== currentLocation);
     const next = available[Math.floor(Math.random() * available.length)];
     
     const mapNames: Record<string, string> = {
         'village': 'Vila Inicial',
-        'world1': 'Floresta das Variáveis'
+        'world1': 'Floresta das Variáveis',
+        'world2': 'Caverna das Decisões'
     };
 
     set({ 
@@ -118,7 +183,6 @@ export const useGameStore = create<PlayerState>((set, get) => ({
         gold: state.gold + amount,
         battleCountSinceMove: state.battleCountSinceMove + 1 
     }));
-    // Move o mercador a cada 3 vitórias/baús
     if (get().battleCountSinceMove >= 3) {
         get().moveMerchant();
     }

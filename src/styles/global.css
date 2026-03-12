@@ -41,7 +41,7 @@ html, body {
 
 #root {
   width: var(--viewport-w);
-  height: 540px; /* Aumentado para acomodar UI */
+  height: 620px; /* Aumentado para evitar sobreposição dos botões */
   border: 6px solid var(--color-primary);
   border-radius: 8px;
   background-color: var(--color-bg);
@@ -99,19 +99,96 @@ button:active {
 .goblin .ear-l { left: -8px; transform: skewY(20deg); }
 .goblin .ear-r { right: -8px; transform: skewY(-20deg); }
 
-/* BAT */
-.bat .body-bat { width: 24px; height: 24px; background: #34495e; border: 2px solid #000; border-radius: 50%; position: relative; }
-.bat .wing-bat-l, .bat .wing-bat-r { width: 20px; height: 15px; background: #2c3e50; position: absolute; top: 0; animation: flap 0.5s infinite; }
-.bat .wing-bat-l { left: -15px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
-.bat .wing-bat-r { right: -15px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+/* BAT & BOOL BAT */
+.bat .body-bat, .bat-bool .body-bat { width: 24px; height: 24px; background: #34495e; border: 2px solid #000; border-radius: 50%; position: relative; }
+.bat .wing-bat-l, .bat .wing-bat-r, .bat-bool .wing-bat-l, .bat-bool .wing-bat-r { width: 20px; height: 15px; background: #2c3e50; position: absolute; top: 0; animation: flap 0.5s infinite; }
+.bat .wing-bat-l, .bat-bool .wing-bat-l { left: -15px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+.bat .wing-bat-r, .bat-bool .wing-bat-r { right: -15px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+
+/* SPIDER */
+.spider .spider-body { width: 25px; height: 20px; background: #2c3e50; border: 2px solid #000; border-radius: 50%; position: relative; }
+.spider .spider-leg { width: 15px; height: 2px; background: #000; position: absolute; }
+.spider .l1 { left: -10px; top: 5px; transform: rotate(-20deg); }
+.spider .l2 { left: -10px; top: 15px; transform: rotate(20deg); }
+.spider .r1 { right: -10px; top: 5px; transform: rotate(20deg); }
+.spider .r2 { right: -10px; top: 15px; transform: rotate(-20deg); }
+
+/* WORM */
+.worm .worm-seg { width: 12px; height: 12px; background: #e67e22; border: 2px solid #000; border-radius: 50%; display: inline-block; margin-right: -4px; position: relative; }
+.worm .s1 { transform: translateY(4px); }
+.worm .s2 { transform: translateY(-4px); }
+
+/* DRAGON */
+.dragon .dragon-body { width: 35px; height: 30px; background: #c0392b; border: 2px solid #000; border-radius: 10px; position: relative; }
+.dragon .dragon-wing { width: 40px; height: 20px; background: #96281b; position: absolute; top: -10px; left: -2px; clip-path: polygon(0 100%, 50% 0, 100% 100%); animation: flap 0.8s infinite; }
+.dragon .dragon-fire { width: 10px; height: 10px; background: orange; position: absolute; left: -8px; top: 15px; border-radius: 50%; animation: glitch 0.1s infinite; }
+
+/* CAT */
+.cat .cat-body { width: 25px; height: 25px; background: #2c3e50; border: 2px solid #000; border-radius: 5px; position: relative; }
+.cat .cat-ear-l, .cat .cat-ear-r { width: 8px; height: 8px; background: #2c3e50; border: 2px solid #000; position: absolute; top: -6px; clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+.cat .cat-ear-l { left: 2px; } .cat .cat-ear-r { right: 2px; }
+.cat .cat-tail { width: 15px; height: 4px; background: #2c3e50; position: absolute; right: -10px; bottom: 5px; transform: rotate(-45deg); }
 
 /* GHOST */
 .ghost .body-ghost { width: 28px; height: 35px; background: #fff; border: 2px solid #000; border-radius: 15px 15px 0 0; position: relative; opacity: 0.8; }
 .ghost .ghost-tail { width: 28px; height: 10px; background: #fff; position: absolute; bottom: -8px; clip-path: polygon(0 0, 20% 100%, 40% 0, 60% 100%, 80% 0, 100% 100%, 100% 0); }
 
+/* SLIME IF */
+.slime-if .slime-body { width: 30px; height: 20px; background: #3498db; border: 2px solid #000; border-radius: 50% 50% 0 0; position: absolute; bottom: 0; }
+
+/* SNAKE */
+.snake .snake-body { width: 15px; height: 35px; background: #27ae60; border: 2px solid #000; border-radius: 10px; position: relative; }
+.snake .tongue { width: 4px; height: 8px; background: red; position: absolute; top: -4px; left: 5px; border-radius: 2px; }
+
+/* TROLL */
+.troll .troll-body { width: 35px; height: 35px; background: #95a5a6; border: 3px solid #000; border-radius: 4px; position: relative; }
+.troll .troll-horn { width: 8px; height: 12px; background: #7f8c8d; position: absolute; top: -10px; left: 13px; clip-path: polygon(50% 0, 0 100%, 100% 100%); }
+
+/* GENERIC / FALLBACK */
+.generic-bug .generic-body { width: 30px; height: 30px; background: #444; border: 2px dashed #888; display: flex; align-items: center; justifyContent: center; color: #fff; font-size: 14px; }
+
+/* RAT */
+.rat .rat-body { width: 20px; height: 15px; background: #7f8c8d; border: 2px solid #000; border-radius: 50% 50% 0 0; position: relative; }
+.rat .rat-tail { width: 15px; height: 2px; background: #555; position: absolute; right: -10px; bottom: 2px; transform: rotate(20deg); }
+
+/* BEETLE */
+.beetle .beetle-shell { width: 25px; height: 25px; background: #8e44ad; border: 2px solid #000; border-radius: 10px; }
+.beetle .beetle-head { width: 12px; height: 10px; background: #2c3e50; border: 2px solid #000; position: absolute; top: -5px; left: 6px; }
+
+/* RAVEN */
+.raven .raven-body { width: 20px; height: 25px; background: #2c3e50; border: 2px solid #000; border-radius: 50% 50% 0 0; position: relative; }
+.raven .raven-beak { width: 8px; height: 6px; background: #f1c40f; position: absolute; left: -6px; top: 8px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+
+/* PIG */
+.pig .pig-body { width: 30px; height: 25px; background: #ff9ff3; border: 2px solid #000; border-radius: 8px; position: relative; }
+.pig .pig-snout { width: 10px; height: 8px; background: #f368e0; border: 1px solid #000; position: absolute; left: 10px; top: 12px; border-radius: 4px; }
+
+/* SCORP */
+.scorp .scorp-body { width: 25px; height: 15px; background: #d35400; border: 2px solid #000; border-radius: 4px; }
+.scorp .scorp-tail { width: 10px; height: 20px; border: 4px solid #e67e22; border-radius: 50% 50% 0 0; position: absolute; top: -15px; right: -5px; border-bottom: none; }
+
+/* OWL */
+.owl .owl-body { width: 25px; height: 30px; background: #7f8c8d; border: 2px solid #000; border-radius: 12px; }
+
+/* SQUID */
+.squid .squid-head { width: 20px; height: 25px; background: #1abc9c; border: 2px solid #000; border-radius: 10px 10px 0 0; }
+.squid .squid-tentacle { width: 20px; height: 10px; background: #16a085; position: absolute; bottom: -5px; clip-path: polygon(0 0, 25% 100%, 50% 0, 75% 100%, 100% 0); }
+
+/* MONKEY */
+.monkey .monkey-body { width: 25px; height: 25px; background: #a04000; border: 2px solid #000; border-radius: 50%; }
+.monkey .monkey-arm { width: 15px; height: 4px; background: #a04000; position: absolute; left: -10px; top: 15px; transform: rotate(-20deg); }
+
 .eye-l, .eye-r { width: 4px; height: 4px; background: #000; position: absolute; top: 8px; }
-.wasp .eye-l, .wasp .eye-r, .bat .eye-l, .bat .eye-r { background: #ff0000; }
+.wasp .eye-l, .wasp .eye-r, .bat .eye-l, .bat .eye-r, .bat-bool .eye-l, .bat-bool .eye-r, .snake .eye-l, .snake .eye-r, .scorp .eye-l { background: #ff0000; }
 .eye-l { left: 6px; } .eye-r { right: 6px; }
+.troll .eye-l { left: 8px; } .troll .eye-r { right: 20px; }
+.slime-if .eye-l { left: 8px; top: 6px; } .slime-if .eye-r { right: 8px; top: 6px; }
+.rat .eye-l { left: 4px; top: 4px; }
+.pig .eye-l { left: 6px; } .pig .eye-r { right: 18px; }
+.raven .eye-l { right: 4px; top: 6px; }
+.owl .eye-l { left: 4px; top: 10px; } .owl .eye-r { right: 4px; top: 10px; }
+.squid .eye-l { left: 4px; } .squid .eye-r { right: 4px; }
+.monkey .eye-l { left: 6px; } .monkey .eye-r { right: 6px; }
 
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @keyframes flap { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.5); } }

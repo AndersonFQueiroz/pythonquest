@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGameStore } from '../../hooks/useGameStore';
 import { sounds } from '../../lib/sounds';
 import { usePyodide } from '../../hooks/usePyodide';
-import { WORLD1_ENEMIES, WORLD2_ENEMIES } from '../../data/bugs';
+import { WORLD1_ENEMIES, WORLD2_ENEMIES, WORLD3_ENEMIES, WORLD4_ENEMIES, WORLD5_ENEMIES } from '../../data/bugs';
 import type { BugEnemy, BugStage } from '../../data/bugs';
 import CodeEditor from './CodeEditor';
 import { BugSprite } from './BugSprite';
@@ -14,16 +14,10 @@ interface BattleScreenProps {
 }
 
 const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => {
-  const name = useGameStore(state => state.name);
-  const hp = useGameStore(state => state.hp);
-  const maxHp = useGameStore(state => state.maxHp);
-  const color = useGameStore(state => state.color);
-  const level = useGameStore(state => state.level);
-  const gainGold = useGameStore(state => state.gainGold);
-  const gainXp = useGameStore(state => state.gainXp);
-  const deductXp = useGameStore(state => state.deductXp);
-  const recordBugDefeat = useGameStore(state => state.recordBugDefeat);
-  const takeDamage = useGameStore(state => state.takeDamage);
+  const { 
+    name, hp, maxHp, color, level, hasTerminal, inventory,
+    gainGold, gainXp, recordBugDefeat, takeDamage, useItem 
+  } = useGameStore();
 
   const { isReady, isLoading, runCode } = usePyodide();
 
@@ -36,9 +30,15 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
   const [chestError, setChestError] = useState<string | null>(null);
 
   const currentStage: BugStage = enemy.stages[currentStageIndex];
+  const hasDocItem = inventory.some(i => i.id === 'doc_offline' && i.quantity > 0);
 
   useEffect(() => {
-    const enemyPool = mapId === 'world2' ? WORLD2_ENEMIES : WORLD1_ENEMIES;
+    let enemyPool = WORLD1_ENEMIES;
+    if (mapId === 'world2') enemyPool = WORLD2_ENEMIES;
+    else if (mapId === 'world3') enemyPool = WORLD3_ENEMIES;
+    else if (mapId === 'world4') enemyPool = WORLD4_ENEMIES;
+    else if (mapId === 'world5') enemyPool = WORLD5_ENEMIES;
+
     const randomIndex = Math.floor(Math.random() * enemyPool.length);
     const targetEnemy = enemyPool[randomIndex];
     setEnemy(targetEnemy);
@@ -84,6 +84,15 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
 
   const handleFlee = () => {
     sounds.playSelect();
+    const firewall = inventory.find(i => i.id === 'firewall_pro' && i.quantity > 0);
+    
+    if (firewall) {
+        useItem('firewall_pro');
+        setMessage("FIREWALL ATIVADO! Fuga 100% garantida.");
+        setTimeout(() => onLose(false), 1500);
+        return;
+    }
+
     const chance = Math.random();
     if (chance <= 0.70) {
       setMessage('Fugiu com sucesso!');
@@ -102,15 +111,22 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
 
   const handleHint = () => {
     sounds.playSelect();
-    deductXp(5);
-    setMessage(`[DICA -5XP] ${currentStage.hint}`);
+    if (hasDocItem) {
+        useItem('doc_offline');
+        setMessage(`[DOC OFFLINE USADA] ${currentStage.hint}`);
+    } else {
+        setMessage("VOCÊ PRECISA DO ITEM 'DOC OFFLINE' PARA PEDIR DICAS! COMPRE NO MERCADOR.");
+    }
   };
 
-  const actionBtnStyle: React.CSSProperties = {
-    flex: '1', padding: '10px', backgroundColor: '#3776ab', color: '#fff',
+  const actionBtnStyle = (disabled: boolean = false): React.CSSProperties => ({
+    flex: '1', padding: '10px', 
+    backgroundColor: disabled ? '#475569' : '#3776ab', 
+    color: disabled ? '#94a3b8' : '#fff',
     border: '2px solid #0f172a', fontFamily: '"Press Start 2P", monospace',
-    fontSize: '7px', cursor: 'pointer'
-  };
+    fontSize: '7px', cursor: 'pointer',
+    filter: disabled ? 'grayscale(1)' : 'none'
+  });
 
   return (
     <div style={{ width: '100%', height: '100%', backgroundColor: '#141e30', display: 'flex', flexDirection: 'column', padding: '10px', position: 'relative' }}>
@@ -129,15 +145,26 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
 
       {/* Arena Visual */}
       <div style={{ flex: '1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 40px' }}>
-        {/* PLAYER COM DETALHES */}
-        <div style={{ position: 'relative', width: '64px', height: '64px', transform: 'scale(1.5)' }}>
-            {/* Sombras e Detalhes do Corpo */}
-            <div style={{ position: 'absolute', left: '8px', top: '32px', width: '16px', height: '12px', backgroundColor: color, border: '2px solid #000' }} />
-            <div style={{ position: 'absolute', left: '10px', top: '16px', width: '12px', height: '16px', backgroundColor: '#ffdbac', border: '2px solid #000' }} />
-            {/* Cabelo/Boné */}
-            <div style={{ position: 'absolute', left: '10px', top: '16px', width: '12px', height: '4px', backgroundColor: '#0f172a' }} />
-            {/* Mochila */}
-            <div style={{ position: 'absolute', left: '4px', top: '34px', width: '6px', height: '10px', backgroundColor: '#3776ab', border: '1px solid #000' }} />
+        
+        {/* PLAYER VISÃO LATERAL */}
+        <div style={{ position: 'relative', width: '64px', height: '80px', transform: 'scale(1.5)' }}>
+            <div style={{ position: 'absolute', left: '0px', top: '30px', width: '12px', height: '20px', backgroundColor: '#1e293b', border: '2px solid #000', borderRadius: '4px' }} />
+            <div style={{ position: 'absolute', left: '2px', top: '22px', width: '8px', height: '10px', backgroundColor: '#cbd5e1', border: '1px solid #000' }} />
+            <div style={{ position: 'absolute', left: '10px', top: '32px', width: '18px', height: '22px', backgroundColor: color, border: '2px solid #000' }} />
+            <div style={{ position: 'absolute', left: '12px', top: '14px', width: '16px', height: '18px', backgroundColor: '#ffdbac', border: '2px solid #000' }} />
+            <div style={{ position: 'absolute', left: '12px', top: '14px', width: '16px', height: '6px', backgroundColor: '#4b2c20' }} />
+            <div style={{ position: 'absolute', left: '24px', top: '14px', width: '4px', height: '12px', backgroundColor: '#4b2c20' }} />
+            <div style={{ position: 'absolute', left: '22px', top: '22px', width: '3px', height: '4px', backgroundColor: '#000' }} />
+            <div style={{ position: 'absolute', left: '18px', top: '38px', width: '14px', height: '6px', backgroundColor: '#ffdbac', border: '1px solid #000', borderRadius: '3px', transform: 'rotate(-20deg)' }} />
+            
+            {hasTerminal && (
+                <div style={{ position: 'absolute', left: '28px', top: '30px', width: '12px', height: '16px', backgroundColor: '#0f172a', border: '1px solid #3776ab', borderRadius: '2px', animation: 'terminal-glow 1s infinite alternate' }}>
+                    <div style={{ width: '8px', height: '6px', backgroundColor: '#3776ab', margin: '2px auto', opacity: 0.8 }} />
+                </div>
+            )}
+
+            <div style={{ position: 'absolute', left: '12px', top: '54px', width: '6px', height: '8px', backgroundColor: '#0f172a' }} />
+            <div style={{ position: 'absolute', left: '20px', top: '54px', width: '6px', height: '8px', backgroundColor: '#0f172a' }} />
         </div>
 
         {/* ENEMY COM SPRITE DINÂMICO */}
@@ -160,12 +187,16 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
           {isLoading ? 'Conectando ao terminal...' : message}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
-          <button style={actionBtnStyle} disabled={!isReady} onClick={() => { sounds.playSelect(); setShowEditor(true); }}>DEBUGAR</button>
-          <button style={actionBtnStyle} onClick={handleHint}>DICA (-5 XP)</button>
-          <button style={actionBtnStyle} onClick={handleExecute}>EXECUTAR</button>
-          <button style={actionBtnStyle} onClick={handleFlee}>FUGIR</button>
+          <button style={actionBtnStyle(!isReady)} disabled={!isReady} onClick={() => { sounds.playSelect(); setShowEditor(true); }}>DEBUGAR</button>
+          <button style={actionBtnStyle(!hasDocItem)} onClick={handleHint}>DICA</button>
+          <button style={actionBtnStyle()} onClick={handleExecute}>EXECUTAR</button>
+          <button style={actionBtnStyle()} onClick={handleFlee}>FUGIR</button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes terminal-glow { from { box-shadow: 0 0 2px #3776ab; } to { box-shadow: 0 0 10px #3776ab; } }
+      `}</style>
     </div>
   );
 };

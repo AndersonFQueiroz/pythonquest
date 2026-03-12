@@ -2,7 +2,8 @@ import React from 'react';
 import { useGameStore } from '../../hooks/useGameStore';
 
 const StatusBar: React.FC = () => {
-  const { name, level, hp, maxHp, xp, gold } = useGameStore();
+  const { name, level, hp, maxHp, xp, gold, inventory } = useGameStore();
+  const ssdCount = inventory.find(i => i.id === 'ssd_1tb')?.quantity || 0;
 
   const xpNeeded = level * 100;
   const xpPercent = Math.min(100, (xp / xpNeeded) * 100);
@@ -22,12 +23,21 @@ const StatusBar: React.FC = () => {
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <div style={{ color: '#ffd43b', fontSize: '8px' }}>{name} (Nv.{level})</div>
-        <div style={{ display: 'flex', gap: '15px' }}>
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span style={{ color: '#ff4757' }}>HP</span>
-                <div style={{ width: '70px', height: '6px', backgroundColor: '#000', border: '1px solid #444' }}>
+                <div style={{ width: '70px', height: '6px', backgroundColor: '#000', border: '1px solid #444', position: 'relative' }}>
                     <div style={{ width: `${hpPercent}%`, height: '100%', backgroundColor: hpPercent > 30 ? '#2ecc71' : '#ff4757', transition: 'width 0.3s' }} />
                 </div>
+                <span style={{ fontSize: '5px', opacity: 0.8 }}>{hp}/{maxHp}</span>
+                
+                {/* ÍCONE SSD UPGRADE */}
+                {ssdCount > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: '5px', color: '#ffd43b', fontSize: '6px' }}>
+                        +{ssdCount}
+                        <div style={{ width: '8px', height: '10px', backgroundColor: '#cbd5e1', border: '1px solid #3776ab', borderRadius: '1px', boxShadow: '0 0 5px rgba(55, 118, 171, 0.5)' }} />
+                    </div>
+                )}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <span style={{ color: '#3776ab' }}>XP</span>
