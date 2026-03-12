@@ -39,6 +39,22 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   
   const { name: playerName, color: playerColor, hasTerminal, hasNotebook, openedChests, correctedBugs, merchantLocation, showUnlockArrow } = useGameStore();
 
+  const [bossStage, setBossStage] = useState<'sitting' | 'rising' | 'standing'>('sitting');
+
+  useEffect(() => {
+    if (map.id === 'final_boss' && bossStage === 'sitting') {
+        const dist = Math.abs(playerPos.x - 10) + Math.abs(playerPos.y - 10);
+        if (dist <= 4) {
+            setBossStage('rising');
+            setTimeout(() => {
+                setBossStage('standing');
+                const malwarech = map.npcs.find(n => n.id === 'malwarech');
+                if (malwarech) onInteract({ type: 'npc', data: malwarech });
+            }, 1500);
+        }
+    }
+  }, [playerPos, map, bossStage, onInteract]);
+
   const isMerchantHere = merchantLocation === map.id;
 
   useEffect(() => {

@@ -87,7 +87,8 @@ export const world5Map: MapData = {
 ] }
   ],
   exits: [
-    { tileX: 0, tileY: 7, targetMap: "world4", targetX: 12, targetY: 18 }
+    { tileX: 0, tileY: 7, targetMap: "world4", targetX: 12, targetY: 18 },
+    { tileX: 12, tileY: 22, targetMap: "final_boss", targetX: 9, targetY: 17 }
   ],
   merchantPos: { x: 5, y: 2 },
   lockConfig: {

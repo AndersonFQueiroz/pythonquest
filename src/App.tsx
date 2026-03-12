@@ -12,6 +12,7 @@ import { world2Map } from './maps/world2';
 import { world3Map } from './maps/world3';
 import { world4Map } from './maps/world4';
 import { world5Map } from './maps/world5';
+import { finalBossMap } from './maps/final_boss';
 import { sounds } from './lib/sounds';
 import { logger } from './lib/logger'; // Importar logger
 import { useGameStore } from './hooks/useGameStore';
@@ -173,6 +174,7 @@ function App() {
       else if (targetMapId === 'world3') target = world3Map;
       else if (targetMapId === 'world4') target = world4Map;
       else if (targetMapId === 'world5') target = world5Map;
+      else if (targetMapId === 'final_boss') target = finalBossMap;
       else target = villageMap;
       setCurrentMap(target);
       setPlayerPos({ x, y });
