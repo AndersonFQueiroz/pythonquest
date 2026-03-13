@@ -35,10 +35,13 @@ export function useMapEngine(
     // Adiciona bloqueio físico aos guardas destravados se não falarmos com eles ainda
     if (map.lockConfig && x === map.lockConfig.gatePos.x && y === map.lockConfig.gatePos.y) {
         const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
-        if (clearedCount >= 4 || debugIgnoreBlocks) {
-             if (!hasTriggeredUnlock[map.id]) {
-                 return false;
-             }
+        const bossId = map.id === 'world1' ? 'glitch_byte' : map.id === 'world2' ? 'logic_void' : map.id === 'world3' ? 'stack_overlord' : map.id === 'world4' ? 'protocol_def' : map.id === 'world5' ? 'meta_class' : null;
+        const isBossDefeated = !bossId || correctedBugs.includes(bossId);
+
+        if ((clearedCount >= 4 && isBossDefeated) || debugIgnoreBlocks) {
+             if (!hasTriggeredUnlock[map.id]) return false;
+        } else {
+            return false;
         }
     }
 

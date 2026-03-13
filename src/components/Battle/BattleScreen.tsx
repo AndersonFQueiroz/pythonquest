@@ -11,9 +11,10 @@ interface BattleScreenProps {
   onWin: () => void;
   onLose: (isDead: boolean) => void;
   mapId: string;
+  bossOverride?: BugEnemy | null;
 }
 
-const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => {
+const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId, bossOverride }) => {
   const { 
     name, hp, maxHp, color, level, hasTerminal, inventory,
     gainGold, gainXp, recordBugDefeat, takeDamage, useItem 
@@ -21,10 +22,10 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
 
   const { isReady, isLoading, runCode } = usePyodide();
 
-  const [enemy, setEnemy] = useState<BugEnemy>(WORLD1_ENEMIES[0]);
+  const [enemy, setEnemy] = useState<BugEnemy>(bossOverride || WORLD1_ENEMIES[0]);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
-  const [enemyHp, setEnemyHp] = useState(100);
-  const [message, setMessage] = useState('');
+  const [enemyHp, setEnemyHp] = useState(bossOverride ? bossOverride.hp : 100);
+  const [message, setMessage] = useState(bossOverride ? bossOverride.stages[0].description : '');
   const [showEditor, setShowEditor] = useState(false);
   const [userCode, setUserCode] = useState('');
   const [chestError, setChestError] = useState<string | null>(null);
@@ -36,6 +37,13 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
   const hasDocItem = inventory.some(i => i.id === 'doc_offline' && i.quantity > 0);
 
   useEffect(() => {
+    if (bossOverride) {
+        setEnemy(bossOverride);
+        setEnemyHp(bossOverride.hp);
+        setMessage(bossOverride.stages[0].description);
+        return;
+    }
+
     let enemyPool = WORLD1_ENEMIES;
     if (mapId === 'world2') enemyPool = WORLD2_ENEMIES;
     else if (mapId === 'world3') enemyPool = WORLD3_ENEMIES;
@@ -47,7 +55,7 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
     setEnemy(targetEnemy);
     setEnemyHp(targetEnemy.hp);
     setMessage(targetEnemy.stages[0].description);
-  }, [mapId]);
+  }, [mapId, bossOverride]);
 
   const handleExecute = async () => {
     sounds.playSelect();
@@ -60,18 +68,21 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
     if (result.success && result.output === currentStage.expectedOutput) {
       sounds.playHit();
       const isLastStage = currentStageIndex === enemy.stages.length - 1;
-      const damage = isLastStage ? enemyHp : enemy.hp / enemy.stages.length;
-      setEnemyHp(prev => Math.max(0, prev - damage));
+      const damagePerStage = enemy.hp / enemy.stages.length;
+      setEnemyHp(prev => Math.max(0, prev - damagePerStage));
+
       if (isLastStage) {
         setCaptureFlash(true);
         gainXp(enemy.xpReward); gainGold(enemy.goldReward); recordBugDefeat(enemy.id);
-        setMessage(`VITÓRIA! +${enemy.xpReward} XP e +${enemy.goldReward} GOLD.`);
-        setTimeout(onWin, 3000);
+        setMessage(`VITÓRIA SUPREMA! ${enemy.name} foi depurado. +${enemy.xpReward} XP e +${enemy.goldReward} G.`);
+        setTimeout(onWin, 3500);
       } else {
-        setMessage('CÓDIGO ACEITO! O Bug sofreu dano.');
-        setCurrentStageIndex(prev => prev + 1);
-        setUserCode('');
-        setTimeout(() => setMessage(enemy.stages[currentStageIndex + 1].description), 2000);
+        setMessage(`FASE ${currentStageIndex + 1} CONCLUÍDA! O Boss recua... mas o código volta a falhar!`);
+        setTimeout(() => {
+            setCurrentStageIndex(prev => prev + 1);
+            setUserCode('');
+            setMessage(enemy.stages[currentStageIndex + 1].description);
+        }, 3000);
       }
     } else {
       sounds.playHit();
@@ -89,6 +100,10 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
   };
 
   const handleFlee = () => {
+    if (bossOverride) {
+        setMessage("VOCÊ NÃO PODE FUGIR DE UMA PROVA FINAL!");
+        return;
+    }
     sounds.playSelect();
     const firewall = inventory.find(i => i.id === 'firewall_pro' && i.quantity > 0);
     
@@ -196,7 +211,7 @@ const BattleScreen: React.FC<BattleScreenProps> = ({ onWin, onLose, mapId }) => 
           <button style={actionBtnStyle(!isReady)} disabled={!isReady} onClick={() => { sounds.playSelect(); setShowEditor(true); }}>DEBUGAR</button>
           <button style={actionBtnStyle(!hasDocItem)} onClick={handleHint}>DICA</button>
           <button style={actionBtnStyle()} onClick={handleExecute}>EXECUTAR</button>
-          <button style={actionBtnStyle()} onClick={handleFlee}>FUGIR</button>
+          <button style={actionBtnStyle(!!bossOverride)} onClick={handleFlee}>FUGIR</button>
         </div>
       </div>
 

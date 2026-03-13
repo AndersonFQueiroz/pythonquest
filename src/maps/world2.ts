@@ -13,18 +13,18 @@ export const world2Map: MapData = {
     [5, 4, 0, 19, 19, 19, 0, 5, 0, 4, 0, 5, 19, 19, 19, 0, 0, 0, 4, 5],
     [5, 4, 0, 0, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 4, 5],
     [5, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 5],
-    [6, 2, 2, 2, 2, 2, 2, 2, 2, 13, 2, 2, 2, 2, 2, 2, 2, 2, 18, 5], // ENTRADA
+    [6, 2, 2, 2, 2, 2, 2, 2, 2, 13, 2, 2, 2, 2, 2, 2, 2, 2, 18, 5], // ENTRADA (Placa x=9)
     [5, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0, 5, 5, 5, 5, 4, 4, 4, 4, 5],
     [5, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5],
     [5, 4, 0, 18, 0, 5, 5, 5, 5, 2, 5, 5, 5, 5, 0, 18, 0, 0, 4, 5],
     [5, 4, 0, 0, 0, 5, 1, 1, 1, 2, 1, 1, 1, 5, 0, 0, 0, 0, 4, 5],
-    [5, 4, 5, 5, 0, 5, 1, 8, 1, 2, 1, 1, 1, 5, 0, 5, 5, 4, 4, 5], // Cofre guardado por mato
+    [5, 4, 5, 5, 0, 5, 1, 8, 1, 2, 1, 1, 1, 5, 0, 5, 5, 4, 4, 5], 
     [5, 4, 18, 0, 0, 5, 1, 1, 1, 2, 1, 1, 1, 5, 0, 0, 18, 0, 4, 5],
     [5, 4, 0, 0, 0, 5, 5, 5, 5, 2, 5, 5, 5, 5, 0, 0, 0, 0, 4, 5],
     [5, 4, 0, 19, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 19, 0, 0, 4, 5],
-    [5, 4, 0, 19, 19, 0, 0, 0, 0, 2, 0, 0, 0, 0, 19, 19, 0, 0, 4, 5],
+    [5, 4, 0, 19, 19, 0, 0, 0, 0, 2, 13, 0, 0, 0, 19, 19, 0, 0, 4, 5], // Segunda Placa (x=10, y=16)
     [5, 4, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5],
-    [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 3 (x=9, y=18)
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -61,13 +61,21 @@ export const world2Map: MapData = {
     "BEM-VINDO ÀS CAVERNAS DAS DECISÕES!",
     "Na vida real você toma decisões o tempo todo. Se estiver chovendo, pega o guarda-chuva. Senão, não pega.",
     "Em Python funciona igual. O IF é uma pergunta. Se a resposta for verdadeira, o código dentro dele roda.",
-    "Se a resposta for falsa, o Python pula tudo dentro do IF e segue em frente.",
     "O ELSE é o plano B. Se a condição do IF for falsa, o Python executa o que está dentro do ELSE.",
     "Para perguntar se algo é IGUAL use ==. Um = apenas guarda um valor. Dois == fazem a pergunta.",
     "Para perguntar se algo é DIFERENTE use !=. Para maior use >. Para menor use <.",
-    "REGRA DE OURO: sempre termine a linha do IF com : e coloque 4 espaços no início da linha de baixo.",
-    "Sem os 4 espaços o Python não sabe o que faz parte do loop. É como uma frase sem fim",
-    "As Cavernas têm dois caminhos em cada porta. Só o código certo abre a saída. Boa sorte!"
+    "REGRA DE OURO: sempre termine a linha do IF com : e coloque 4 espaços no início da linha de baixo."
+] },
+    { tileX: 10, tileY: 16, messages: [
+    "[ AULA: LÓGICA COMPOSTA ]",
+    "Você pode combinar perguntas para tomar decisões complexas!",
+    "1. OPERADOR 'and': Retorna True apenas se AMBAS as condições forem verdadeiras.",
+    "Ex: if tem_chave and tem_ouro: # Precisa dos dois!",
+    " ",
+    "2. OPERADOR 'not': Ele inverte o valor de uma condição. O que é True vira False.",
+    "Ex: if not chovendo: # Só entra se NÃO estiver chovendo.",
+    " ",
+    "Lembre-se: O Juiz Boole ama a precisão. Use parênteses para organizar sua lógica se necessário!"
 ] }
   ],
   exits: [

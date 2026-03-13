@@ -13,7 +13,7 @@ export const world3Map: MapData = {
     [5, 0, 0, 0, 0, 5, 5, 2, 5, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5],
     [5, 5, 2, 5, 5, 5, 0, 2, 0, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5],
     [5, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 5],
-    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA
+    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA (Placa x=18)
     [5, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 5],
     [5, 5, 2, 5, 5, 5, 17, 2, 17, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5],
     [5, 16, 0, 0, 17, 17, 17, 2, 17, 17, 17, 0, 0, 0, 16, 5, 0, 0, 0, 5],
@@ -21,10 +21,10 @@ export const world3Map: MapData = {
     [5, 0, 4, 4, 17, 1, 1, 1, 1, 1, 17, 4, 4, 0, 5, 0, 4, 4, 0, 5],
     [5, 0, 0, 0, 17, 1, 1, 1, 1, 1, 17, 0, 0, 0, 5, 0, 0, 0, 0, 5],
     [5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-    [5, 16, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 5],
+    [5, 16, 0, 0, 0, 0, 0, 2, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 5], // Segunda Placa (x=8, y=15)
     [5, 0, 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 4 (x=7, y=18)
+    [5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -64,10 +64,19 @@ export const world3Map: MapData = {
     "O FOR é usado quando você sabe QUANTAS vezes quer repetir. Ex: 'para cada inimigo na lista, atacar'.",
     "for i in range(3): significa: repita 3 vezes. O i guarda o número da vez atual: 0, 1, 2.",
     "O WHILE é usado quando você NÃO sabe quantas vezes vai repetir. Ex: 'enquanto tiver vida, lutar'.",
-    "while vida > 0: significa: fique repetindo enquanto a vida for maior que zero.",
-    "ATENÇÃO: todo código dentro do loop precisa de 4 espaços no começo da linha. Isso se chama indentação.",
-    "Sem a indentação o Python não sabe o que faz parte do loop. É como esquecer de fechar uma porta.",
-    "Agora suba a torre, encontre os Bugs e use seus novos poderes para derrotá-los. Boa sorte!"
+    "while vida > 0: significa: fique repetindo enquanto a vida for maior que zero."
+] },
+    { tileX: 8, tileY: 15, messages: [
+    "[ AULA: CONTROLANDO CICLOS ]",
+    "Loops podem ser perigosos se não tiverem fim!",
+    "1. COMANDO 'break': Ele quebra o loop imediatamente e sai dele.",
+    "Ex: while True: print('Oi'); break # Roda só uma vez!",
+    " ",
+    "2. ACUMULADORES:",
+    "Você pode somar valores dentro de um loop para ter um total final.",
+    "Ex: soma = 0; for i in [1, 2]: soma += i # soma agora é 3!",
+    " ",
+    "O STACK-OVERLORD tentará te prender em loops eternos. Use o break!"
 ] }
   ],
   exits: [

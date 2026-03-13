@@ -12,7 +12,7 @@ export const world1Map: MapData = {
     [5, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 15, 0, 0, 0, 0, 0, 0, 0, 15, 3, 3, 2, 0, 3, 5],
-    [2, 2, 2, 2, 3, 0, 7, 7, 7, 0, 13, 0, 0, 0, 3, 3, 2, 2, 6, 5], // ENTRADA E SAÍDA
+    [2, 2, 2, 2, 3, 0, 7, 7, 7, 0, 13, 0, 0, 13, 3, 3, 2, 2, 6, 5], // Placas em x=10 e x=13
     [5, 3, 0, 2, 3, 0, 7, 7, 7, 0, 0, 0, 0, 0, 3, 3, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 0, 0, 0, 0, 0, 4, 4, 4, 0, 3, 3, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 4, 8, 4, 0, 3, 3, 2, 0, 3, 5], // Cofre escondido
@@ -63,6 +63,18 @@ export const world1Map: MapData = {
     "ATENÇÃO: Python diferencia maiúsculas de minúsculas. Vida, vida e VIDA são três variáveis diferentes.",
     "Nomes de variáveis não podem ter espaços nem começar com números. Use underline: minha_vida = 100.",
     "Esta floresta está cheia de variáveis corrompidas. Corrija o código e restaure a ordem. Boa sorte!"
+] },
+    { tileX: 13, tileY: 6, messages: [
+    "[ AULA: TÉCNICAS DE VARIÁVEIS ]",
+    "1. ATUALIZANDO VALORES:",
+    "Para aumentar o valor de uma variável, você deve salvar o resultado nela mesma!",
+    "xp = 100",
+    "xp = xp + 50 # XP agora vale 150",
+    " ",
+    "2. CONVERSÃO PARA TEXTO:",
+    "Para somar um Número com um Texto em um print(), use a função str().",
+    "print('Nivel: ' + str(nivel))",
+    "Isso evita o erro de 'TypeError'."
 ] }
   ],
   exits: [

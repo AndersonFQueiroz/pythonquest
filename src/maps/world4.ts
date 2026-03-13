@@ -10,21 +10,21 @@ export const world4Map: MapData = {
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 21, 21, 21, 0, 0, 20, 0, 0, 0, 22, 22, 22, 0, 0, 0, 20, 0, 0, 21, 21, 21, 0, 5],
     [5, 0, 21, 0, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 0, 21, 0, 5],
-    [5, 0, 21, 0, 20, 0, 0, 0, 0, 22, 22, 8, 22, 22, 22, 22, 0, 0, 0, 20, 0, 0, 21, 0, 5], // Cofre no meio da água
+    [5, 0, 21, 0, 20, 0, 0, 0, 0, 22, 22, 8, 22, 22, 22, 22, 0, 0, 0, 20, 0, 0, 21, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 5],
-    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA
+    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA (Placa x=23)
     [5, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 21, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 21, 0, 5],
     [5, 0, 21, 21, 21, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 21, 21, 21, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 22, 22, 22, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 5],
-    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5], // Caminho (2) adicionado no meio do mato
+    [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5],
     [5, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 0, 2, 0, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 5], // ABERTURA NA DUNA
+    [5, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 0, 2, 0, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 13, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA REINO 5 (x=12, y=18)
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 13, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA (Placa x=13)
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -63,13 +63,21 @@ export const world4Map: MapData = {
     "BEM-VINDO AO TEMPLO DAS FUNÇÕES!",
     "Você já percebeu que fica repetindo o mesmo código em lugares diferentes? Função resolve isso.",
     "Uma função é um bloco de código com nome. Você escreve uma vez e usa quantas vezes quiser.",
-    "Pense em uma receita de bolo. Você escreve a receita uma vez e pode fazer o bolo sempre que quiser.",
     "Para criar uma função use def seguido do nome e parênteses. Depois : e 4 espaços na linha de baixo.",
-    "Os parâmetros são as informações que você passa para a função trabalhar. Como os ingredientes da receita.",
-    "O return é o resultado que a função devolve para você. Sem return ela executa mas não entrega nada.",
     "IMPORTANTE: a função só roda quando você a chama pelo nome. Escrever def apenas cria, não executa.",
-    "Você pode chamar a mesma função mil vezes com ingredientes diferentes e ter mil resultados diferentes.",
     "Os Bugs deste templo se escondem dentro de funções quebradas. Encontre o erro e invoque o poder. Boa sorte!"
+] },
+    { tileX: 13, tileY: 18, messages: [
+    "[ AULA: MAGIA AVANÇADA ]",
+    "1. PARÂMETROS MÚLTIPLOS:",
+    "Uma função pode receber quantos ingredientes você quiser!",
+    "Ex: def magia(forca, aura): print(forca + aura)",
+    "Na hora de chamar, passe os valores na mesma ordem: magia(10, 20)",
+    " ",
+    "2. O PODER DO ESCOPO:",
+    "Variáveis criadas DENTRO de uma função são locais. Elas não existem do lado de fora!",
+    "Para usar o valor de uma função fora dela, você deve imprimir o seu RETURN.",
+    "Ex: print(funcao_magica())"
 ] }
   ],
   exits: [

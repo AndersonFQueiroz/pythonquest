@@ -14,10 +14,11 @@ import { world4Map } from './maps/world4';
 import { world5Map } from './maps/world5';
 import { finalBossMap } from './maps/final_boss';
 import { sounds } from './lib/sounds';
-import { logger } from './lib/logger'; // Importar logger
+import { logger } from './lib/logger'; 
 import { useGameStore } from './hooks/useGameStore';
 import type { InventoryItem } from './hooks/useGameStore';
 import { usePyodide } from './hooks/usePyodide';
+import { BOSSES_ENEMIES } from './data/bugs';
 
 export type GameState = 'title' | 'char_creation' | 'loading' | 'map' | 'battle';
 
@@ -43,6 +44,52 @@ function App() {
   const [shake, setShake] = useState(false);
   const [activeDialog, setActiveDialog] = useState<{ name: string, messages: string[], onFinish?: () => void } | null>(null);
   
+  const [battleBoss, setBattleBoss] = useState<any | null>(null);
+  const [showTPMenu, setShowTPMenu] = useState(false);
+
+  const { 
+    gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
+    resetPlayer, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
+    correctedBugs, setUnlockArrow, debugIgnoreBlocks, setDebugIgnoreBlocks
+  } = useGameStore();
+
+  const triggerBossBattle = (bossId: string) => {
+      const boss = BOSSES_ENEMIES.find(b => b.id === bossId);
+      if (boss) {
+          setBattleBoss(boss);
+          sounds.playEncounter();
+          setFlash(true);
+          setTimeout(() => { setGameState('battle'); setFlash(false); }, 500);
+      }
+  };
+
+  const getCurrentMapWithBoss = () => {
+      const map = { ...currentMap };
+      if (!map.lockConfig) return map;
+
+      const hasAllBugs = map.lockConfig.requiredBugs.every(id => correctedBugs.includes(id));
+      const bossId = map.id === 'world1' ? 'glitch_byte' : 
+                     map.id === 'world2' ? 'logic_void' :
+                     map.id === 'world3' ? 'stack_overlord' :
+                     map.id === 'world4' ? 'protocol_def' :
+                     map.id === 'world5' ? 'meta_class' : null;
+
+      if ((hasAllBugs || debugIgnoreBlocks) && bossId && !correctedBugs.includes(bossId)) {
+          const bossNPC = {
+              id: bossId,
+              name: `BOSS: ${bossId.replace('_', ' ').toUpperCase()}`,
+              tileX: map.lockConfig.gatePos.x - 1,
+              tileY: map.lockConfig.gatePos.y,
+              dialog: ["PARE AI, APRENDIZ!", "Eu sou a Prova Final deste Reino.", "Se voce nao domina a materia, Pythoria sera o seu fim!", "PREPARE-SE PARA A DEPURACAO!"],
+              isBoss: true
+          };
+          if (!map.npcs.some(n => n.id === bossId)) {
+              map.npcs = [...map.npcs, bossNPC];
+          }
+      }
+      return map;
+  };
+
   const [areaTitle, setAreaTitle] = useState<string | null>(null);
   const [showNotebook, setShowNotebook] = useState(false);
   const [showShop, setShowShop] = useState(false);
@@ -53,13 +100,7 @@ function App() {
   const [chestError, setChestError] = useState<string | null>(null);
   
   const { runCode } = usePyodide();
-  const { 
-    gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
-    resetPlayer, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
-    correctedBugs, setUnlockArrow, debugIgnoreBlocks, setDebugIgnoreBlocks
-  } = useGameStore();
 
-  // Monitora progresso de Bugmons para liberar o próximo Reino
   useEffect(() => {
     const kingdomBugs = {
         'world1': ['syntax_wasp', 'type_goblin', 'name_bat', 'print_ghost'],
@@ -72,10 +113,8 @@ function App() {
     if (currentBugs) {
         const cleared = currentBugs.every(id => correctedBugs.includes(id));
         if (cleared) {
-            // Só dispara se acabamos de completar
             const count = correctedBugs.filter(id => currentBugs.includes(id)).length;
             if (count === 4) {
-                // Ativa a seta por 5 segundos
                 setUnlockArrow(true);
                 setTimeout(() => setUnlockArrow(false), 5000);
             }
@@ -112,10 +151,10 @@ function App() {
     if (!interaction || activeDialog || activeChest || showNotebook || showShop) return;
 
     if (interaction.type === 'npc' || interaction.type === 'sign') {
-      let messages = interaction.data.dialog;
+      const npc = interaction.data;
+      let messages = npc.dialog;
       
-      // Diálogo de Lore após PEP-8 entregar os itens
-      if (interaction.data.id === 'pep8' && hasTerminal) {
+      if (npc.id === 'pep8' && hasTerminal) {
           messages = [
               "O mundo do PythonQuest é regido pelo Zen do Python.",
               "Os Bugs que você vê são fragmentos de lógica que perderam sua clareza.",
@@ -125,9 +164,12 @@ function App() {
           ];
       }
 
-      setActiveDialog({ name: interaction.data.name || 'PLACA', messages });
+      setActiveDialog({ 
+          name: npc.name || 'PLACA', 
+          messages,
+          onFinish: npc.isBoss ? () => triggerBossBattle(npc.id) : undefined
+      });
       
-      // Salva no caderno se for uma placa de aula (começa com [ AULA ou BEM-VINDO)
       if (interaction.type === 'sign' && (messages[0].startsWith('[ AULA') || messages[0].startsWith('BEM-VINDO'))) {
           addNote(messages[0], messages);
       }
@@ -184,13 +226,54 @@ function App() {
   }, [setPlayerPos]);
 
   const handleEndBattle = (isDead: boolean) => {
+    const wasBoss = !!battleBoss;
+    const wasMalwarech = battleBoss?.id === 'malwarech';
+    const bossPhrase = battleBoss?.deathPhrase;
+    const bossName = battleBoss?.name;
+    
     if (isDead) {
-        resetPlayer(); setCurrentMap(villageMap); setFlash(true); setGameState('map');
+        resetPlayer(); 
+        setCurrentMap(villageMap); 
+        setPlayerPos({ x: 10, y: 10 });
+        setFlash(true); 
+        setGameState('map');
         setTimeout(() => {
             setFlash(false);
             setActiveDialog({ name: 'Mentora PEP-8', messages: ["Seu sistema falhou...", "Vou restaurar seus dados. Não desista!"] });
         }, 500);
-    } else { setGameState('map'); }
+    } else { 
+        if (wasMalwarech) {
+            setGameState('map');
+            setActiveDialog({ 
+                name: bossName || 'MALWARECH', 
+                messages: [bossPhrase || "O sistema foi restaurado."],
+                onFinish: () => {
+                    setFlash(true);
+                    setTimeout(() => {
+                        setFlash(false);
+                        setActiveDialog({ 
+                            name: 'SISTEMA', 
+                            messages: ["O Núcleo foi depurado. Pythoria está restaurada!", "O Zen do Python agora reina absoluto em todo o sistema.", "Parabéns, Mestre do Código! Você finalizou o PythonQuest."],
+                            onFinish: () => setGameState('title')
+                        });
+                    }, 1000);
+                }
+            });
+        } else if (wasBoss) {
+            setGameState('map');
+            setFlash(true); // Flash de vitória imediato
+            setTimeout(() => {
+                setFlash(false);
+                setActiveDialog({ 
+                    name: bossName || 'BOSS', 
+                    messages: [bossPhrase || "Você me venceu..."]
+                });
+            }, 500);
+        } else {
+            setGameState('map'); 
+        }
+    }
+    setBattleBoss(null); 
   };
 
   useEffect(() => {
@@ -203,11 +286,8 @@ function App() {
   useEffect(() => {
     const handleGlobalKeys = (e: KeyboardEvent) => {
         if (gameState !== 'map') return;
-        
-        // Bloqueio rigoroso: se o alvo do evento for um campo de texto, ignora o atalho
         const target = e.target as HTMLElement;
         if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT' || activeChest || activeDialog || showShop) return;
-        
         if (e.key.toLowerCase() === 'c' && hasNotebook) setShowNotebook(prev => !prev);
     };
     window.addEventListener('keydown', handleGlobalKeys);
@@ -225,7 +305,18 @@ function App() {
           <div style={{ backgroundColor: '#0f172a', color: '#fff', padding: '5px', fontSize: '7px', textAlign: 'center', borderBottom: '2px solid #3776ab', position: 'relative' }}>
             {hasNotebook ? '[ WASD = Andar | E = Interagir | C = Caderno ]' : '[ WASD = Andar | E/ENTER = Interagir ]'}
             
-            {/* BOTÃO DEBUG - APENAS PARA TESTES */}
+            <button 
+                onClick={() => setShowTPMenu(!showTPMenu)}
+                style={{
+                    position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)',
+                    fontSize: '5px', padding: '2px 5px', cursor: 'pointer',
+                    backgroundColor: '#3776ab',
+                    color: '#fff', border: 'none', borderRadius: '2px', fontFamily: '"Press Start 2P"'
+                }}
+            >
+                TP
+            </button>
+
             <button 
                 onClick={() => setDebugIgnoreBlocks(!debugIgnoreBlocks)}
                 style={{
@@ -241,6 +332,26 @@ function App() {
           <StatusBar />
           <div style={{ flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: '#000' }}>
             
+            {showTPMenu && (
+                <div style={{ position: 'absolute', left: '5px', top: '5px', backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '2px solid #3776ab', zIndex: 5000, padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{ fontSize: '5px', color: '#ffd43b', marginBottom: '5px', textAlign: 'center' }}>TELEPORTE RÁPIDO</div>
+                    {[
+                        { id: 'village', name: 'VILA', x: 10, y: 10 },
+                        { id: 'world1', name: 'R1: VARIÁVEIS', x: 1, y: 6 },
+                        { id: 'world2', name: 'R2: DECISÕES', x: 1, y: 7 },
+                        { id: 'world3', name: 'R3: LOOPS', x: 1, y: 7 },
+                        { id: 'world4', name: 'R4: FUNÇÕES', x: 1, y: 7 },
+                        { id: 'world5', name: 'R5: OOP', x: 1, y: 7 },
+                        { id: 'final_boss', name: 'BOSS FINAL', x: 11, y: 21 }
+                    ].map(loc => (
+                        <button key={loc.id} onClick={() => { handlePortal(loc.id, loc.x, loc.y); setShowTPMenu(false); }} style={{ padding: '5px', fontSize: '5px', fontFamily: '"Press Start 2P"', cursor: 'pointer', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #3776ab' }}>
+                            {loc.name}
+                        </button>
+                    ))}
+                    <button onClick={() => setShowTPMenu(false)} style={{ marginTop: '5px', padding: '5px', fontSize: '5px', color: '#ff4757', border: 'none', background: 'none', cursor: 'pointer' }}>[X] FECHAR</button>
+                </div>
+            )}
+
             {areaTitle && (
                 <div style={{ position: 'absolute', top: '40px', left: 0, right: 0, zIndex: 1000, display: 'flex', justifyContent: 'center', pointerEvents: 'none', animation: 'title-in-out 4s forwards' }}>
                     <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: '15px 30px', border: '2px solid #3776ab', boxShadow: '0 5px 15px rgba(0,0,0,0.5)', textAlign: 'center' }}>
@@ -257,13 +368,12 @@ function App() {
             )}
 
             <div style={{ display: gameState === 'map' ? 'block' : 'none', height: '100%' }}>
-              <MapCanvas key={currentMap.id} map={currentMap} spawnPos={null} onEncounter={triggerBattle} onInteract={handleInteract} onPortal={handlePortal} onOpenNotebook={() => setShowNotebook(true)} isDialogActive={!!activeDialog || !!activeChest || showNotebook || showShop} />
+              <MapCanvas key={currentMap.id} map={getCurrentMapWithBoss()} spawnPos={null} onEncounter={triggerBattle} onInteract={handleInteract} onPortal={handlePortal} onOpenNotebook={() => setShowNotebook(true)} isDialogActive={!!activeDialog || !!activeChest || showNotebook || showShop} />
             </div>
 
             {showNotebook && (
                 <div style={{ position: 'absolute', inset: '20px', backgroundColor: '#fdf6e3', border: '8px double #856404', zIndex: 2000, padding: '20px', color: '#333', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column', boxShadow: '0 10px 30px rgba(0,0,0,0.8)' }}>
                     <h3 style={{ fontSize: '10px', textAlign: 'center', marginBottom: '20px', color: '#856404', borderBottom: '2px solid #856404', paddingBottom: '10px' }}>[ CADERNO E INVENTÁRIO ]</h3>
-                    
                     <div style={{ display: 'flex', gap: '20px', flex: 1, overflow: 'hidden' }}>
                         <div style={{ flex: 1, overflowY: 'auto', fontSize: '6px', lineHeight: '1.8', borderRight: '1px solid #ddd', paddingRight: '10px' }}>
                             <div style={{ fontWeight: 'bold', marginBottom: '10px', color: '#856404' }}>ANOTAÇÕES:</div>
@@ -288,15 +398,7 @@ function App() {
                             ))}
                         </div>
                     </div>
-                    
-                    {/* BOTÃO DE TELEMETRIA (DEBUG) */}
-                    <button 
-                        onClick={() => { sounds.playSelect(); logger.exportLogs(); }} 
-                        style={{ marginTop: '10px', padding: '10px', backgroundColor: '#3776ab', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '6px', opacity: 0.8 }}
-                    >
-                        GERAR RELATÓRIO DE ERROS
-                    </button>
-
+                    <button onClick={() => { sounds.playSelect(); logger.exportLogs(); }} style={{ marginTop: '10px', padding: '10px', backgroundColor: '#3776ab', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '6px', opacity: 0.8 }}>GERAR RELATÓRIO DE ERROS</button>
                     <button onClick={() => setShowNotebook(false)} style={{ marginTop: '10px', padding: '10px', backgroundColor: '#856404', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '8px' }}>FECHAR (C)</button>
                 </div>
             )}
@@ -304,37 +406,21 @@ function App() {
             {showShop && (
                 <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(15, 23, 42, 0.98)', border: '4px solid #ff8c00', zIndex: 2000, padding: '20px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
                     <h3 style={{ fontSize: '10px', textAlign: 'center', marginBottom: '15px', color: '#ff8c00' }}>[ LOJA DO MERCADOR ]</h3>
-                    
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', alignItems: 'center' }}>
-                        <div style={{ fontSize: '6px', color: shopMessage?.includes('INSUFICIENTE') ? '#ff4757' : '#2ecc71', height: '10px' }}>
-                            {shopMessage}
-                        </div>
+                        <div style={{ fontSize: '6px', color: shopMessage?.includes('INSUFICIENTE') ? '#ff4757' : '#2ecc71', height: '10px' }}>{shopMessage}</div>
                         <div style={{ fontSize: '8px', color: '#ffd43b' }}>SEU OURO: {gold} G</div>
                     </div>
-
                     <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {MERCHANT_STOCK.map(item => (
                             <div key={item.id} style={{ padding: '10px', border: '1px solid #3776ab', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-                                    <div style={{ transform: 'scale(1.5)' }}>
-                                        <ItemIcon id={item.id} />
-                                    </div>
+                                    <div style={{ transform: 'scale(1.5)' }}><ItemIcon id={item.id} /></div>
                                     <div>
                                         <div style={{ fontSize: '7px', color: '#ffd43b' }}>{item.name} - {item.price} G</div>
                                         <div style={{ fontSize: '5px', marginTop: '4px', opacity: 0.8, lineHeight: '1.4' }}>{item.description}</div>
                                     </div>
                                 </div>
-                                <button 
-                                    onClick={() => { 
-                                        sounds.playSelect(); 
-                                        const r = buyItem(item); 
-                                        setShopMessage(r.message);
-                                        setTimeout(() => setShopMessage(null), 3000);
-                                    }} 
-                                    style={{ padding: '8px', backgroundColor: '#3776ab', color: '#fff', border: 'none', fontSize: '6px', cursor: 'pointer', boxShadow: '0 2px 0 #0f172a' }}
-                                >
-                                    COMPRAR
-                                </button>
+                                <button onClick={() => { sounds.playSelect(); const r = buyItem(item); setShopMessage(r.message); setTimeout(() => setShopMessage(null), 3000); }} style={{ padding: '8px', backgroundColor: '#3776ab', color: '#fff', border: 'none', fontSize: '6px', cursor: 'pointer', boxShadow: '0 2px 0 #0f172a' }}>COMPRAR</button>
                             </div>
                         ))}
                     </div>
@@ -342,7 +428,7 @@ function App() {
                 </div>
             )}
 
-            {gameState === 'battle' && <BattleScreen onWin={() => handleEndBattle(false)} onLose={(dead) => handleEndBattle(dead)} mapId={currentMap.id} />}
+            {gameState === 'battle' && <BattleScreen onWin={() => handleEndBattle(false)} onLose={(dead) => handleEndBattle(dead)} mapId={currentMap.id} bossOverride={battleBoss} />}
             {activeDialog && <DialogBox name={activeDialog.name} messages={activeDialog.messages} onComplete={() => { if(activeDialog.onFinish) activeDialog.onFinish(); setActiveDialog(null); }} />}
             {activeChest && !activeDialog && <CodeEditor problem={activeChest.puzzle} code={chestCode} onChange={setChestCode} onExecute={handleExecuteChest} onClose={() => setActiveChest(null)} errorFeedback={chestError} />}
           </div>
