@@ -259,13 +259,9 @@ const CutscenePlayer: React.FC<CutscenePlayerProps> = ({ cutsceneId, playerName,
       return () => clearTimeout(t);
     }
 
-    let isMounted = true;
-
     if (currentBeat.type === 'pause') {
-      const t = setTimeout(() => {
-        if (isMounted) advanceBeat();
-      }, currentBeat.duration || 1000);
-      return () => { isMounted = false; clearTimeout(t); };
+      const t = setTimeout(advanceBeat, currentBeat.duration || 1000);
+      return () => clearTimeout(t);
     }
 
     if (currentBeat.type === 'visual_desc') {
@@ -279,42 +275,37 @@ const CutscenePlayer: React.FC<CutscenePlayerProps> = ({ cutsceneId, playerName,
       setDisplayedText('');
       setIsTyping(true);
       
-      let charIndex = 0;
-      const typeNextChar = () => {
-        if (!isMounted) return;
-        if (charIndex < fullText.length) {
-          setDisplayedText(prev => prev + fullText.charAt(charIndex));
-          charIndex++;
-          setTimeout(typeNextChar, 28);
-        } else {
-          setIsTyping(false);
-        }
-      };
-      setTimeout(typeNextChar, 100);
+      let index = 0;
+      const interval = setInterval(() => {
+          index++;
+          setDisplayedText(fullText.slice(0, index));
+          if (index >= fullText.length) {
+              clearInterval(interval);
+              setIsTyping(false);
+          }
+      }, 28);
+      
+      return () => clearInterval(interval);
     } else if (currentBeat.type === 'code') {
       setDisplayedCodeLines([]);
-      setIsTyping(true); // Tratamos a renderização do código como "typing" para bloquear avanço instantâneo do texto (embora o código avance linha por linha)
+      setIsTyping(true);
       
       const lines = currentBeat.codeLines || [];
+      const parsedLines = lines.map(l => l.replace(/{playerName}/g, playerName));
       let lineIndex = 0;
       
-      const typeNextLine = () => {
-        if (!isMounted) return;
-        if (lineIndex < lines.length) {
-          let line = lines[lineIndex];
-          line = line.replace(/{playerName}/g, playerName);
-          setDisplayedCodeLines(prev => [...prev, line]);
+      const interval = setInterval(() => {
           lineIndex++;
-          setTimeout(typeNextLine, 400);
-        } else {
-          setIsTyping(false);
-        }
-      };
-      setTimeout(typeNextLine, 200);
-    }
+          setDisplayedCodeLines(parsedLines.slice(0, lineIndex));
+          if (lineIndex >= parsedLines.length) {
+              clearInterval(interval);
+              setIsTyping(false);
+          }
+      }, 400);
 
-    return () => { isMounted = false; };
-  }, [beatIndex]);
+      return () => clearInterval(interval);
+    }
+  }, [beatIndex, currentBeat, playerName]);
 
   // Scroll automático do painel de código
   useEffect(() => {
