@@ -6,7 +6,6 @@ import BattleScreen from './components/Battle/BattleScreen';
 import CreditsScreen from './components/UI/CreditsScreen';
 import DialogBox from './components/UI/DialogBox';
 import StatusBar from './components/UI/StatusBar';
-import VolumeControl from './components/UI/VolumeControl';
 import CodeEditor from './components/Battle/CodeEditor';
 import AuthScreen from './components/UI/AuthScreen';
 import CutscenePlayer from './components/UI/CutscenePlayer';
