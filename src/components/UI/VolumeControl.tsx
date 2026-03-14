@@ -36,6 +36,7 @@ const VolumeControl: React.FC = () => {
         position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
+        height: '100%',
         fontFamily: '"Press Start 2P"',
       }}
     >
@@ -124,8 +125,8 @@ const VolumeControl: React.FC = () => {
         onClick={() => setExpanded(prev => !prev)}
         title={expanded ? 'Fechar controle de volume' : 'Volume'}
         style={{
-          width: '32px',
-          height: '32px',
+          width: '28px',
+          height: '28px',
           backgroundColor: expanded
             ? '#3776ab'
             : muted
