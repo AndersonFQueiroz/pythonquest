@@ -8,8 +8,8 @@ export const villageMap: MapData = {
   tiles: [
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 11, 11, 11, 0, 0, 0, 0, 0, 11, 11, 11, 0, 0, 0, 0, 0, 0, 0, 5], 
-    [5, 10, 10, 10, 0, 13, 0, 0, 0, 10, 29, 10, 0, 0, 0, 0, 0, 0, 0, 5], 
-    [5, 0, 0, 0, 0, 2, 2, 2, 2, 13, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5],
+    [5, 10, 10, 10, 0, 13, 0, 0, 13, 10, 29, 10, 0, 0, 0, 0, 0, 0, 0, 5], 
+    [5, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5],
     [5, 0, 12, 12, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 5], 
     [5, 0, 12, 12, 0, 2, 0, 12, 12, 0, 14, 0, 0, 0, 0, 0, 0, 0, 2, 5], 
     [5, 2, 2, 2, 2, 2, 0, 12, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6],
@@ -63,7 +63,7 @@ export const villageMap: MapData = {
   signs: [
     { tileX: 5, tileY: 2, messages: ["AVISO: Não alimente os Bugs com variáveis não declaradas."] },
     { tileX: 7, tileY: 8, messages: ["DICA: Use aspas para textos, e nada para números!"] },
-    { tileX: 9, tileY: 2, messages: ["CASA DO APRENDIZ", "Um lugar para descansar da aventura e imortalizar seu progresso na cama."] }
+    { tileX: 8, tileY: 2, messages: ["CASA DO APRENDIZ", "Um lugar para descansar da aventura e imortalizar seu progresso na cama."] }
   ],
   exits: [
     { tileX: 18, tileY: 6, targetMap: "world1", targetX: 1, targetY: 6 },
