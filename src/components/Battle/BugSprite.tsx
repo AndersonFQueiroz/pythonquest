@@ -152,14 +152,13 @@ export const BugSprite: React.FC<BugSpriteProps> = ({ id, shadow = false }) => {
         ctx.shadowBlur=0;
       }
 
-      // ── META-CLASS: blueprint + octógono girando + 4 cópias orbitando ───────
+      // ── META-CLASS: octógono girando + 4 cópias orbitando ──────────────────
       else if (id === 'meta_class') {
         const centerX = 40; const centerY = 40;
 
-        // Fundo blueprint
-        ctx.fillStyle = '#0d1b2a'; ctx.fillRect(0, 0, 80, 80);
-        ctx.strokeStyle = 'rgba(55,118,171,0.25)'; ctx.lineWidth = 1;
-        for (let i = 0; i < 80; i += 8) {
+        // Grade blueprint sutil (sem fundo sólido — o canvas da batalha já tem fundo)
+        ctx.strokeStyle = 'rgba(55,118,171,0.15)'; ctx.lineWidth = 0.5;
+        for (let i = 0; i < 80; i += 10) {
           ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 80); ctx.stroke();
           ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(80, i); ctx.stroke();
         }

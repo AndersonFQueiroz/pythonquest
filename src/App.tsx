@@ -388,7 +388,20 @@ function App() {
             onSkip={() => setGameState('title')} 
         />
       )}
-      {gameState === 'title' && <TitleScreen onStart={handleStartGame} onContinue={() => { sounds.playSelect(); sounds.playAmbientMusic(currentMap.id); setGameState('map'); }} />}
+      {gameState === 'title' && <TitleScreen onStart={handleStartGame} onContinue={() => {
+          sounds.playSelect();
+          // Sincroniza o mapa React com o que foi salvo no store
+          const savedMapId = (useGameStore.getState() as any).currentMapId || 'village';
+          const mapTable: Record<string, any> = {
+            village: villageMap, world1: world1Map, world2: world2Map,
+            world3: world3Map, world4: world4Map, world5: world5Map,
+            player_house: playerHouseMap, final_boss: finalBossMap
+          };
+          const savedMap = mapTable[savedMapId] || villageMap;
+          setCurrentMap(savedMap);
+          sounds.playAmbientMusic(savedMapId);
+          setGameState('map');
+        }} />}
       {gameState === 'char_creation' && <CharacterCreation onFinish={handleFinishCreation} />}
       {gameState === 'cutscene' && (
         <CutscenePlayer 
@@ -483,7 +496,6 @@ function App() {
 
             <div style={{ display: gameState === 'map' ? 'block' : 'none', height: '100%', position: 'relative' }}>
               <MapCanvas key={currentMap.id} map={getCurrentMapWithBoss()} spawnPos={null} onEncounter={triggerBattle} onInteract={handleInteract} onPortal={handlePortal} onOpenNotebook={() => setShowNotebook(true)} isDialogActive={!!activeDialog || !!activeChest || showNotebook || showShop} />
-              <VolumeControl />
             </div>
 
             {showNotebook && (
