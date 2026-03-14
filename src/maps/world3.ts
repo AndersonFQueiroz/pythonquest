@@ -13,7 +13,7 @@ export const world3Map: MapData = {
     [5, 0, 0, 0, 0, 5, 5, 2, 5, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5],
     [5, 5, 2, 5, 5, 5, 0, 2, 0, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5],
     [5, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 5],
-    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA (Placa x=18)
+    [6, 2, 2, 2, 2, 2, 2, 2, 2, 13, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5],
     [5, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 5],
     [5, 5, 2, 5, 5, 5, 17, 2, 17, 5, 5, 5, 2, 5, 5, 5, 5, 2, 5, 5],
     [5, 16, 0, 0, 17, 17, 17, 2, 17, 17, 17, 0, 0, 0, 16, 5, 0, 0, 0, 5],
@@ -21,10 +21,10 @@ export const world3Map: MapData = {
     [5, 0, 4, 4, 17, 1, 1, 1, 1, 1, 17, 4, 4, 0, 5, 0, 4, 4, 0, 5],
     [5, 0, 0, 0, 17, 1, 1, 1, 1, 1, 17, 0, 0, 0, 5, 0, 0, 0, 0, 5],
     [5, 5, 5, 5, 5, 5, 5, 2, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-    [5, 16, 0, 0, 0, 0, 0, 2, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 5], // Segunda Placa (x=8, y=15)
+    [5, 16, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 5],
     [5, 0, 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA
+    [5, 5, 5, 5, 5, 5, 5, 6, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -32,10 +32,12 @@ export const world3Map: MapData = {
     {
       id: "iterador", name: "Iterador-X", tileX: 10, tileY: 15,
       dialog: [
-        "Bip... Bop... Repetindo... Repetindo...",
-        "Cuidado, Aprendiz! Um loop 'while True:' sem o comando 'break' é uma prisão eterna para a CPU.",
-        "Eu esqueci meu 'break' em algum lugar da torre... não cometa o mesmo erro!",
-        "REPETINDO... REPETINDO..."
+        "Bip... Bop... Iteração 4.821.903... Bip... Bop...",
+        "MALWARECH deletou meu 'break'. Estou preso neste loop desde antes de você nascer.",
+        "Cada vez que completo um ciclo, eu me lembro: 'desta vez vou sair'. Mas o loop reinicia.",
+        "Você precisa entender: 'while True:' sem 'break' é uma sentença perpétua.",
+        "O STACK-OVERLORD se alimenta destes loops. Quanto mais iterações, mais forte ele fica.",
+        "Bip... Bop... Iteração 4.821.904... Bip... Bop..."
       ]
     },
     {
@@ -48,36 +50,38 @@ export const world3Map: MapData = {
     }
   ],
   chests: [
-    { 
-      tileX: 7, tileY: 2, 
+    {
+      tileX: 7, tileY: 2,
       description: "Este cofre industrial usa um loop 'for' para gerar a senha, mas a palavra 'in' sumiu!",
-      puzzle: "for i ?? range(3):\n  print(i)", 
-      expected: "0\n1\n2", 
-      reward: 200 
+      puzzle: "for i ?? range(3):\n  print(i)",
+      expected: "0\n1\n2",
+      reward: 200
     }
   ],
   signs: [
-    { tileX: 18, tileY: 7, messages: [
-    "BEM-VINDO À TORRE DAS REPETIÇÕES!",
-    "Imagine que você precisa dizer 'Olá' 100 vezes. Você escreveria 100 linhas? Com loops, não!",
-    "LOOP é uma ordem para o Python repetir algo. Tipo um disco travado, mas você controla quando para.",
-    "O FOR é usado quando você sabe QUANTAS vezes quer repetir. Ex: 'para cada inimigo na lista, atacar'.",
-    "for i in range(3): significa: repita 3 vezes. O i guarda o número da vez atual: 0, 1, 2.",
-    "O WHILE é usado quando você NÃO sabe quantas vezes vai repetir. Ex: 'enquanto tiver vida, lutar'.",
-    "while vida > 0: significa: fique repetindo enquanto a vida for maior que zero."
-] },
-    { tileX: 8, tileY: 15, messages: [
-    "[ AULA: CONTROLANDO CICLOS ]",
-    "Loops podem ser perigosos se não tiverem fim!",
-    "1. COMANDO 'break': Ele quebra o loop imediatamente e sai dele.",
-    "Ex: while True: print('Oi'); break # Roda só uma vez!",
-    " ",
-    "2. ACUMULADORES:",
-    "Você pode somar valores dentro de um loop para ter um total final.",
-    "Ex: soma = 0; for i in [1, 2]: soma += i # soma agora é 3!",
-    " ",
-    "O STACK-OVERLORD tentará te prender em loops eternos. Use o break!"
-] }
+    // Placa 1 reposicionada: corredor central, visível logo ao entrar (x=9, y=7)
+    { tileX: 9, tileY: 7, messages: [
+      "BEM-VINDO À TORRE DAS REPETIÇÕES!",
+      "Imagine que você precisa dizer 'Olá' 100 vezes. Você escreveria 100 linhas? Com loops, não!",
+      "LOOP é uma ordem para o Python repetir algo. Tipo um disco travado, mas você controla quando para.",
+      "O FOR é usado quando você sabe QUANTAS vezes quer repetir. Ex: 'para cada inimigo na lista, atacar'.",
+      "for i in range(3): significa: repita 3 vezes. O i guarda o número da vez atual: 0, 1, 2.",
+      "O WHILE é usado quando você NÃO sabe quantas vezes vai repetir. Ex: 'enquanto tiver vida, lutar'.",
+      "while vida > 0: significa: fique repetindo enquanto a vida for maior que zero."
+    ] },
+    // Placa 2 reposicionada: antes da zona de batalha (x=7, y=14)
+    { tileX: 7, tileY: 14, messages: [
+      "[ AULA: CONTROLANDO CICLOS ]",
+      "Loops podem ser perigosos se não tiverem fim!",
+      "1. COMANDO 'break': Ele quebra o loop imediatamente e sai dele.",
+      "Ex: while True: print('Oi'); break # Roda só uma vez!",
+      " ",
+      "2. ACUMULADORES:",
+      "Você pode somar valores dentro de um loop para ter um total final.",
+      "Ex: soma = 0; for i in [1, 2]: soma += i # soma agora é 3!",
+      " ",
+      "O STACK-OVERLORD tentará te prender em loops eternos. Use o break!"
+    ] }
   ],
   exits: [
     { tileX: 0, tileY: 7, targetMap: "world2", targetX: 9, targetY: 10 },

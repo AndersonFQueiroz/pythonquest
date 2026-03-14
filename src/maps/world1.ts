@@ -12,12 +12,12 @@ export const world1Map: MapData = {
     [5, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 15, 0, 0, 0, 0, 0, 0, 0, 15, 3, 3, 2, 0, 3, 5],
-    [2, 2, 2, 2, 3, 0, 7, 7, 7, 0, 13, 0, 0, 13, 3, 3, 2, 2, 6, 5], // Placas em x=10 e x=13
+    [2, 2, 2, 2, 3, 0, 7, 7, 7, 0, 13, 0, 0, 13, 3, 3, 2, 2, 6, 5],
     [5, 3, 0, 2, 3, 0, 7, 7, 7, 0, 0, 0, 0, 0, 3, 3, 2, 0, 3, 5],
     [5, 3, 0, 2, 3, 0, 0, 0, 0, 0, 4, 4, 4, 0, 3, 3, 2, 0, 3, 5],
-    [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 4, 8, 4, 0, 3, 3, 2, 0, 3, 5], // Cofre escondido
+    [5, 3, 0, 2, 3, 3, 3, 3, 3, 3, 4, 8, 4, 0, 3, 3, 2, 0, 3, 5],
     [5, 3, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 5],
-    [5, 3, 15, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 15, 3, 5], // Campos de batalha
+    [5, 3, 15, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 15, 3, 5],
     [5, 3, 3, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3, 3, 5],
     [5, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
@@ -27,10 +27,12 @@ export const world1Map: MapData = {
     {
       id: "aloca", name: "Alquimista Aloca", tileX: 6, tileY: 5,
       dialog: [
-        "Olá, viajante! Na minha bancada, nada existe sem um nome.",
-        "Se você quer guardar um segredo, coloque-o num pote e dê um nome a ele.",
-        "Mas cuidado: se o pote se chama 'idade', não tente colocar um texto dentro dele sem aspas, ou o frasco explode!",
-        "Lembre-se: Variáveis são caixas com nomes."
+        "Aprendiz! Você chegou num momento terrível.",
+        "MALWARECH embaralhou todos os meus potes. Integers viraram strings, strings viraram None...",
+        "Veja aqui: eu tinha 'idade = 25'. Agora está 'idade = \"vinte e cinco\"'. Impossível fazer contas!",
+        "Este é o terror do TypeError: o valor está lá, mas o TIPO está errado.",
+        "Dica vital: Números sem aspas. Textos com aspas. Ex: vida = 100 ou nome = 'Link'.",
+        "Restaure a ordem das variáveis desta floresta e talvez eu possa recuperar meus potes."
       ]
     },
     {
@@ -43,39 +45,39 @@ export const world1Map: MapData = {
     }
   ],
   chests: [
-    { 
-      tileX: 11, tileY: 9, 
+    {
+      tileX: 11, tileY: 9,
       description: "Este cofre ensina sobre os 'Dois Pontos' (:). No Python, toda estrutura de controle (if, for, def) precisa terminar com : para o computador saber que o bloco começou!",
-      puzzle: "# Alguém criou 'chave', mas tentou usar 'Chave'.\nchave = 123\nprint(Chave)", 
-      expected: "123", 
-      reward: 30 
+      puzzle: "# Alguém criou 'chave', mas tentou usar 'Chave'.\nchave = 123\nprint(Chave)",
+      expected: "123",
+      reward: 30
     }
   ],
   signs: [
     { tileX: 10, tileY: 6, messages: [
-    "BEM-VINDO À FLORESTA DAS VARIÁVEIS!",
-    "Imagine uma caixa com um nome escrito nela. Você guarda algo dentro e depois busca pelo nome. Isso é uma variável.",
-    "Para criar uma variável é simples: escreva o nome, coloque = e coloque o valor. Ex: vida = 100",
-    "Texto precisa de aspas. Ex: nome = 'Anderson'. Sem aspas o Python pensa que é outra variável.",
-    "Números não usam aspas. Ex: idade = 20. Com aspas viraria texto e você não poderia fazer contas.",
-    "Para mostrar o valor de uma variável na tela use print(). Ex: print(nome) mostra Anderson.",
-    "Você pode trocar o valor quando quiser. vida = 100, depois vida = 50. A caixa guarda o mais recente.",
-    "ATENÇÃO: Python diferencia maiúsculas de minúsculas. Vida, vida e VIDA são três variáveis diferentes.",
-    "Nomes de variáveis não podem ter espaços nem começar com números. Use underline: minha_vida = 100.",
-    "Esta floresta está cheia de variáveis corrompidas. Corrija o código e restaure a ordem. Boa sorte!"
-] },
+      "BEM-VINDO À FLORESTA DAS VARIÁVEIS!",
+      "Imagine uma caixa com um nome escrito nela. Você guarda algo dentro e depois busca pelo nome. Isso é uma variável.",
+      "Para criar uma variável é simples: escreva o nome, coloque = e coloque o valor. Ex: vida = 100",
+      "Texto precisa de aspas. Ex: nome = 'Anderson'. Sem aspas o Python pensa que é outra variável.",
+      "Números não usam aspas. Ex: idade = 20. Com aspas viraria texto e você não poderia fazer contas.",
+      "Para mostrar o valor de uma variável na tela use print(). Ex: print(nome) mostra Anderson.",
+      "Você pode trocar o valor quando quiser. vida = 100, depois vida = 50. A caixa guarda o mais recente.",
+      "ATENÇÃO: Python diferencia maiúsculas de minúsculas. Vida, vida e VIDA são três variáveis diferentes.",
+      "Nomes de variáveis não podem ter espaços nem começar com números. Use underline: minha_vida = 100.",
+      "Esta floresta está cheia de variáveis corrompidas. Corrija o código e restaure a ordem. Boa sorte!"
+    ] },
     { tileX: 13, tileY: 6, messages: [
-    "[ AULA: TÉCNICAS DE VARIÁVEIS ]",
-    "1. ATUALIZANDO VALORES:",
-    "Para aumentar o valor de uma variável, você deve salvar o resultado nela mesma!",
-    "xp = 100",
-    "xp = xp + 50 # XP agora vale 150",
-    " ",
-    "2. CONVERSÃO PARA TEXTO:",
-    "Para somar um Número com um Texto em um print(), use a função str().",
-    "print('Nivel: ' + str(nivel))",
-    "Isso evita o erro de 'TypeError'."
-] }
+      "[ AULA: TÉCNICAS DE VARIÁVEIS ]",
+      "1. ATUALIZANDO VALORES:",
+      "Para aumentar o valor de uma variável, você deve salvar o resultado nela mesma!",
+      "xp = 100",
+      "xp = xp + 50 # XP agora vale 150",
+      " ",
+      "2. CONVERSÃO PARA TEXTO:",
+      "Para somar um Número com um Texto em um print(), use a função str().",
+      "print('Nivel: ' + str(nivel))",
+      "Isso evita o erro de 'TypeError'."
+    ] }
   ],
   exits: [
     { tileX: 0, tileY: 6, targetMap: "village", targetX: 17, targetY: 6 },

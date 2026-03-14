@@ -24,10 +24,27 @@ const TILE_COLORS: Record<number, string> = {
   0: '#9bbc0f', 1: '#8bac0f', 2: '#e0f0c0', 3: '#306230', 4: '#0f380f', 5: '#0f380f', 6: '#7f8c8d', 7: '#3498db', 8: '#f1c40f', 10: '#bdc3c7', 11: '#c0392b', 12: '#000000', 13: '#e0f0c0', 14: '#8bac0f', 15: '#e74c3c', 16: '#d35400', 17: '#00d2ff', 18: '#9b59b6', 19: '#e67e22', 20: '#2ecc71', 21: '#f39c12', 22: '#00d2ff', 23: '#f8fafc', 24: '#ffd43b', 25: '#3776ab'
 };
 
+const NPC_WANDER_LINES: Record<string, string[]> = {
+  'zumbi1':      ['...erro...', 'while True:', 'SyntaxErr...', 'loop...'],
+  'aloca':       ['Tipos!', 'int? str?', 'None=caos!', 'Meus potes!'],
+  'historiador': ['O Zen...', 'Antes era lindo...', 'Malwarech...', 'except: pass...'],
+  'boole':       ['True!', 'False!', 'Sem talvez!', 'if ou else!'],
+  'iterador':    ['...bip bop...', 'iter 4.8M', 'cadê o break?!', '∞'],
+  'genio':       ['def wish():', 'return magia!', 'escopo!', 'parâmetros!'],
+  'arquiteto':   ['class Mundo:', '__init__!', 'self.vida=∞', 'herança!'],
+  'historiador': ['O Zen...', 'Antes era lindo...', 'Malwarech...', 'except: pass...'],
+};
+
 const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInteract, onPortal, onOpenNotebook, isDialogActive }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasTriggeredInitialDialog, setHasTriggeredInitialDialog] = useState(false);
   const [showBugDex, setShowBugDex] = useState(false);
+  const [wanderingNpcs, setWanderingNpcs] = useState<Record<string, {
+    offsetX: number;
+    offsetY: number;
+    bubble: string | null;
+    bubbleTimer: number;
+  }>>({});
   
   const { playerPos, isMoving, setManualDir, interact, teleport } = useMapEngine(
     map, 
@@ -61,6 +78,31 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   }, [playerPos, map, bossStage, onInteract, triggeredBosses]);
 
   const isMerchantHere = merchantLocation === map.id;
+
+  // NPCs errantes com balões de fala flutuantes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWanderingNpcs(prev => {
+        const updated = { ...prev };
+        map.npcs.forEach((npc: any) => {
+          if (!NPC_WANDER_LINES[npc.id]) return;
+          const current = updated[npc.id] || { offsetX: 0, offsetY: 0, bubble: null, bubbleTimer: 0 };
+          const newOffX = Math.sin(Date.now() / 1200 + npc.tileX) * 6;
+          const newOffY = Math.cos(Date.now() / 1500 + npc.tileY) * 4;
+          let bubble = current.bubble;
+          let bubbleTimer = current.bubbleTimer - 1;
+          if (bubbleTimer <= 0) {
+            const lines = NPC_WANDER_LINES[npc.id];
+            bubble = Math.random() > 0.4 ? lines[Math.floor(Math.random() * lines.length)] : null;
+            bubbleTimer = 80 + Math.floor(Math.random() * 60);
+          }
+          updated[npc.id] = { offsetX: newOffX, offsetY: newOffY, bubble, bubbleTimer };
+        });
+        return updated;
+      });
+    }, 50);
+    return () => clearInterval(interval);
+  }, [map.npcs]);
 
   // LÓGICA DE DIÁLOGOS AUTOMÁTICOS (BOSSES E PEP-8)
   useEffect(() => {
@@ -433,6 +475,45 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       if (npc.id === 'arquiteto') drawLabel("ARQUITETO INSTÂNCIA", nx + 16, ny - 12 + Math.sin(now / 500) * 3, '#3498db');
       if (npc.id === 'malwarech') drawLabel("MALWARECH", nx + 16, ny - 100 + (bossStage !== 'sitting' ? -40 : 0), '#ff4757');
       if (['glitch_byte', 'logic_void', 'stack_overlord', 'protocol_def', 'meta_class'].includes(npc.id)) drawLabel(`BOSS: ${npc.id.replace('_', ' ').toUpperCase()}`, nx + 16, ny - 10, '#ff4757');
+
+      // Balão de fala flutuante
+      const wanderData = wanderingNpcs[npc.id];
+      if (wanderData?.bubble) {
+        const wbx = nx + 16 + wanderData.offsetX;
+        const wby = ny - 18;
+        const text = wanderData.bubble;
+        ctx.font = '5px "Press Start 2P"';
+        const tw = ctx.measureText(text).width;
+        const bw = tw + 10;
+        const bh = 12;
+        // Fundo branco
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        if ((ctx as any).roundRect) {
+          ctx.beginPath();
+          (ctx as any).roundRect(wbx - bw/2, wby - bh, bw, bh, 3);
+          ctx.fill(); ctx.stroke();
+        } else {
+          ctx.fillRect(wbx - bw/2, wby - bh, bw, bh);
+          ctx.strokeRect(wbx - bw/2, wby - bh, bw, bh);
+        }
+        // Rabinho triangular
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.beginPath();
+        ctx.moveTo(wbx - 3, wby); ctx.lineTo(wbx, wby + 5); ctx.lineTo(wbx + 3, wby);
+        ctx.fill();
+        ctx.strokeStyle = '#334155'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(wbx - 3, wby); ctx.lineTo(wbx, wby + 5); ctx.lineTo(wbx + 3, wby);
+        ctx.stroke();
+        // Texto
+        ctx.fillStyle = '#0f172a';
+        ctx.textAlign = 'center';
+        ctx.font = '5px "Press Start 2P"';
+        ctx.fillText(text, wbx, wby - 2);
+        ctx.textAlign = 'left'; // resetar sempre
+      }
     });
 
     const px = Math.floor(playerPos.x * TILE_SIZE - cameraX);

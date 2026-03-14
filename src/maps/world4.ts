@@ -13,7 +13,7 @@ export const world4Map: MapData = {
     [5, 0, 21, 0, 20, 0, 0, 0, 0, 22, 22, 8, 22, 22, 22, 22, 0, 0, 0, 20, 0, 0, 21, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 5],
-    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA (Placa x=23)
+    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5],
     [5, 0, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 21, 0, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 21, 0, 5],
     [5, 0, 21, 21, 21, 0, 0, 0, 0, 22, 22, 22, 22, 22, 22, 0, 0, 0, 0, 0, 21, 21, 21, 0, 5],
@@ -24,7 +24,7 @@ export const world4Map: MapData = {
     [5, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 0, 2, 0, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
-    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 13, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], // SAÍDA (Placa x=13)
+    [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 13, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
   ],
   playerStart: { x: 1, y: 7 },
@@ -50,35 +50,41 @@ export const world4Map: MapData = {
     }
   ],
   chests: [
-    { 
-      tileX: 11, tileY: 4, 
+    {
+      tileX: 11, tileY: 4,
       description: "Este baú sagrado exige que você invoque a magia da soma através de uma função!",
-      puzzle: "def somar(a, b):\n  return a + b\n\nprint(somar(10, 15))", 
-      expected: "25", 
-      reward: 300 
+      puzzle: "def somar(a, b):\n  return a + b\n\nprint(somar(10, 15))",
+      expected: "25",
+      reward: 300
     }
   ],
   signs: [
+    // Placa 1: Boas-vindas geral na entrada (x=23, y=7)
     { tileX: 23, tileY: 7, messages: [
-    "BEM-VINDO AO TEMPLO DAS FUNÇÕES!",
-    "Você já percebeu que fica repetindo o mesmo código em lugares diferentes? Função resolve isso.",
-    "Uma função é um bloco de código com nome. Você escreve uma vez e usa quantas vezes quiser.",
-    "Para criar uma função use def seguido do nome e parênteses. Depois : e 4 espaços na linha de baixo.",
-    "IMPORTANTE: a função só roda quando você a chama pelo nome. Escrever def apenas cria, não executa.",
-    "Os Bugs deste templo se escondem dentro de funções quebradas. Encontre o erro e invoque o poder. Boa sorte!"
-] },
+      "BEM-VINDO AO TEMPLO DAS FUNÇÕES!",
+      "Você já percebeu que fica repetindo o mesmo código em lugares diferentes? Função resolve isso.",
+      "Uma função é um bloco de código com nome. Você escreve uma vez e usa quantas vezes quiser.",
+      "Para criar uma função use def seguido do nome e parênteses. Depois : e 4 espaços na linha de baixo.",
+      "IMPORTANTE: a função só roda quando você a chama pelo nome. Escrever def apenas cria, não executa.",
+      "Os Bugs deste templo se escondem dentro de funções quebradas. Encontre o erro e invoque o poder. Boa sorte!"
+    ] },
+    // Placa 2: Aula avançada na saída (x=13, y=18) — conteúdo para vencer os bosses
     { tileX: 13, tileY: 18, messages: [
-    "[ AULA: MAGIA AVANÇADA ]",
-    "1. PARÂMETROS MÚLTIPLOS:",
-    "Uma função pode receber quantos ingredientes você quiser!",
-    "Ex: def magia(forca, aura): print(forca + aura)",
-    "Na hora de chamar, passe os valores na mesma ordem: magia(10, 20)",
-    " ",
-    "2. O PODER DO ESCOPO:",
-    "Variáveis criadas DENTRO de uma função são locais. Elas não existem do lado de fora!",
-    "Para usar o valor de uma função fora dela, você deve imprimir o seu RETURN.",
-    "Ex: print(funcao_magica())"
-] }
+      "[ AULA: MAGIA AVANÇADA DE FUNÇÕES ]",
+      "1. PARÂMETROS MÚLTIPLOS:",
+      "Uma função pode receber quantos ingredientes quiser!",
+      "Ex: def poder(forca, magia): print(forca + magia)",
+      "Passe os valores em ordem: poder(10, 20) → imprime 30",
+      " ",
+      "2. O PODER DO ESCOPO:",
+      "Variáveis criadas DENTRO da função não existem fora!",
+      "Para usar o resultado fora, use RETURN + print().",
+      "Ex: print(dobro(5)) → imprime 10",
+      " ",
+      "3. RECURSÃO (Boss Final do Oásis):",
+      "Uma função pode chamar a SI MESMA.",
+      "Ex: def fat(n): return 1 if n<=1 else n * fat(n-1)"
+    ] }
   ],
   exits: [
     { tileX: 0, tileY: 7, targetMap: "world3", targetX: 7, targetY: 18 },

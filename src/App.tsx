@@ -6,6 +6,7 @@ import BattleScreen from './components/Battle/BattleScreen';
 import CreditsScreen from './components/UI/CreditsScreen';
 import DialogBox from './components/UI/DialogBox';
 import StatusBar from './components/UI/StatusBar';
+import VolumeControl from './components/UI/VolumeControl';
 import CodeEditor from './components/Battle/CodeEditor';
 import AuthScreen from './components/UI/AuthScreen';
 import CutscenePlayer from './components/UI/CutscenePlayer';
@@ -63,6 +64,10 @@ function App() {
 
   // VERIFICAÇÃO DE SESSÃO AO CARREGAR
   useEffect(() => {
+      sounds.loadPersistedVolume();
+  }, []);
+
+  useEffect(() => {
       const checkSession = async () => {
           const { data } = await supabase.auth.getSession();
           if (data.session?.user) {
@@ -86,6 +91,7 @@ function App() {
       const boss = BOSSES_ENEMIES.find(b => b.id === bossId);
       if (boss) {
           setBattleBoss(boss);
+          sounds.stopMusic();
           sounds.playEncounter();
           setFlash(true);
           setTimeout(() => { setGameState('battle'); setFlash(false); }, 500);
@@ -168,6 +174,7 @@ function App() {
     if (cutsceneId === 'intro') {
       setGameState('map');
       triggerAreaTitle(villageMap.name);
+      sounds.playAmbientMusic('village');
       performSave();
     } else if (cutsceneId === 'final') {
       setGameState('credits');
@@ -175,6 +182,7 @@ function App() {
     } else {
       // fragments 1-5
       setGameState('map');
+      sounds.playAmbientMusic(currentMap.id);
       performSave();
     }
   };
@@ -204,6 +212,7 @@ function App() {
 
   const triggerBattle = useCallback(() => {
     if (activeDialog || activeChest || showNotebook || showShop) return;
+    sounds.stopMusic();
     sounds.playEncounter();
     setFlash(true);
     setTimeout(() => { setGameState('battle'); setFlash(false); }, 500);
@@ -301,6 +310,8 @@ function App() {
       setPlayerPos({ x, y });
       setFlash(false);
       triggerAreaTitle(target.name);
+      sounds.stopMusic();
+      sounds.playAmbientMusic(target.id);
       performSave();
     }, 300);
   }, [setPlayerPos]);
@@ -315,6 +326,7 @@ function App() {
         setGameState('map');
         setTimeout(() => {
             setFlash(false);
+            sounds.playAmbientMusic('village');
             setActiveDialog({ name: 'Mentora PEP-8', messages: ["Seu sistema falhou...", "Vou restaurar seus dados. Não desista!"] });
             performSave();
         }, 500);
@@ -338,8 +350,9 @@ function App() {
             }
         }
 
-        // Batalhas comuns
+        // Batalhas comuns — retoma música do mapa
         setGameState('map');
+        sounds.playAmbientMusic(currentMap.id);
         performSave();
     }
     setBattleBoss(null);
@@ -467,8 +480,9 @@ function App() {
                 </div>
             )}
 
-            <div style={{ display: gameState === 'map' ? 'block' : 'none', height: '100%' }}>
+            <div style={{ display: gameState === 'map' ? 'block' : 'none', height: '100%', position: 'relative' }}>
               <MapCanvas key={currentMap.id} map={getCurrentMapWithBoss()} spawnPos={null} onEncounter={triggerBattle} onInteract={handleInteract} onPortal={handlePortal} onOpenNotebook={() => setShowNotebook(true)} isDialogActive={!!activeDialog || !!activeChest || showNotebook || showShop} />
+              <VolumeControl />
             </div>
 
             {showNotebook && (
