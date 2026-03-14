@@ -354,7 +354,7 @@ const CutscenePlayer: React.FC<CutscenePlayerProps> = ({ cutsceneId, playerName,
       if (e.key === 'Escape') {
         sounds.stopMusic();
         onComplete();
-      } else if (e.key === 'Enter' || e.key === ' ') {
+      } else if (e.key === 'Enter' || e.key === ' ' || e.key.toLowerCase() === 'e') {
         advanceBeat();
       }
     };
