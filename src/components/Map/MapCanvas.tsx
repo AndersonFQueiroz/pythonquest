@@ -32,7 +32,6 @@ const NPC_WANDER_LINES: Record<string, string[]> = {
   'iterador':    ['...bip bop...', 'iter 4.8M', 'cadê o break?!', '∞'],
   'genio':       ['def wish():', 'return magia!', 'escopo!', 'parâmetros!'],
   'arquiteto':   ['class Mundo:', '__init__!', 'self.vida=∞', 'herança!'],
-  'historiador': ['O Zen...', 'Antes era lindo...', 'Malwarech...', 'except: pass...'],
 };
 
 const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInteract, onPortal, onOpenNotebook, isDialogActive }) => {
