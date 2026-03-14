@@ -387,7 +387,7 @@ function App() {
             onSkip={() => setGameState('title')} 
         />
       )}
-      {gameState === 'title' && <TitleScreen onStart={handleStartGame} onContinue={() => { sounds.playSelect(); setGameState('map'); }} />}
+      {gameState === 'title' && <TitleScreen onStart={handleStartGame} onContinue={() => { sounds.playSelect(); sounds.playAmbientMusic(currentMap.id); setGameState('map'); }} />}
       {gameState === 'char_creation' && <CharacterCreation onFinish={handleFinishCreation} />}
       {gameState === 'cutscene' && (
         <CutscenePlayer 

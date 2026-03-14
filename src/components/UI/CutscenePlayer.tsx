@@ -23,21 +23,28 @@ const Pep8Sprite: React.FC = () => {
     const draw = () => {
       ctx.clearRect(0, 0, 80, 80);
       const hover = Math.sin(Date.now() / 400) * 2;
-      const px = 20, py = 10;
+      // px=10, py=5 centraliza o personagem no canvas 80x80
+      const px = 10, py = 5;
+      // Manto
       ctx.fillStyle = '#1b5e20'; ctx.fillRect(px + 6, py + 14, 20, 16);
       ctx.fillStyle = '#2ecc71'; ctx.fillRect(px + 10, py + 16, 12, 14);
+      // Rosto
       ctx.fillStyle = '#ffdbac'; ctx.fillRect(px + 10, py + 4 + hover, 12, 12);
+      // Cabelo grisalho
       ctx.fillStyle = '#e0e0e0';
       ctx.fillRect(px + 8, py + 2 + hover, 16, 6);
       ctx.fillRect(px + 8, py + 4 + hover, 4, 12);
       ctx.fillRect(px + 20, py + 4 + hover, 4, 12);
+      // Olhos
       ctx.fillStyle = '#000';
       ctx.fillRect(px + 12, py + 9 + hover, 2, 2);
       ctx.fillRect(px + 18, py + 9 + hover, 2, 2);
+      // Cajado
       ctx.strokeStyle = '#795548'; ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(px + 4, py + 28); ctx.lineTo(px + 4, py + 8 + hover);
+      ctx.moveTo(px + 4, py + 30); ctx.lineTo(px + 4, py + 8 + hover);
       ctx.stroke();
+      // Orbe dourado
       ctx.fillStyle = '#ffd43b';
       ctx.beginPath(); ctx.arc(px + 4, py + 6 + hover, 4, 0, Math.PI * 2); ctx.fill();
       raf = requestAnimationFrame(draw);
@@ -309,13 +316,10 @@ const CutscenePlayer: React.FC<CutscenePlayerProps> = ({ cutsceneId, playerName,
                   flexShrink:0,
                 }}>
                   <div style={{
-                    transform:'scale(1.05)',
+                    transform:'scale(1.1)',
                     transformOrigin:'center center',
                     imageRendering:'pixelated' as const,
                     display:'flex', alignItems:'center', justifyContent:'center',
-                    // Compensa o offset interno px=20,py=10 do canvas Pep8Sprite
-                    marginLeft:'-8px',
-                    marginTop:'-6px',
                   }}>
                     {narConfig.component}
                   </div>
