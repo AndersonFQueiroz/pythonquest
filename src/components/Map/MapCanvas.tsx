@@ -25,13 +25,19 @@ const TILE_COLORS: Record<number, string> = {
 };
 
 const NPC_WANDER_LINES: Record<string, string[]> = {
-  'zumbi1':      ['...erro...', 'while True:', 'SyntaxErr...', 'loop...'],
-  'aloca':       ['Tipos!', 'int? str?', 'None=caos!', 'Meus potes!'],
-  'historiador': ['O Zen...', 'Antes era lindo...', 'Malwarech...', 'except: pass...'],
-  'boole':       ['True!', 'False!', 'Sem talvez!', 'if ou else!'],
-  'iterador':    ['...bip bop...', 'iter 4.8M', 'cadê o break?!', '∞'],
-  'genio':       ['def wish():', 'return magia!', 'escopo!', 'parâmetros!'],
-  'arquiteto':   ['class Mundo:', '__init__!', 'self.vida=∞', 'herança!'],
+  // Vila
+  'zumbi1':      ['...erro...', 'while True:', 'SyntaxErr...', 'loop sem fim...', 'except: pass...'],
+  'historiador': ['O Zen existia!', 'Pythoria era bela...', 'except: pass causou tudo', 'MALWARECH cresceu no silêncio', 'variáveis sem nome...', '300 anos de erros...'],
+  // Reino 1
+  'aloca':       ['Meus potes!', 'int virou str!', 'TypeError!', 'None = caos!', 'onde está o 25?!', 'aspas corrompidas!'],
+  // Reino 2
+  'boole':       ['True!', 'False!', 'Sem talvez!', 'if ou else!', 'A lógica não mente!', '== não é =!'],
+  // Reino 3
+  'iterador':    ['...bip bop...', 'iter 4.821.904', 'cadê o break?!', '∞', 'loop eterno...', 'while True sem fim'],
+  // Reino 4
+  'genio':       ['def wish():', 'return magia!', 'escopo local!', 'parâmetros!', 'funções são desejos', 'return ou None!'],
+  // Reino 5
+  'arquiteto':   ['class Mundo:', '__init__!', 'self.vida=∞', 'herança pura!', 'objetos constroem tudo', 'instâncias vivas!'],
 };
 
 const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInteract, onPortal, onOpenNotebook, isDialogActive }) => {
@@ -44,6 +50,9 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     bubble: string | null;
     bubbleTimer: number;
   }>>({});
+
+  // Estado de caminhada do historiador (vai e volta)
+  const [historiadorWalk, setHistoriadorWalk] = useState({ x: 0, dir: 1, step: 0 });
   
   const { playerPos, isMoving, setManualDir, interact, teleport } = useMapEngine(
     map, 
@@ -102,6 +111,21 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
     }, 50);
     return () => clearInterval(interval);
   }, [map.npcs]);
+
+  // Historiador caminha de um lado para o outro (±30px em pixel, ~1 tile)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHistoriadorWalk(prev => {
+        let newX = prev.x + prev.dir * 0.5;
+        let newDir = prev.dir;
+        let newStep = prev.step + 1;
+        if (newX >= 24) { newX = 24; newDir = -1; }
+        if (newX <= -24) { newX = -24; newDir = 1; }
+        return { x: newX, dir: newDir, step: newStep };
+      });
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
 
   // LÓGICA DE DIÁLOGOS AUTOMÁTICOS (BOSSES E PEP-8)
   useEffect(() => {
@@ -421,19 +445,85 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
       } else if (npc.id === 'pep8') {
           const hover = Math.sin(now / 400) * 2;
-          // Manto da Sabedoria
           ctx.fillStyle = '#1b5e20'; ctx.fillRect(nx + 6, ny + 14, 20, 16); 
-          ctx.fillStyle = '#2ecc71'; ctx.fillRect(nx + 10, ny + 16, 12, 14); // Detalhe Central
-          // Rosto e Cabelo
+          ctx.fillStyle = '#2ecc71'; ctx.fillRect(nx + 10, ny + 16, 12, 14);
           ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4 + hover, 12, 12);
-          ctx.fillStyle = '#e0e0e0'; ctx.fillRect(nx + 8, ny + 2 + hover, 16, 6); // Cabelo grisalho topo
-          ctx.fillRect(nx + 8, ny + 4 + hover, 4, 12); ctx.fillRect(nx + 20, ny + 4 + hover, 4, 12); // Lados
-          // Olhos Binários Sábios
+          ctx.fillStyle = '#e0e0e0'; ctx.fillRect(nx + 8, ny + 2 + hover, 16, 6);
+          ctx.fillRect(nx + 8, ny + 4 + hover, 4, 12); ctx.fillRect(nx + 20, ny + 4 + hover, 4, 12);
           ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 9 + hover, 2, 2); ctx.fillRect(nx + 18, ny + 9 + hover, 2, 2);
-          // Cajado de Código
           ctx.strokeStyle = '#795548'; ctx.lineWidth = 3;
           ctx.beginPath(); ctx.moveTo(nx + 4, ny + 28); ctx.lineTo(nx + 4, ny + 8 + hover); ctx.stroke();
           ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.arc(nx + 4, ny + 6 + hover, 4, 0, Math.PI*2); ctx.fill();
+
+      } else if (npc.id === 'historiador') {
+          // HISTORIADOR BIT — velho sábio com pergaminho, anda de um lado pro outro
+          const hx = nx + historiadorWalk.x;
+          const walkAnim = Math.sin(historiadorWalk.step / 8) * 2; // balanço ao caminhar
+          const facing = historiadorWalk.dir; // 1=direita, -1=esquerda
+
+          // Sombra no chão
+          ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(hx + 6, ny + 30, 20, 3);
+
+          // Túnica longa marrom (historiador antiquado)
+          ctx.fillStyle = '#5d4037';
+          ctx.beginPath(); ctx.moveTo(hx + 8, ny + 14); ctx.lineTo(hx + 4, ny + 32); ctx.lineTo(hx + 28, ny + 32); ctx.lineTo(hx + 24, ny + 14); ctx.fill();
+          // Detalhe da túnica (listras douradas)
+          ctx.fillStyle = '#ffd43b';
+          ctx.fillRect(hx + 14, ny + 16, 4, 14); // faixa central
+          ctx.fillRect(hx + 8, ny + 14, 16, 2);  // colarinho
+
+          // Braços
+          const armSwing = Math.sin(historiadorWalk.step / 8) * 4;
+          ctx.fillStyle = '#5d4037';
+          ctx.fillRect(hx + 4, ny + 16 + armSwing, 4, 8);   // braço esq
+          ctx.fillRect(hx + 24, ny + 16 - armSwing, 4, 8);  // braço dir
+          // Mãos
+          ctx.fillStyle = '#ffdbac';
+          ctx.fillRect(hx + 4, ny + 23 + armSwing, 4, 4);
+          ctx.fillRect(hx + 24, ny + 23 - armSwing, 4, 4);
+
+          // Pergaminho na mão (flutua levemente)
+          const scrollFloat = Math.sin(now / 600) * 2;
+          ctx.fillStyle = '#fdf6e3';
+          ctx.fillRect(hx + 26, ny + 10 + scrollFloat, 8, 12);
+          ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 1;
+          ctx.strokeRect(hx + 26, ny + 10 + scrollFloat, 8, 12);
+          // Linhas de texto no pergaminho
+          ctx.fillStyle = '#8d6e63';
+          ctx.fillRect(hx + 27, ny + 13 + scrollFloat, 6, 1);
+          ctx.fillRect(hx + 27, ny + 16 + scrollFloat, 6, 1);
+          ctx.fillRect(hx + 27, ny + 19 + scrollFloat, 4, 1);
+
+          // Cabeça
+          ctx.fillStyle = '#ffdbac'; ctx.fillRect(hx + 10, ny + 4, 12, 11);
+
+          // Cabelo/barba branca longa (historiador velho)
+          ctx.fillStyle = '#eceff1';
+          ctx.fillRect(hx + 8,  ny + 2, 16, 5);   // topo branco
+          ctx.fillRect(hx + 6,  ny + 4, 4, 16);   // lateral esq (barba)
+          ctx.fillRect(hx + 22, ny + 4, 4, 16);   // lateral dir (barba)
+          ctx.fillRect(hx + 8,  ny + 14, 16, 10); // barba central
+
+          // Óculos redondos dourados (detalhe único)
+          ctx.strokeStyle = '#ffd43b'; ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.arc(hx + 13, ny + 8, 3, 0, Math.PI*2); ctx.stroke();
+          ctx.beginPath(); ctx.arc(hx + 19, ny + 8, 3, 0, Math.PI*2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(hx + 16, ny + 8); ctx.lineTo(hx + 16, ny + 8); ctx.stroke(); // ponte
+          ctx.fillStyle = 'rgba(100,200,255,0.3)';
+          ctx.beginPath(); ctx.arc(hx + 13, ny + 8, 3, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(hx + 19, ny + 8, 3, 0, Math.PI*2); ctx.fill();
+
+          // Olhos (atrás dos óculos)
+          ctx.fillStyle = '#333';
+          ctx.fillRect(hx + 12 + (facing < 0 ? 1 : 0), ny + 7, 2, 2);
+          ctx.fillRect(hx + 18 + (facing < 0 ? 1 : 0), ny + 7, 2, 2);
+
+          // Chapéu pontudo de sábio
+          ctx.fillStyle = '#3e2723';
+          ctx.beginPath(); ctx.moveTo(hx + 16, ny - 6); ctx.lineTo(hx + 6, ny + 4); ctx.lineTo(hx + 26, ny + 4); ctx.fill();
+          ctx.fillStyle = '#5d4037'; ctx.fillRect(hx + 6, ny + 3, 20, 3); // aba
+          // Estrela no chapéu
+          ctx.fillStyle = '#ffd43b'; ctx.font = '6px Arial'; ctx.fillText('★', hx + 13, ny + 1);
       } else if (npc.id === 'zumbi1') {
           // CLAUDIO, O HABITANTE CORROMPIDO (GLITCH)
           const glitchX = Math.random() > 0.9 ? (Math.random()-0.5)*10 : 0;
@@ -452,16 +542,187 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           }
           ctx.restore();
       } else if (npc.id === 'aloca') {
-          ctx.fillStyle = '#8e44ad'; ctx.fillRect(nx + 8, ny + 14, 16, 14); ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12); ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 4, 12, 3);
-          const pots = ['#e74c3c', '#3498db', '#f1c40f']; pots.forEach((color, i) => { const offX = Math.sin(now / 400 + i) * 15; const offY = Math.cos(now / 400 + i) * 10 - 10; ctx.fillStyle = color; ctx.fillRect(nx + 16 + offX, ny + 16 + offY, 6, 8); });
+          // ALQUIMISTA ALOCA — avental roxo, cabelo caótico amarelo, potes orbitando
+          const hover = Math.sin(now / 350) * 2;
+          // Avental roxo com bolsos
+          ctx.fillStyle = '#6a1b9a'; ctx.fillRect(nx + 7, ny + 13, 18, 18);
+          ctx.fillStyle = '#8e44ad'; ctx.fillRect(nx + 9, ny + 15, 14, 14); // detalhe mais claro
+          // Bolsos do avental
+          ctx.fillStyle = '#4a148c'; ctx.fillRect(nx + 9, ny + 22, 5, 5); ctx.fillRect(nx + 18, ny + 22, 5, 5);
+          // Rosto
+          ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 9, ny + 4 + hover, 14, 11);
+          // Cabelo caótico amarelo (em múltiplos tufos)
+          ctx.fillStyle = '#f9a825';
+          ctx.fillRect(nx + 7, ny + 1 + hover, 5, 6);   // tufo esq
+          ctx.fillRect(nx + 12, ny - 1 + hover, 4, 5);  // tufo centro (mais alto)
+          ctx.fillRect(nx + 18, ny + 1 + hover, 6, 5);  // tufo dir
+          ctx.fillRect(nx + 6, ny + 4 + hover, 3, 8);   // lateral esq
+          ctx.fillRect(nx + 23, ny + 4 + hover, 3, 8);  // lateral dir
+          // Olhos
+          ctx.fillStyle = '#222'; ctx.fillRect(nx + 11, ny + 8 + hover, 2, 2); ctx.fillRect(nx + 19, ny + 8 + hover, 2, 2);
+          // Boca sorridente (alquimista animado)
+          ctx.fillStyle = '#c62828'; ctx.fillRect(nx + 12, ny + 12 + hover, 8, 2);
+          // Luvas de borracha amarela
+          ctx.fillStyle = '#f9a825';
+          ctx.fillRect(nx + 4, ny + 15, 3, 6); ctx.fillRect(nx + 25, ny + 15, 3, 6);
+          // 3 potes flutuando/orbitando com cor e label
+          const potData = [
+            { color: '#e74c3c', label: 'int', r: 14 },
+            { color: '#3498db', label: 'str', r: 14 },
+            { color: '#f1c40f', label: '?',   r: 14 },
+          ];
+          potData.forEach((pot, i) => {
+            const angle = (now / 500) + i * (Math.PI * 2 / 3);
+            const px2 = nx + 16 + Math.cos(angle) * pot.r;
+            const py2 = ny + 16 + Math.sin(angle) * 8;
+            ctx.fillStyle = pot.color;
+            ctx.fillRect(px2 - 3, py2 - 4, 6, 8);
+            ctx.fillStyle = '#fff'; ctx.font = '5px Arial'; ctx.textAlign = 'center';
+            ctx.fillText(pot.label, px2, py2 + 1);
+          });
+          ctx.textAlign = 'left';
+
       } else if (npc.id === 'boole') {
-          ctx.fillStyle = '#34495e'; ctx.fillRect(nx + 4, ny + 2, 24, 28); ctx.fillStyle = '#3498db'; ctx.fillRect(nx + 4, ny + 2, 12, 28); ctx.fillStyle = '#e74c3c'; ctx.fillRect(nx + 16, ny + 2, 12, 28); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(nx + 4, ny + 2, 24, 28);
+          // JUIZ BOOLE — corpo dividido True/False, toga de juiz, martelo
+          const hover = Math.sin(now / 500) * 1;
+          // Corpo dividido ao meio
+          ctx.fillStyle = '#1565c0'; ctx.fillRect(nx + 4, ny + 12, 14, 20); // metade True (azul)
+          ctx.fillStyle = '#c62828'; ctx.fillRect(nx + 18, ny + 12, 10, 20); // metade False (vermelho)
+          // Borda central branca
+          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 17, ny + 12, 2, 20);
+          // Toga/ombros (estrutura de juiz)
+          ctx.fillStyle = '#1a237e'; ctx.fillRect(nx + 3, ny + 10, 10, 6);
+          ctx.fillStyle = '#b71c1c'; ctx.fillRect(nx + 19, ny + 10, 10, 6);
+          // Textos TRUE/FALSE no corpo
+          ctx.font = 'bold 5px Arial'; ctx.textAlign = 'center';
+          ctx.fillStyle = '#fff'; ctx.fillText('T', nx + 11, ny + 24);
+          ctx.fillStyle = '#fff'; ctx.fillText('F', nx + 23, ny + 24);
+          ctx.textAlign = 'left';
+          // Cabeça com chapéu de juiz
+          ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 9, ny + 3 + hover, 14, 10);
+          // Peruca de juiz (branca e encaracolada)
+          ctx.fillStyle = '#eceff1';
+          ctx.fillRect(nx + 7, ny + 0 + hover, 18, 6);
+          ctx.fillRect(nx + 6, ny + 3 + hover, 4, 12);
+          ctx.fillRect(nx + 22, ny + 3 + hover, 4, 12);
+          // Olhos brancos (binários)
+          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 11, ny + 7 + hover, 3, 3); ctx.fillRect(nx + 18, ny + 7 + hover, 3, 3);
+          ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 8 + hover, 1, 1); ctx.fillRect(nx + 19, ny + 8 + hover, 1, 1);
+          // Martelo (símbolo de julgamento)
+          const hammerSwing = Math.sin(now / 800) * 5;
+          ctx.fillStyle = '#5d4037';
+          ctx.fillRect(nx + 28, ny + 10 + hammerSwing, 3, 14); // cabo
+          ctx.fillStyle = '#37474f';
+          ctx.fillRect(nx + 24, ny + 8 + hammerSwing, 10, 5);  // cabeça do martelo
+
       } else if (npc.id === 'iterador') {
-          const shakeX = Math.sin(now / 50) * 2; ctx.fillStyle = '#7f8c8d'; ctx.fillRect(nx + 8 + shakeX, ny + 14, 16, 14); ctx.fillStyle = '#2c3e50'; ctx.fillRect(nx + 6 + shakeX, ny + 4, 20, 14); ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2; ctx.strokeRect(nx + 6 + shakeX, ny + 4, 20, 14); ctx.fillStyle = '#00d2ff'; ctx.font = '10px Arial'; ctx.fillText("∞", nx + 16 + shakeX, ny + 14);
+          // ITERADOR-X — robô industrial preso em loop, barra de progresso travada em 99%
+          const shakeX = Math.sin(now / 50) * 2;
+          const shakeY = Math.sin(now / 37) * 1;
+          // Corpo robótico metálico
+          ctx.fillStyle = '#546e7a'; ctx.fillRect(nx + 6 + shakeX, ny + 12 + shakeY, 20, 18);
+          ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 1; ctx.strokeRect(nx + 6 + shakeX, ny + 12 + shakeY, 20, 18);
+          // Painel de controle no peito (barra de progresso 99%)
+          ctx.fillStyle = '#0d1b2a'; ctx.fillRect(nx + 8 + shakeX, ny + 15 + shakeY, 16, 6);
+          ctx.fillStyle = '#00d2ff'; ctx.fillRect(nx + 9 + shakeX, ny + 16 + shakeY, 14, 4); // barra cheia
+          ctx.fillStyle = '#ff4757'; ctx.fillRect(nx + 22 + shakeX, ny + 16 + shakeY, 1, 4); // faltando 1%!
+          ctx.fillStyle = '#fff'; ctx.font = '4px "Press Start 2P"'; ctx.textAlign = 'center';
+          ctx.fillText('99%', nx + 16 + shakeX, ny + 26 + shakeY);
+          ctx.textAlign = 'left';
+          // Ombros com juntas
+          ctx.fillStyle = '#37474f'; ctx.fillRect(nx + 3 + shakeX, ny + 12 + shakeY, 4, 5); ctx.fillRect(nx + 25 + shakeX, ny + 12 + shakeY, 4, 5);
+          // Braços (pistões movendo)
+          const armMov = Math.sin(now / 120) * 3;
+          ctx.fillStyle = '#455a64'; ctx.fillRect(nx + 2 + shakeX, ny + 16 + shakeY + armMov, 4, 8);
+          ctx.fillStyle = '#455a64'; ctx.fillRect(nx + 26 + shakeX, ny + 16 + shakeY - armMov, 4, 8);
+          // Cabeça quadrada com visor
+          ctx.fillStyle = '#37474f'; ctx.fillRect(nx + 7 + shakeX, ny + 3 + shakeY, 18, 12);
+          ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 1; ctx.strokeRect(nx + 7 + shakeX, ny + 3 + shakeY, 18, 12);
+          // Visor (dois olhos LED)
+          ctx.fillStyle = '#ff4757'; ctx.fillRect(nx + 9 + shakeX, ny + 7 + shakeY, 4, 3);  // olho esq piscando
+          ctx.fillStyle = Math.floor(now/300)%2===0 ? '#00d2ff' : '#ff4757';
+          ctx.fillRect(nx + 19 + shakeX, ny + 7 + shakeY, 4, 3); // olho dir alternando
+          // Antena com símbolo de loop
+          ctx.strokeStyle = '#00d2ff'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(nx + 16 + shakeX, ny + 3 + shakeY); ctx.lineTo(nx + 16 + shakeX, ny - 3 + shakeY); ctx.stroke();
+          ctx.font = '8px Arial'; ctx.fillStyle = '#00d2ff'; ctx.textAlign = 'center';
+          ctx.fillText('∞', nx + 16 + shakeX, ny - 4 + shakeY);
+          ctx.textAlign = 'left';
+
       } else if (npc.id === 'genio') {
-          const hover = Math.sin(now / 300) * 5; ctx.fillStyle = 'rgba(155, 89, 182, 0.4)'; ctx.beginPath(); ctx.arc(nx + 16, ny + 24, 12, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#9b59b6'; ctx.beginPath(); ctx.moveTo(nx + 8, ny + 20 + hover); ctx.quadraticCurveTo(nx + 16, ny + 32 + hover, nx + 24, ny + 20 + hover); ctx.lineTo(nx + 20, ny + 10 + hover); ctx.lineTo(nx + 12, ny + 10 + hover); ctx.fill(); ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(nx + 16, ny + 8 + hover, 6, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f1c40f'; ctx.fillRect(nx + 10, ny + 2 + hover, 12, 4); ctx.fillStyle = '#000'; ctx.fillRect(nx + 13, ny + 7 + hover, 2, 2); ctx.fillRect(nx + 17, ny + 7 + hover, 2, 2);
+          // GÊNIO DEF — translúcido, pele azul, levita, turbante dourado com diamante
+          const hover = Math.sin(now / 300) * 5;
+          // Aura mágica translúcida (base)
+          const aura = ctx.createRadialGradient(nx+16, ny+20+hover, 2, nx+16, ny+20+hover, 18);
+          aura.addColorStop(0, 'rgba(155,89,182,0.5)'); aura.addColorStop(1, 'rgba(155,89,182,0)');
+          ctx.fillStyle = aura; ctx.beginPath(); ctx.arc(nx+16, ny+20+hover, 18, 0, Math.PI*2); ctx.fill();
+          // Corpo translúcido em forma de gênio (base larga, sem pernas)
+          ctx.fillStyle = 'rgba(100,60,160,0.75)';
+          ctx.beginPath();
+          ctx.moveTo(nx + 16, ny + 30 + hover);
+          ctx.quadraticCurveTo(nx + 28, ny + 20 + hover, nx + 22, ny + 12 + hover);
+          ctx.lineTo(nx + 10, ny + 12 + hover);
+          ctx.quadraticCurveTo(nx + 4,  ny + 20 + hover, nx + 16, ny + 30 + hover);
+          ctx.fill();
+          // Cabeça azul
+          ctx.fillStyle = '#7e57c2'; ctx.fillRect(nx + 9, ny + 3 + hover, 14, 11);
+          // Turbante dourado
+          ctx.fillStyle = '#f9a825'; ctx.fillRect(nx + 7, ny + 1 + hover, 18, 5);
+          ctx.fillRect(nx + 10, ny - 1 + hover, 12, 4);
+          // Diamante ciano no turbante
+          ctx.fillStyle = '#00e5ff';
+          ctx.beginPath(); ctx.moveTo(nx+16, ny - 4 + hover); ctx.lineTo(nx+19, ny - 1 + hover); ctx.lineTo(nx+16, ny + 1 + hover); ctx.lineTo(nx+13, ny - 1 + hover); ctx.fill();
+          // Olhos (grandes, expresivos)
+          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 10, ny + 6 + hover, 4, 5); ctx.fillRect(nx + 18, ny + 6 + hover, 4, 5);
+          ctx.fillStyle = '#311b92'; ctx.fillRect(nx + 11, ny + 7 + hover, 2, 3); ctx.fillRect(nx + 19, ny + 7 + hover, 2, 3);
+          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 11, ny + 7 + hover, 1, 1); ctx.fillRect(nx + 19, ny + 7 + hover, 1, 1);
+          // Mãos mágicas flutuando com partículas
+          ctx.fillStyle = '#9575cd';
+          ctx.beginPath(); ctx.arc(nx + 3, ny + 16 + hover + Math.sin(now/200)*4, 4, 0, Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.arc(nx + 29, ny + 16 + hover - Math.sin(now/200)*4, 4, 0, Math.PI*2); ctx.fill();
+          // Partículas de magia
+          for (let i = 0; i < 3; i++) {
+            const angle = (now / 300) + i * (Math.PI * 2 / 3);
+            ctx.fillStyle = i % 2 === 0 ? '#ffd43b' : '#00e5ff';
+            ctx.globalAlpha = 0.6 + Math.sin(now/200 + i) * 0.4;
+            ctx.fillRect(nx + 16 + Math.cos(angle)*12, ny + 18 + hover + Math.sin(angle)*5, 2, 2);
+          }
+          ctx.globalAlpha = 1;
+
       } else if (npc.id === 'arquiteto') {
-          const hover = Math.sin(now / 500) * 3; ctx.fillStyle = '#3498db'; ctx.fillRect(nx + 6, ny + 14 + hover, 20, 14); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(nx + 6, ny + 14 + hover, 20, 14); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(nx + 10, ny + 18 + hover, 12, 6); ctx.fillStyle = '#2980b9'; ctx.fillRect(nx + 10, ny + 4 + hover, 12, 10); ctx.strokeRect(nx + 10, ny + 4 + hover, 12, 10); ctx.fillStyle = '#00d2ff'; ctx.fillRect(nx + 12, ny + 8 + hover, 2, 2); ctx.fillRect(nx + 18, ny + 8 + hover, 2, 2);
+          // ARQUITETO INSTÂNCIA — armadura de cristal azul, rastro de instâncias
+          const hover = Math.sin(now / 500) * 3;
+          // Rastros de instâncias (cópias fantasmas atrás)
+          for (let i = 1; i <= 2; i++) {
+            ctx.globalAlpha = 0.15 * (3 - i);
+            ctx.fillStyle = '#3498db';
+            ctx.fillRect(nx + 6 - i*4, ny + 12 + hover, 20, 20);
+            ctx.globalAlpha = 1;
+          }
+          // Armadura de cristal (corpo)
+          const armGrd = ctx.createLinearGradient(nx+6, ny+12, nx+26, ny+32);
+          armGrd.addColorStop(0, '#4fc3f7'); armGrd.addColorStop(1, '#0d47a1');
+          ctx.fillStyle = armGrd; ctx.fillRect(nx + 6, ny + 12 + hover, 20, 20);
+          ctx.strokeStyle = '#e1f5fe'; ctx.lineWidth = 2; ctx.strokeRect(nx + 6, ny + 12 + hover, 20, 20);
+          // Detalhes da armadura (linhas de cristal)
+          ctx.fillStyle = 'rgba(255,255,255,0.3)';
+          ctx.fillRect(nx + 8, ny + 14 + hover, 6, 10);
+          ctx.fillRect(nx + 17, ny + 18 + hover, 6, 8);
+          // Ombros angulares
+          ctx.fillStyle = '#29b6f6'; ctx.fillRect(nx + 3, ny + 11 + hover, 5, 7);
+          ctx.fillStyle = '#29b6f6'; ctx.fillRect(nx + 24, ny + 11 + hover, 5, 7);
+          // Cabeça com capacete cristalino
+          ctx.fillStyle = '#0d47a1'; ctx.fillRect(nx + 8, ny + 2 + hover, 16, 12);
+          ctx.strokeStyle = '#4fc3f7'; ctx.lineWidth = 1; ctx.strokeRect(nx + 8, ny + 2 + hover, 16, 12);
+          // Visor (brilho azul)
+          ctx.fillStyle = '#00d2ff'; ctx.fillRect(nx + 10, ny + 6 + hover, 12, 5);
+          ctx.globalAlpha = 0.5 + Math.sin(now/300)*0.3;
+          ctx.fillStyle = '#fff'; ctx.fillRect(nx + 10, ny + 6 + hover, 12, 5);
+          ctx.globalAlpha = 1;
+          // Símbolo de classe no peito
+          ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 7px Arial'; ctx.textAlign = 'center';
+          ctx.fillText('{ }', nx + 16, ny + 27 + hover);
+          ctx.textAlign = 'left';
       } else if (npc.id.startsWith('guard')) {
           const plumeColor = isCave ? '#9b59b6' : (isTower ? '#00d2ff' : (isOasis ? '#f1c40f' : '#e74c3c')); ctx.fillStyle = '#7f8c8d'; ctx.fillRect(nx + 6, ny + 14, 20, 14); ctx.strokeStyle = '#2c3e50'; ctx.lineWidth = 1; ctx.strokeRect(nx + 6, ny + 14, 20, 14); ctx.fillStyle = '#95a5a6'; ctx.fillRect(nx + 10, ny + 4, 12, 10); ctx.fillStyle = '#2c3e50'; ctx.fillRect(nx + 11, ny + 7, 10, 3); ctx.fillStyle = plumeColor; ctx.fillRect(nx + 14, ny, 4, 4); ctx.strokeStyle = '#bdc3c7'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(nx + 28, ny + 4); ctx.lineTo(nx + 28, ny + 28); ctx.stroke(); ctx.fillStyle = plumeColor; ctx.fillRect(nx + 26, ny + 2, 4, 6);
       } else {
@@ -477,8 +738,11 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
       // Balão de fala flutuante
       const wanderData = wanderingNpcs[npc.id];
+      // O historiador usa posição deslocada pela caminhada
+      const bubbleOffsetX = npc.id === 'historiador' ? historiadorWalk.x : (wanderData?.offsetX ?? 0);
+      const bubbleOffsetY = wanderData?.offsetY ?? 0;
       if (wanderData?.bubble) {
-        const wbx = nx + 16 + wanderData.offsetX;
+        const wbx = nx + 16 + bubbleOffsetX;
         const wby = ny - 18;
         const text = wanderData.bubble;
         ctx.font = '5px "Press Start 2P"';
@@ -630,7 +894,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
     ctx.restore();
     if (playerName) drawLabel(playerName, px + 16, py - 10);
-  }, [playerPos, map, isMoving, playerColor, hasTerminal, openedChests, playerName, handleInteractBtn, isMerchantHere, merchantLocation, bossStage, playerGender]);
+  }, [playerPos, map, isMoving, playerColor, hasTerminal, openedChests, playerName, handleInteractBtn, isMerchantHere, merchantLocation, bossStage, playerGender, historiadorWalk, wanderingNpcs]);
 
   useEffect(() => {
     let requestRef: number;
