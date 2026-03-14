@@ -458,7 +458,6 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       } else if (npc.id === 'historiador') {
           // HISTORIADOR BIT — velho sábio com pergaminho, anda de um lado pro outro
           const hx = nx + historiadorWalk.x;
-          const walkAnim = Math.sin(historiadorWalk.step / 8) * 2; // balanço ao caminhar
           const facing = historiadorWalk.dir; // 1=direita, -1=esquerda
 
           // Sombra no chão
@@ -743,7 +742,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       const bubbleOffsetY = wanderData?.offsetY ?? 0;
       if (wanderData?.bubble) {
         const wbx = nx + 16 + bubbleOffsetX;
-        const wby = ny - 18;
+        const wby = ny - 18 + bubbleOffsetY;
         const text = wanderData.bubble;
         ctx.font = '5px "Press Start 2P"';
         const tw = ctx.measureText(text).width;
