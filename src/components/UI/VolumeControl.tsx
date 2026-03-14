@@ -33,21 +33,23 @@ const VolumeControl: React.FC = () => {
   return (
     <div
       style={{
-        position: 'absolute',
-        bottom: '175px',
-        left: '12px',
-        zIndex: 500,
+        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         gap: '4px',
         fontFamily: '"Press Start 2P"',
       }}
     >
-      {/* Painel expandido */}
+      {/* Painel expandido — abre para cima */}
       {expanded && (
         <div
           style={{
+            position: 'absolute',
+            bottom: '40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
             backgroundColor: 'rgba(15, 23, 42, 0.97)',
             border: '2px solid #3776ab',
             borderRadius: '6px',
