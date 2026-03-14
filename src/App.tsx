@@ -174,7 +174,8 @@ function App() {
     if (cutsceneId === 'intro') {
       setGameState('map');
       triggerAreaTitle(villageMap.name);
-      sounds.playAmbientMusic('village');
+      // Pequeno delay garante que o cleanup do CutscenePlayer (stopMusic) rode antes
+      setTimeout(() => sounds.playAmbientMusic('village'), 100);
       performSave();
     } else if (cutsceneId === 'final') {
       setGameState('credits');
@@ -182,7 +183,7 @@ function App() {
     } else {
       // fragments 1-5
       setGameState('map');
-      sounds.playAmbientMusic(currentMap.id);
+      setTimeout(() => sounds.playAmbientMusic(currentMap.id), 100);
       performSave();
     }
   };

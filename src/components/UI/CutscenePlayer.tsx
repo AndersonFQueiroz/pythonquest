@@ -23,30 +23,44 @@ const Pep8Sprite: React.FC = () => {
     const draw = () => {
       ctx.clearRect(0, 0, 80, 80);
       const hover = Math.sin(Date.now() / 400) * 2;
-      // px=10, py=5 centraliza o personagem no canvas 80x80
-      const px = 10, py = 5;
-      // Manto
-      ctx.fillStyle = '#1b5e20'; ctx.fillRect(px + 6, py + 14, 20, 16);
-      ctx.fillStyle = '#2ecc71'; ctx.fillRect(px + 10, py + 16, 12, 14);
+      // Centro horizontal = 40. Personagem tem ~28px de largura, então começa em cx=26
+      const cx = 26; // left edge do personagem (40 - 14 = centro)
+      const cy = 8;  // top edge
+
+      // Manto / Corpo
+      ctx.fillStyle = '#1b5e20';
+      ctx.fillRect(cx + 4, cy + 14, 20, 18);
+      ctx.fillStyle = '#2ecc71';
+      ctx.fillRect(cx + 7, cy + 16, 13, 16);
+
       // Rosto
-      ctx.fillStyle = '#ffdbac'; ctx.fillRect(px + 10, py + 4 + hover, 12, 12);
+      ctx.fillStyle = '#ffdbac';
+      ctx.fillRect(cx + 7, cy + 4 + hover, 13, 11);
+
       // Cabelo grisalho
-      ctx.fillStyle = '#e0e0e0';
-      ctx.fillRect(px + 8, py + 2 + hover, 16, 6);
-      ctx.fillRect(px + 8, py + 4 + hover, 4, 12);
-      ctx.fillRect(px + 20, py + 4 + hover, 4, 12);
+      ctx.fillStyle = '#bdbdbd';
+      ctx.fillRect(cx + 5,  cy + 2 + hover, 17, 5);
+      ctx.fillRect(cx + 5,  cy + 4 + hover, 3, 11);
+      ctx.fillRect(cx + 19, cy + 4 + hover, 3, 11);
+
       // Olhos
-      ctx.fillStyle = '#000';
-      ctx.fillRect(px + 12, py + 9 + hover, 2, 2);
-      ctx.fillRect(px + 18, py + 9 + hover, 2, 2);
-      // Cajado
+      ctx.fillStyle = '#222';
+      ctx.fillRect(cx + 9,  cy + 8 + hover, 2, 2);
+      ctx.fillRect(cx + 15, cy + 8 + hover, 2, 2);
+
+      // Cajado (à esquerda do corpo)
       ctx.strokeStyle = '#795548'; ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(px + 4, py + 30); ctx.lineTo(px + 4, py + 8 + hover);
+      ctx.moveTo(cx + 1, cy + 32);
+      ctx.lineTo(cx + 1, cy + 7 + hover);
       ctx.stroke();
-      // Orbe dourado
+
+      // Orbe dourado no topo do cajado
       ctx.fillStyle = '#ffd43b';
-      ctx.beginPath(); ctx.arc(px + 4, py + 6 + hover, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx + 1, cy + 5 + hover, 4, 0, Math.PI * 2);
+      ctx.fill();
+
       raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
@@ -294,7 +308,7 @@ const CutscenePlayer: React.FC<CutscenePlayerProps> = ({ cutsceneId, playerName,
         {isNarOrVis && (
           currentBeat.type==='narration'&&narConfig ? (
             <div style={{display:'flex',flexDirection:'row',flex:1,gap:'0'}}>
-              {/* RETRATO — centralizado com container fixo */}
+              {/* RETRATO */}
               <div
                 key={currentBeat.speaker}
                 style={{
@@ -307,22 +321,13 @@ const CutscenePlayer: React.FC<CutscenePlayerProps> = ({ cutsceneId, playerName,
                   animation:narConfig.animation, alignSelf:'flex-start',
                 }}
               >
-                {/* Container 88x88 com overflow:hidden — centraliza o canvas */}
                 <div style={{
                   display:'flex', alignItems:'center', justifyContent:'center',
-                  width:'88px', height:'88px',
-                  overflow:'hidden',
+                  width:'80px', height:'80px',
                   margin:'2px auto',
                   flexShrink:0,
                 }}>
-                  <div style={{
-                    transform:'scale(1.1)',
-                    transformOrigin:'center center',
-                    imageRendering:'pixelated' as const,
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                  }}>
-                    {narConfig.component}
-                  </div>
+                  {narConfig.component}
                 </div>
                 <span style={{fontSize:'5px',fontFamily:'"Press Start 2P"',color:narConfig.borderColor,textAlign:'center',marginTop:'4px',lineHeight:'1.4',wordBreak:'break-all'}}>
                   {currentBeat.speaker}
