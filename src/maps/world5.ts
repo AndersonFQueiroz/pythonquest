@@ -13,12 +13,12 @@ export const world5Map: MapData = {
     [5, 23, 23, 24, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 24, 23, 23, 5],
     [5, 23, 23, 24, 23, 25, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 25, 23, 23, 24, 23, 23, 5],
     [5, 23, 23, 24, 23, 23, 23, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 23, 23, 23, 23, 24, 23, 23, 5],
-    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 5], // ENTRADA (Placa x=23)
+    [6, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5], // ENTRADA
     [5, 23, 23, 24, 23, 23, 23, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 23, 23, 23, 23, 24, 23, 23, 5],
     [5, 23, 23, 24, 23, 25, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 25, 23, 23, 24, 23, 23, 5],
-    [5, 23, 23, 24, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 24, 23, 23, 5],
+    [5, 23, 23, 24, 23, 23, 23, 23, 23, 23, 23, 13, 13, 23, 23, 23, 23, 23, 23, 23, 23, 24, 23, 23, 5], // PLACAS LADO A LADO
     [5, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 23, 23, 5],
-    [5, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 5],
+    [5, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 5], 
     [5, 23, 23, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 23, 23, 5], 
     [5, 23, 23, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 23, 23, 5],
     [5, 5, 2, 5, 5, 5, 5, 5, 5, 5, 23, 2, 2, 2, 23, 5, 5, 5, 5, 5, 5, 5, 2, 5, 5],
@@ -27,7 +27,7 @@ export const world5Map: MapData = {
     [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5],
     [5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5],
     [5, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 2, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 5],
-    [5, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 2, 13, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 5], // Placa x=12, y=21
+    [5, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 2, 2, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 11, 6, 11, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5], 
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
@@ -46,11 +46,11 @@ export const world5Map: MapData = {
       ]
     },
     {
-        id: "guard9", name: "Sentinela de Estrutura L", tileX: 11, tileY: 22,
+        id: "guard9", name: "INSTÂNCIUS", tileX: 11, tileY: 22,
         dialog: ["O Castelo está em manutenção arquitetônica!", "Capture os 4 Bugs de Classe para validar a estrutura final."]
     },
     {
-        id: "guard10", name: "Sentinela de Estrutura R", tileX: 13, tileY: 22,
+        id: "guard10", name: "HERANCIUS", tileX: 13, tileY: 22,
         dialog: ["Somente objetos bem definidos podem passar por este portal.", "Mostre que você entende de POO!"]
     }
   ],
@@ -71,15 +71,18 @@ export const world5Map: MapData = {
     }
   ],
   signs: [
-    { tileX: 23, tileY: 7, messages: [
+    { tileX: 11, tileY: 10, messages: [
     "BEM-VINDO À CIDADELA DA OOP!",
-    "Você chegou ao conhecimento mais poderoso de Python. Daqui em diante você não usa ferramentas, você as cria.",
-    "A CLASSE é a planta baixa do objeto. Você define a planta uma vez e constrói quantos objetos quiser a partir dela.",
-    "O __init__ é executado automaticamente quando o objeto nasce. É onde você define os atributos iniciais.",
-    "O self é o objeto falando de si mesmo. self.vida é a vida daquele objeto específico.",
-    "Derrote o META-CLASS e torne-se um Arquiteto de Python. Pythoria depende de você!"
+    "Você chegou até aqui sabendo criar variáveis, tomar decisões, repetir tarefas e criar funções. Agora vai juntar tudo isso em um único lugar.",
+    "Imagine um personagem de RPG. Ele tem nome, vida e força. E ele pode atacar, curar e correr. Isso é um objeto — dados e ações juntos.",
+    "A CLASSE é o molde. Você define o molde uma vez e cria quantos objetos quiser a partir dele. Heroi é a classe. Anderson é o objeto.",
+    "O __init__ roda automaticamente quando o objeto nasce. É onde você define o que todo objeto dessa classe começa tendo.",
+    "O self é o objeto falando de si mesmo. Quando você escreve self.vida está dizendo: a vida DESTE objeto específico, não de todos.",
+    "HERANÇA permite que uma classe filha herde tudo da classe mãe e ainda adicione seus próprios poderes. Mago herda de Heroi.",
+    "Este jogo que você está jogando foi construído com classes e objetos. Agora você sabe como ele foi feito.",
+    "Cuidado com o META-CLASS - o Mestre supremo desta cidadela. Use tudo que aprendeu nele. Boa sorte, Arquiteto."
 ] },
-    { tileX: 12, tileY: 21, messages: [
+    { tileX: 12, tileY: 10, messages: [
     "[ AULA: CONSTRUINDO OBJETOS ]",
     "1. INSTANCIAÇÃO:",
     "Para criar um objeto, chame o nome da classe como se fosse uma função.",
@@ -101,6 +104,9 @@ export const world5Map: MapData = {
       requiredBugs: ['class_cat', 'init_owl', 'self_squid', 'method_monkey'],
       gatePos: { x: 12, y: 22 },
       guardDialog: ["A estrutura do castelo ainda está instável!", "Capture os 4 Bugmons finais para estabilizar a arquitetura de classes."],
-      unlockDialog: ["SISTEMA ESTABILIZADO! Você agora é um Arquiteto de Software.", "O PythonQuest foi restaurado. Parabéns, Mestre do Código!"]
+      unlockDialog: ["Esse estrondo... não foi o META-CLASS.",
+    "META-CLASS era apenas o guardião da porta.",
+    "O que você acabou de despertar está muito acima disso.",
+    "INSTÂNCIUS... você sente isso?"]
   }
 };

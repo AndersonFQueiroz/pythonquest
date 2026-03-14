@@ -1,4 +1,5 @@
 # PYTHONQUEST: O DESAFIO DE PYTHORIA - COMPÊNDIO COMPLETO DE LORE
+© 2026 Anderson e Equipe DemenTech
 
 ## I. O MUNDO DE PYTHORIA
 No início, havia apenas o **Zen do Python** — um código primordial que regia todas as coisas com clareza, ordem e beleza lógica. Cada linha existia com propósito. Cada variável tinha nome. Cada função retornava o que prometia.

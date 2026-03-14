@@ -8,7 +8,7 @@ export const villageMap: MapData = {
   tiles: [
     [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
     [5, 11, 11, 11, 0, 0, 0, 0, 0, 11, 11, 11, 0, 0, 0, 0, 0, 0, 0, 5], 
-    [5, 10, 10, 10, 0, 13, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 5], 
+    [5, 10, 10, 10, 0, 13, 0, 0, 0, 13, 29, 10, 0, 0, 0, 0, 0, 0, 0, 5], 
     [5, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 5],
     [5, 0, 12, 12, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 5], 
     [5, 0, 12, 12, 0, 2, 0, 12, 12, 0, 14, 0, 0, 0, 0, 0, 0, 0, 2, 5], 
@@ -35,7 +35,12 @@ export const villageMap: MapData = {
       ] 
     },
     {
-      id: "zumbi1", name: "Habitante #01", tileX: 10, tileY: 2,
+      id: "pytetor", name: "Protetor da Vila\nPyTetor", tileX: 18, tileY: 5,
+      dialog: ["Alto lá, Aprendiz!", "Ninguém sai da Vila sem as ferramentas de depuração da Mentora PEP-8.", "Volte e fale com ela se quiser sobreviver lá fora!"],
+      isBoss: false 
+    },
+    {
+      id: "zumbi1", name: "Claudio\nO\nHabitante", tileX: 13, tileY: 2,
       dialog: ["SyntaxError: invalid syntax...", "01001000 01000101 01001100 01001100 01010000", "...sistema... offline..."]
     }
   ],
@@ -57,11 +62,19 @@ export const villageMap: MapData = {
   ],
   signs: [
     { tileX: 5, tileY: 2, messages: ["AVISO: Não alimente os Bugs com variáveis não declaradas."] },
-    { tileX: 7, tileY: 8, messages: ["DICA: Use aspas para textos, e nada para números!"] }
+    { tileX: 7, tileY: 8, messages: ["DICA: Use aspas para textos, e nada para números!"] },
+    { tileX: 9, tileY: 2, messages: ["CASA DO APRENDIZ", "Um lugar para descansar da aventura e imortalizar seu progresso na cama."] }
   ],
   exits: [
     { tileX: 18, tileY: 6, targetMap: "world1", targetX: 1, targetY: 6 },
-    { tileX: 19, tileY: 6, targetMap: "world1", targetX: 1, targetY: 6 }
+    { tileX: 19, tileY: 6, targetMap: "world1", targetX: 1, targetY: 6 },
+    { tileX: 10, tileY: 2, targetMap: "player_house", targetX: 4, targetY: 8 }
   ],
-  merchantPos: { x: 14, y: 11 } // Mercador na vila
+  merchantPos: { x: 14, y: 11 },
+  lockConfig: {
+      requiredBugs: [], 
+      gatePos: { x: 18, y: 6 },
+      guardDialog: ["Você ainda não tem o Terminal e o Caderno!", "Fale com a Mentora PEP-8 antes de atravessar a ponte."],
+      unlockDialog: ["Vejo que você já tem o kit básico de sobrevivência.", "Um detalhe sobre a lore: Este portal foi construído com 'try/except', por isso ele é tão resistente.", "Boa sorte no Reino das Variáveis!"]
+  }
 };

@@ -1,10 +1,17 @@
 import React from 'react';
+import { useGameStore } from '../../hooks/useGameStore';
 
 interface TitleScreenProps {
   onStart: () => void;
+  onContinue: () => void;
 }
 
-const TitleScreen: React.FC<TitleScreenProps> = ({ onStart }) => {
+const TitleScreen: React.FC<TitleScreenProps> = ({ onStart, onContinue }) => {
+  const { name, level, correctedBugs } = useGameStore();
+  
+  // Consideramos que existe um save se o jogador não é o 'Dev' padrão de nível 1 ou se já matou algum bug
+  const hasSaveData = name !== 'Dev' || level > 1 || correctedBugs.length > 0;
+
   return (
     <div style={{
       display: 'flex',
@@ -18,7 +25,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({ onStart }) => {
     }}>
       {/* Exibindo a Logo do Jogo */}
       <img 
-        src="/logo.png" 
+        src="/Logo_PythonQuest.png" 
         alt="PythonQuest Logo" 
         style={{ 
           width: '320px', 
@@ -45,7 +52,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({ onStart }) => {
         display: 'flex',
         flexDirection: 'column',
         gap: '15px',
-        width: '200px'
+        width: '240px'
       }}>
         <button 
           onClick={onStart}
@@ -60,23 +67,48 @@ const TitleScreen: React.FC<TitleScreenProps> = ({ onStart }) => {
             boxShadow: '0 4px 0 #9e5200'
           }}
         >
-          NOVO JOGO
+          {hasSaveData ? 'SOBRESCREVER / NOVO' : 'NOVO JOGO'}
         </button>
         
-        <button 
-          style={{
-            backgroundColor: '#3776ab',
-            border: '4px solid #000',
-            padding: '12px',
-            fontFamily: '"Press Start 2P", monospace',
-            cursor: 'pointer',
-            fontSize: '10px',
-            color: '#fff',
-            boxShadow: '0 4px 0 #1e4a7a'
-          }}
-        >
-          CONTINUAR
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <button 
+              onClick={onContinue}
+              disabled={!hasSaveData}
+              style={{
+                backgroundColor: hasSaveData ? '#3776ab' : '#475569',
+                border: '4px solid #000',
+                padding: '12px',
+                fontFamily: '"Press Start 2P", monospace',
+                cursor: hasSaveData ? 'pointer' : 'not-allowed',
+                fontSize: '10px',
+                color: hasSaveData ? '#fff' : '#94a3b8',
+                boxShadow: hasSaveData ? '0 4px 0 #1e4a7a' : 'none'
+              }}
+            >
+              CONTINUAR
+            </button>
+
+            {hasSaveData && (
+                <div style={{ 
+                    backgroundColor: 'rgba(0,0,0,0.4)', 
+                    border: '2px solid #3776ab', 
+                    padding: '8px', 
+                    borderRadius: '4px',
+                    fontSize: '7px',
+                    color: '#ffd43b',
+                    textAlign: 'left',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px'
+                }}>
+                    <div style={{ color: '#fff', fontSize: '6px', opacity: 0.8 }}>SAVE ATUAL:</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>NOME: {name.toUpperCase()}</span>
+                        <span>NV: {level}</span>
+                    </div>
+                </div>
+            )}
+        </div>
       </div>
       
       <p style={{
@@ -85,7 +117,7 @@ const TitleScreen: React.FC<TitleScreenProps> = ({ onStart }) => {
         color: 'rgba(255,255,255,0.5)',
         letterSpacing: '1px'
       }}>
-        © 2026 PYTHORIA DEV TEAM
+        © 2026 EQUIPE DEMENTECH
       </p>
     </div>
   );

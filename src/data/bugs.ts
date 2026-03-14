@@ -155,24 +155,24 @@ export const BOSSES_ENEMIES: BugEnemy[] = [
     stages: [
       {
         description: "[PROVA FINAL R2 - FASE 1] O Vazio Lógico inverteu sua percepção! Use 'not' para tornar a condição verdadeira.",
-        problem: "if ?? False:\n  print('Ok')",
+        problem: "if False:\n  print('Ok')",
         solution: "if not False:\n  print('Ok')",
         expectedOutput: "Ok",
-        hint: "not False é igual a True."
+        hint: "O comando 'not' inverte o valor. not False é igual a True."
       },
       {
-        description: "[PROVA FINAL R2 - FASE 2] Decisão Aninhada! Verifique se a idade é maior que 18 E se tem convite.",
+        description: "[PROVA FINAL R2 - FASE 2] Decisão Aninhada! Verifique se a idade é maior que 18 E se tem convite usando 'and'.",
         problem: "idade = 20\ntem_convite = True\nif idade > 18 ?? tem_convite:\n  print('Entrou')",
         solution: "idade = 20\ntem_convite = True\nif idade > 18 and tem_convite:\n  print('Entrou')",
         expectedOutput: "Entrou",
-        hint: "Use o operador 'and'."
+        hint: "Substitua ?? pelo operador 'and'."
       },
       {
         description: "[PROVA FINAL R2 - FASE 3] O Desafio do Else! Complete a estrutura para que o resultado seja 'Erro'.",
         problem: "x = 5\nif x > 10:\n  print('Ok')\n??\n  print('Erro')",
         solution: "x = 5\nif x > 10:\n  print('Ok')\nelse:\n  print('Erro')",
         expectedOutput: "Erro",
-        hint: "Use 'else:' para o caminho contrário."
+        hint: "Use 'else:' para definir o caminho quando a condição do if for falsa."
       }
     ],
     deathPhrase: "Na face da ambiguidade, você recusou a tentação de adivinhar. A lógica volta a ser clara..."
@@ -190,21 +190,21 @@ export const BOSSES_ENEMIES: BugEnemy[] = [
         problem: "for i in range(?):\n  print('PY')",
         solution: "for i in range(3):\n  print('PY')",
         expectedOutput: "PY\nPY\nPY",
-        hint: "Troque ? por 3."
+        hint: "Troque ? por 3 para que o range gere 3 iterações."
       },
       {
         description: "[PROVA FINAL R3 - FASE 2] O Acumulador! Use o loop para somar os números de 1 a 3.",
         problem: "soma = 0\nfor i in [1, 2, 3]:\n  ??\nprint(soma)",
         solution: "soma = 0\nfor i in [1, 2, 3]:\n  soma += i\nprint(soma)",
         expectedOutput: "6",
-        hint: "Use soma += i"
+        hint: "Use soma += i ou soma = soma + i dentro do loop."
       },
       {
         description: "[PROVA FINAL R3 - FASE 3] Quebra de Infinitude! Use 'break' para parar o Overlord.",
         problem: "while True:\n  print('Parou')\n  ??",
         solution: "while True:\n  print('Parou')\n  break",
         expectedOutput: "Parou",
-        hint: "Escreva break."
+        hint: "Escreva a palavra reservada break para encerrar o loop while True."
       }
     ],
     deathPhrase: "Plano é melhor que aninhado. O loop infinito foi finalmente quebrado..."
@@ -218,25 +218,25 @@ export const BOSSES_ENEMIES: BugEnemy[] = [
     goldReward: 1500,
     stages: [
       {
-        description: "[PROVA FINAL R4 - FASE 1] Definição Mágica! Crie uma função que receba 'x' e retorne o dobro.",
+        description: "[PROVA FINAL R4 - FASE 1] Definição Mágica! Retorne o dobro do valor de x.",
         problem: "def dobro(x):\n  ??\nprint(dobro(5))",
         solution: "def dobro(x):\n  return x * 2\nprint(dobro(5))",
         expectedOutput: "10",
-        hint: "Use return x * 2"
+        hint: "Use a palavra return seguida da conta x * 2."
       },
       {
-        description: "[PROVA FINAL R4 - FASE 2] Múltiplos Parâmetros! Some a força e a magia.",
+        description: "[PROVA FINAL R4 - FASE 2] Múltiplos Parâmetros! Some a força (10) e a magia (20).",
         problem: "def poder(f, m):\n  print(f + m)\npoder(10, ??)",
         solution: "def poder(f, m):\n  print(f + m)\npoder(10, 20)",
         expectedOutput: "30",
-        hint: "Passe o número 20 como segundo argumento."
+        hint: "Passe o número 20 como o segundo argumento da função poder."
       },
       {
-        description: "[PROVA FINAL R4 - FASE 3] Escopo Local! Tente imprimir a variável 'segredo' que está dentro da função.",
-        problem: "def f():\n  segredo = 'SHH'\n  return segredo\n??",
+        description: "[PROVA FINAL R4 - FASE 3] Escopo Local! Use return para capturar o valor de segredo e mostre-o.",
+        problem: "def f():\n  segredo = 'SHH'\n  ??\nprint(f())",
         solution: "def f():\n  segredo = 'SHH'\n  return segredo\nprint(f())",
         expectedOutput: "SHH",
-        hint: "Você não pode acessar 'segredo' de fora, mas pode imprimir o resultado da função."
+        hint: "A função precisa retornar a variável segredo."
       }
     ],
     deathPhrase: "Erros nunca devem passar silenciosamente. Suas funções agora têm propósito..."
@@ -251,24 +251,24 @@ export const BOSSES_ENEMIES: BugEnemy[] = [
     stages: [
       {
         description: "[PROVA FINAL R5 - FASE 1] Instanciação Pura! Crie um objeto da classe 'Boss'.",
-        problem: "class Boss:\n  pass\nb = ??",
-        solution: "class Boss:\n  pass\nb = Boss()",
-        expectedOutput: "",
-        hint: "Use Boss()"
+        problem: "class Boss:\n  pass\nb = ??\nprint(type(b).__name__)",
+        solution: "class Boss:\n  pass\nb = Boss()\nprint(type(b).__name__)",
+        expectedOutput: "Boss",
+        hint: "Chame a classe como uma função: Boss()."
       },
       {
-        description: "[PROVA FINAL R5 - FASE 2] Atributos Iniciais! Defina a vida do boss no __init__.",
+        description: "[PROVA FINAL R5 - FASE 2] Atributos Iniciais! Salve o valor de v dentro de self.v no construtor.",
         problem: "class B:\n  def __init__(self, v):\n    ??\nb = B(100)\nprint(b.v)",
         solution: "class B:\n  def __init__(self, v):\n    self.v = v\nb = B(100)\nprint(b.v)",
         expectedOutput: "100",
-        hint: "Use self.v = v"
+        hint: "Use self.v = v para atribuir o parâmetro ao objeto."
       },
       {
-        description: "[PROVA FINAL R5 - FASE 3] O Golpe Final! Use o método 'derrotar' da própria classe.",
+        description: "[PROVA FINAL R5 - FASE 3] O Golpe Final! Chame o método 'derrotar' do objeto b.",
         problem: "class B:\n  def derrotar(self):\n    print('Fim')\nb = B()\n??",
         solution: "class B:\n  def derrotar(self):\n    print('Fim')\nb = B()\nb.derrotar()",
         expectedOutput: "Fim",
-        hint: "Chame b.derrotar()"
+        hint: "Escreva b.derrotar()."
       }
     ],
     deathPhrase: "Namespaces são uma grande ideia. O objeto foi depurado, mas a classe permanece..."
@@ -282,39 +282,39 @@ export const BOSSES_ENEMIES: BugEnemy[] = [
     goldReward: 5000,
     stages: [
       {
-        description: "[CONFRONTO FINAL - ESTÁGIO 1: VARIÁVEIS] Malwarech tenta deletar seu nome! Prove que você existe.",
-        problem: "player_name = 'Mestre'\nprint(??)",
-        solution: "player_name = 'Mestre'\nprint(player_name)",
-        expectedOutput: "Mestre",
-        hint: "Imprima a variável player_name."
+        description: "[CONFRONTO FINAL - ESTÁGIO 1: ESTRUTURAS] Malwarech tenta fragmentar seus dados! Altere o valor de 'nucleo' para 'Protegido'.",
+        problem: "sistema = {'status': 'OK', 'nucleo': 'Instavel'}\n??\nprint(sistema['nucleo'])",
+        solution: "sistema = {'status': 'OK', 'nucleo': 'Instavel'}\nsistema['nucleo'] = 'Protegido'\nprint(sistema['nucleo'])",
+        expectedOutput: "Protegido",
+        hint: "Atribua o texto 'Protegido' à chave 'nucleo' do dicionário sistema."
       },
       {
-        description: "[CONFRONTO FINAL - ESTÁGIO 2: LÓGICA] Ele criou um labirinto de mentiras! Saia dele.",
-        problem: "if not (5 > 10) and True:\n  print('Livre')\nelse:\n  print('Preso')",
-        solution: "if not (5 > 10) and True:\n  print('Livre')\nelse:\n  print('Preso')",
-        expectedOutput: "Livre",
-        hint: "O código já está quase certo, apenas execute para validar a lógica."
+        description: "[CONFRONTO FINAL - ESTÁGIO 2: DECISÕES CRÍTICAS] Ele criou uma ilusão lógica! Ajuste x para que o resultado seja 'Centro'.",
+        problem: "x = 0\nif x > 5:\n    if x < 15:\n        print('Centro')\n    else:\n        print('Longe')\nelse:\n    print('Fora')",
+        solution: "x = 10\nif x > 5:\n    if x < 15:\n        print('Centro')\n    else:\n        print('Longe')\nelse:\n    print('Fora')",
+        expectedOutput: "Centro",
+        hint: "Mude o valor inicial de x para um número entre 6 e 14."
       },
       {
-        description: "[CONFRONTO FINAL - ESTÁGIO 3: LOOPS] O tempo está acabando! Complete o ciclo de restauração.",
-        problem: "for i in range(3):\n  ??",
-        solution: "for i in range(3):\n  print('OK')",
-        expectedOutput: "OK\nOK\nOK",
-        hint: "Use print('OK') dentro do loop."
+        description: "[CONFRONTO FINAL - ESTÁGIO 3: CICLOS INFINITOS] O tempo está colapsando! Use o loop para somar apenas os números PARES de 0 a 4.",
+        problem: "soma = 0\nfor i in range(5):\n    ??\nprint(soma)",
+        solution: "soma = 0\nfor i in range(5):\n    if i % 2 == 0:\n        soma += i\nprint(soma)",
+        expectedOutput: "6",
+        hint: "Use um if i % 2 == 0: seguido de soma += i."
       },
       {
-        description: "[CONFRONTO FINAL - ESTÁGIO 4: FUNÇÕES] O núcleo está exposto! Chame a função de deleção.",
-        problem: "def deletar_virus():\n  return 'Virus Deletado'\n??",
-        solution: "def deletar_virus():\n  return 'Virus Deletado'\nprint(deletar_virus())",
-        expectedOutput: "Virus Deletado",
-        hint: "Imprima o resultado de deletar_virus()."
+        description: "[CONFRONTO FINAL - ESTÁGIO 4: MAGIA RECURSIVA] O núcleo está exposto! Complete a função para calcular fatorial.",
+        problem: "def fat(n):\n    if n <= 1: return 1\n    ??\n\nprint(fat(3))",
+        solution: "def fat(n):\n    if n <= 1: return 1\n    return n * fat(n-1)\n\nprint(fat(3))",
+        expectedOutput: "6",
+        hint: "O return deve ser n * fat(n-1)."
       },
       {
-        description: "[CONFRONTO FINAL - ESTÁGIO 5: ZEN DO PYTHON] RECONSTRUA O UNIVERSO! Instancie o Novo Mundo.",
-        problem: "class Mundo:\n  def __init__(self):\n    self.status = 'Restaurado'\nm = Mundo()\nprint(m.status)",
-        solution: "class Mundo:\n  def __init__(self):\n    self.status = 'Restaurado'\nm = Mundo()\nprint(m.status)",
-        expectedOutput: "Restaurado",
-        hint: "Corrija ou complete o código para imprimir 'Restaurado'."
+        description: "[CONFRONTO FINAL - ESTÁGIO 5: RECONSTRUÇÃO TOTAL] INSTANCIE A REALIDADE! Crie o objeto final e restaure Pythoria.",
+        problem: "class Pythoria:\n    def __init__(self):\n        self.status = 'RESTAURADA'\n\n??\nprint(mundo.status)",
+        solution: "class Pythoria:\n    def __init__(self):\n        self.status = 'RESTAURADA'\n\nmundo = Pythoria()\nprint(mundo.status)",
+        expectedOutput: "RESTAURADA",
+        hint: "Instancie a classe: mundo = Pythoria()."
       }
     ],
     deathPhrase: "SISTEMA RESTAURADO. O Zen do Python agora reina absoluto..."

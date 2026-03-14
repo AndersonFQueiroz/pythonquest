@@ -3,11 +3,14 @@ import TitleScreen from './components/UI/TitleScreen';
 import CharacterCreation from './components/UI/CharacterCreation';
 import MapCanvas from './components/Map/MapCanvas';
 import BattleScreen from './components/Battle/BattleScreen';
+import CreditsScreen from './components/UI/CreditsScreen';
 import DialogBox from './components/UI/DialogBox';
 import StatusBar from './components/UI/StatusBar';
 import CodeEditor from './components/Battle/CodeEditor';
+import AuthScreen from './components/UI/AuthScreen';
 import { world1Map } from './maps/world1';
 import { villageMap } from './maps/village';
+import { playerHouseMap } from './maps/player_house';
 import { world2Map } from './maps/world2';
 import { world3Map } from './maps/world3';
 import { world4Map } from './maps/world4';
@@ -19,8 +22,9 @@ import { useGameStore } from './hooks/useGameStore';
 import type { InventoryItem } from './hooks/useGameStore';
 import { usePyodide } from './hooks/usePyodide';
 import { BOSSES_ENEMIES } from './data/bugs';
+import { supabase } from './lib/supabase';
 
-export type GameState = 'title' | 'char_creation' | 'loading' | 'map' | 'battle';
+export type GameState = 'auth' | 'title' | 'char_creation' | 'loading' | 'map' | 'battle' | 'credits';
 
 const ItemIcon: React.FC<{ id: string }> = ({ id }) => {
     switch (id) {
@@ -38,7 +42,7 @@ const MERCHANT_STOCK: InventoryItem[] = [
 ];
 
 function App() {
-  const [gameState, setGameState] = useState<GameState>('title');
+  const [gameState, setGameState] = useState<GameState>('auth');
   const [currentMap, setCurrentMap] = useState(villageMap);
   const [flash, setFlash] = useState(false);
   const [shake, setShake] = useState(false);
@@ -48,10 +52,33 @@ function App() {
   const [showTPMenu, setShowTPMenu] = useState(false);
 
   const { 
-    gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
-    resetPlayer, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
-    correctedBugs, setUnlockArrow, debugIgnoreBlocks, setDebugIgnoreBlocks
+    name: playerName, gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
+    resetPlayer, fullReset, logout, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
+    correctedBugs, setUnlockArrow, debugIgnoreBlocks, setDebugIgnoreBlocks, saveToCloud, userId, setUserId, loadFromCloud
   } = useGameStore();
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  // VERIFICAÇÃO DE SESSÃO AO CARREGAR
+  useEffect(() => {
+      const checkSession = async () => {
+          const { data } = await supabase.auth.getSession();
+          if (data.session?.user) {
+              setUserId(data.session.user.id);
+              const hasSave = await loadFromCloud(data.session.user.id);
+              if (hasSave) setGameState('title');
+          }
+      };
+      checkSession();
+  }, [setUserId, loadFromCloud]);
+
+  const performSave = async () => {
+    if (!userId) return;
+    setIsSaving(true);
+    await saveToCloud();
+    // Mantém o ícone girando por mais 1 segundo para feedback visual agradável
+    setTimeout(() => setIsSaving(false), 1000);
+  };
 
   const triggerBossBattle = (bossId: string) => {
       const boss = BOSSES_ENEMIES.find(b => b.id === bossId);
@@ -75,11 +102,12 @@ function App() {
                      map.id === 'world5' ? 'meta_class' : null;
 
       if ((hasAllBugs || debugIgnoreBlocks) && bossId && !correctedBugs.includes(bossId)) {
+          const isWorld1 = map.id === 'world1';
           const bossNPC = {
               id: bossId,
               name: `BOSS: ${bossId.replace('_', ' ').toUpperCase()}`,
-              tileX: map.lockConfig.gatePos.x - 1,
-              tileY: map.lockConfig.gatePos.y,
+              tileX: isWorld1 ? 17 : map.lockConfig.gatePos.x,
+              tileY: isWorld1 ? 6 : map.lockConfig.gatePos.y,
               dialog: ["PARE AI, APRENDIZ!", "Eu sou a Prova Final deste Reino.", "Se voce nao domina a materia, Pythoria sera o seu fim!", "PREPARE-SE PARA A DEPURACAO!"],
               isBoss: true
           };
@@ -98,7 +126,7 @@ function App() {
   const [activeChest, setActiveChest] = useState<any | null>(null);
   const [chestCode, setChestCode] = useState('');
   const [chestError, setChestError] = useState<string | null>(null);
-  
+
   const { runCode } = usePyodide();
 
   useEffect(() => {
@@ -122,12 +150,17 @@ function App() {
     }
   }, [correctedBugs, currentMap.id, setUnlockArrow]);
 
-  const handleStartGame = () => { sounds.playSelect(); setGameState('char_creation'); };
-  
+  const handleStartGame = () => { 
+    sounds.playSelect(); 
+    fullReset(); // Garante que tudo volte ao zero para um novo jogo
+    setGameState('char_creation'); 
+  };
+
   const handleFinishCreation = () => { 
     sounds.playSelect(); 
     setGameState('map');
     triggerAreaTitle(villageMap.name);
+    performSave();
   };
 
   const triggerAreaTitle = (name: string) => {
@@ -139,6 +172,19 @@ function App() {
     setShake(true);
     setTimeout(() => setShake(false), 500);
   }, []);
+
+  // AUTOSAVE SILENCIOSO A CADA 2 MINUTOS
+  useEffect(() => {
+      if (gameState === 'auth' || gameState === 'title') return;
+
+      const autoSaveInterval = setInterval(() => {
+          if (userId) {
+              performSave();
+          }
+      }, 120000); // 120 segundos
+
+      return () => clearInterval(autoSaveInterval);
+  }, [gameState, userId]);
 
   const triggerBattle = useCallback(() => {
     if (activeDialog || activeChest || showNotebook || showShop) return;
@@ -152,8 +198,23 @@ function App() {
 
     if (interaction.type === 'npc' || interaction.type === 'sign') {
       const npc = interaction.data;
-      let messages = npc.dialog;
-      
+      let messages = npc.messages || npc.dialog; // Suporta as duas propriedades
+
+      // LOGICA DA CAMA (SAVE)
+      if (messages && messages[0] === 'bed_save') {
+          setActiveDialog({
+              name: 'CAMA',
+              messages: ["Deseja descansar e salvar o jogo?"],
+              onFinish: () => {
+                  sounds.playSelect();
+                  performSave();
+                  setFlash(true);
+                  setTimeout(() => setFlash(false), 300);
+                  setActiveDialog({ name: 'SISTEMA', messages: ['Progresso sincronizado com a Nuvem.'] });
+              }
+          });
+          return;
+      }
       if (npc.id === 'pep8' && hasTerminal) {
           messages = [
               "O mundo do PythonQuest é regido pelo Zen do Python.",
@@ -169,7 +230,7 @@ function App() {
           messages,
           onFinish: npc.isBoss ? () => triggerBossBattle(npc.id) : undefined
       });
-      
+
       if (interaction.type === 'sign' && (messages[0].startsWith('[ AULA') || messages[0].startsWith('BEM-VINDO'))) {
           addNote(messages[0], messages);
       }
@@ -200,6 +261,7 @@ function App() {
         sounds.playHit(); gainGold(activeChest.reward); openChest(activeChest.uniqueId); 
         setActiveChest(null);
         setActiveDialog({ name: 'SISTEMA', messages: ['Código validado!', `Recebido ${activeChest.reward} GOLD.`] });
+        performSave();
     } else {
         sounds.playHit(); 
         triggerShake();
@@ -216,12 +278,14 @@ function App() {
       else if (targetMapId === 'world3') target = world3Map;
       else if (targetMapId === 'world4') target = world4Map;
       else if (targetMapId === 'world5') target = world5Map;
+      else if (targetMapId === 'player_house') target = playerHouseMap;
       else if (targetMapId === 'final_boss') target = finalBossMap;
       else target = villageMap;
       setCurrentMap(target);
       setPlayerPos({ x, y });
       setFlash(false);
       triggerAreaTitle(target.name);
+      performSave();
     }, 300);
   }, [setPlayerPos]);
 
@@ -230,7 +294,7 @@ function App() {
     const wasMalwarech = battleBoss?.id === 'malwarech';
     const bossPhrase = battleBoss?.deathPhrase;
     const bossName = battleBoss?.name;
-    
+
     if (isDead) {
         resetPlayer(); 
         setCurrentMap(villageMap); 
@@ -240,43 +304,46 @@ function App() {
         setTimeout(() => {
             setFlash(false);
             setActiveDialog({ name: 'Mentora PEP-8', messages: ["Seu sistema falhou...", "Vou restaurar seus dados. Não desista!"] });
+            performSave();
         }, 500);
-    } else { 
+    } else {
         if (wasMalwarech) {
             setGameState('map');
-            setActiveDialog({ 
-                name: bossName || 'MALWARECH', 
+            setActiveDialog({
+                name: bossName || 'MALWARECH',
                 messages: [bossPhrase || "O sistema foi restaurado."],
                 onFinish: () => {
                     setFlash(true);
                     setTimeout(() => {
                         setFlash(false);
-                        setActiveDialog({ 
-                            name: 'SISTEMA', 
-                            messages: ["O Núcleo foi depurado. Pythoria está restaurada!", "O Zen do Python agora reina absoluto em todo o sistema.", "Parabéns, Mestre do Código! Você finalizou o PythonQuest."],
-                            onFinish: () => setGameState('title')
-                        });
+                        setGameState('credits');
+                        performSave();
                     }, 1000);
                 }
             });
         } else if (wasBoss) {
             setGameState('map');
-            setFlash(true); // Flash de vitória imediato
+            setFlash(true);
             setTimeout(() => {
                 setFlash(false);
-                setActiveDialog({ 
-                    name: bossName || 'BOSS', 
+                setActiveDialog({
+                    name: bossName || 'BOSS',
                     messages: [bossPhrase || "Você me venceu..."]
                 });
+                performSave();
             }, 500);
         } else {
-            setGameState('map'); 
+            setGameState('map');
+            performSave();
         }
     }
-    setBattleBoss(null); 
+    setBattleBoss(null);
   };
 
-  useEffect(() => {
+  const handleEndAuth = () => {
+      // O usuário pediu pra SEMPRE ir pra tela inicial apos o login.
+      setGameState('title');
+  };  useEffect(() => {
     if (merchantMessage) {
         const timer = setTimeout(clearMerchantMessage, 5000);
         return () => clearTimeout(timer);
@@ -296,15 +363,21 @@ function App() {
 
   return (
     <div className={shake ? 'shake' : ''} style={{ width: '100%', height: '100%', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-      
-      {gameState === 'title' && <TitleScreen onStart={handleStartGame} />}
+
+      {gameState === 'auth' && (
+        <AuthScreen 
+            onLoginSuccess={handleEndAuth} 
+            onSkip={() => setGameState('title')} 
+        />
+      )}
+      {gameState === 'title' && <TitleScreen onStart={handleStartGame} onContinue={() => { sounds.playSelect(); setGameState('map'); }} />}
       {gameState === 'char_creation' && <CharacterCreation onFinish={handleFinishCreation} />}
-      
-      {(gameState === 'map' || gameState === 'battle') && (
+
+      {(gameState === 'map' || gameState === 'battle' || gameState === 'credits') && (
         <>
           <div style={{ backgroundColor: '#0f172a', color: '#fff', padding: '5px', fontSize: '7px', textAlign: 'center', borderBottom: '2px solid #3776ab', position: 'relative' }}>
             {hasNotebook ? '[ WASD = Andar | E = Interagir | C = Caderno ]' : '[ WASD = Andar | E/ENTER = Interagir ]'}
-            
+
             <button 
                 onClick={() => setShowTPMenu(!showTPMenu)}
                 style={{
@@ -317,6 +390,22 @@ function App() {
                 TP
             </button>
 
+            {/* ÍCONE DE AUTOSAVE */}
+            {isSaving && (
+                <div style={{
+                    position: 'absolute', right: '70px', top: '50%', transform: 'translateY(-50%)',
+                    fontSize: '6px', color: '#ffd43b', display: 'flex', alignItems: 'center', gap: '8px',
+                    backgroundColor: 'rgba(0,0,0,0.6)', padding: '4px 8px', borderRadius: '4px', border: '1px solid #ffd43b'
+                }}>
+                    <div style={{ 
+                        width: '8px', height: '8px', border: '2px solid #ffd43b', 
+                        borderTopColor: 'transparent', borderRadius: '50%', 
+                        animation: 'spin 0.6s linear infinite' 
+                    }} />
+                    SALVANDO...
+                </div>
+            )}
+
             <button 
                 onClick={() => setDebugIgnoreBlocks(!debugIgnoreBlocks)}
                 style={{
@@ -328,29 +417,29 @@ function App() {
             >
                 {debugIgnoreBlocks ? 'LOCK: OFF' : 'LOCK: ON'}
             </button>
-          </div>
-          <StatusBar />
-          <div style={{ flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: '#000' }}>
-            
-            {showTPMenu && (
-                <div style={{ position: 'absolute', left: '5px', top: '5px', backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '2px solid #3776ab', zIndex: 5000, padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <div style={{ fontSize: '5px', color: '#ffd43b', marginBottom: '5px', textAlign: 'center' }}>TELEPORTE RÁPIDO</div>
-                    {[
-                        { id: 'village', name: 'VILA', x: 10, y: 10 },
-                        { id: 'world1', name: 'R1: VARIÁVEIS', x: 1, y: 6 },
-                        { id: 'world2', name: 'R2: DECISÕES', x: 1, y: 7 },
-                        { id: 'world3', name: 'R3: LOOPS', x: 1, y: 7 },
-                        { id: 'world4', name: 'R4: FUNÇÕES', x: 1, y: 7 },
-                        { id: 'world5', name: 'R5: OOP', x: 1, y: 7 },
-                        { id: 'final_boss', name: 'BOSS FINAL', x: 11, y: 21 }
-                    ].map(loc => (
-                        <button key={loc.id} onClick={() => { handlePortal(loc.id, loc.x, loc.y); setShowTPMenu(false); }} style={{ padding: '5px', fontSize: '5px', fontFamily: '"Press Start 2P"', cursor: 'pointer', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #3776ab' }}>
-                            {loc.name}
-                        </button>
-                    ))}
-                    <button onClick={() => setShowTPMenu(false)} style={{ marginTop: '5px', padding: '5px', fontSize: '5px', color: '#ff4757', border: 'none', background: 'none', cursor: 'pointer' }}>[X] FECHAR</button>
-                </div>
+
+            {userId && (
+                <button 
+                    onClick={async () => { 
+                        if(window.confirm("Deseja encerrar a sessão? O progresso não salvo será perdido.")) {
+                            await logout(); 
+                            setGameState('auth'); 
+                        }
+                    }}
+                    style={{
+                        position: 'absolute', right: '5px', top: '-25px',
+                        fontSize: '5px', padding: '4px 8px', cursor: 'pointer',
+                        backgroundColor: '#1e293b',
+                        color: '#ff4757', border: '1px solid #ff4757', borderRadius: '4px', fontFamily: '"Press Start 2P"'
+                    }}
+                >
+                    LOGOUT
+                </button>
             )}
+          </div>
+          <StatusBar />          <div style={{ flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: '#000' }}>
+            
+            {gameState === 'credits' && <CreditsScreen playerName={playerName} onFinish={() => { resetPlayer(); setGameState('title'); }} />}
 
             {areaTitle && (
                 <div style={{ position: 'absolute', top: '40px', left: 0, right: 0, zIndex: 1000, display: 'flex', justifyContent: 'center', pointerEvents: 'none', animation: 'title-in-out 4s forwards' }}>
@@ -403,6 +492,26 @@ function App() {
                 </div>
             )}
 
+            {showTPMenu && (
+                <div style={{ position: 'absolute', left: '5px', top: '5px', backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '2px solid #3776ab', zIndex: 5000, padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <div style={{ fontSize: '5px', color: '#ffd43b', marginBottom: '5px', textAlign: 'center' }}>TELEPORTE RÁPIDO</div>
+                    {[
+                        { id: 'village', name: 'VILA', x: 10, y: 10 },
+                        { id: 'world1', name: 'R1: VARIÁVEIS', x: 1, y: 6 },
+                        { id: 'world2', name: 'R2: DECISÕES', x: 1, y: 7 },
+                        { id: 'world3', name: 'R3: LOOPS', x: 1, y: 7 },
+                        { id: 'world4', name: 'R4: FUNÇÕES', x: 1, y: 7 },
+                        { id: 'world5', name: 'R5: OOP', x: 1, y: 7 },
+                        { id: 'final_boss', name: 'BOSS FINAL', x: 11, y: 21 }
+                    ].map(loc => (
+                        <button key={loc.id} onClick={() => { handlePortal(loc.id, loc.x, loc.y); setShowTPMenu(false); }} style={{ padding: '5px', fontSize: '5px', fontFamily: '"Press Start 2P"', cursor: 'pointer', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #3776ab' }}>
+                            {loc.name}
+                        </button>
+                    ))}
+                    <button onClick={() => setShowTPMenu(false)} style={{ marginTop: '5px', padding: '5px', fontSize: '5px', color: '#ff4757', border: 'none', background: 'none', cursor: 'pointer' }}>[X] FECHAR</button>
+                </div>
+            )}
+
             {showShop && (
                 <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(15, 23, 42, 0.98)', border: '4px solid #ff8c00', zIndex: 2000, padding: '20px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
                     <h3 style={{ fontSize: '10px', textAlign: 'center', marginBottom: '15px', color: '#ff8c00' }}>[ LOJA DO MERCADOR ]</h3>
@@ -420,7 +529,7 @@ function App() {
                                         <div style={{ fontSize: '5px', marginTop: '4px', opacity: 0.8, lineHeight: '1.4' }}>{item.description}</div>
                                     </div>
                                 </div>
-                                <button onClick={() => { sounds.playSelect(); const r = buyItem(item); setShopMessage(r.message); setTimeout(() => setShopMessage(null), 3000); }} style={{ padding: '8px', backgroundColor: '#3776ab', color: '#fff', border: 'none', fontSize: '6px', cursor: 'pointer', boxShadow: '0 2px 0 #0f172a' }}>COMPRAR</button>
+                                <button onClick={() => { sounds.playSelect(); const r = buyItem(item); setShopMessage(r.message); performSave(); setTimeout(() => setShopMessage(null), 3000); }} style={{ padding: '8px', backgroundColor: '#3776ab', color: '#fff', border: 'none', fontSize: '6px', cursor: 'pointer', boxShadow: '0 2px 0 #0f172a' }}>COMPRAR</button>
                             </div>
                         ))}
                     </div>
@@ -439,6 +548,7 @@ function App() {
         @keyframes flash-fade { from { opacity: 1; } to { opacity: 0; } } 
         @keyframes slide-down { from { transform: translateY(-100%); } to { transform: translateY(0); } }
         @keyframes title-in-out { 0% { opacity: 0; transform: scale(0.8); } 20% { opacity: 1; transform: scale(1); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.1); } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );

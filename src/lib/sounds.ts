@@ -28,6 +28,37 @@ class SoundEngine {
     osc.stop(this.ctx.currentTime + duration);
   }
 
+  private musicInterval: any = null;
+
+  stopMusic() {
+    if (this.musicInterval) {
+        clearInterval(this.musicInterval);
+        this.musicInterval = null;
+    }
+  }
+
+  playBattleMusic(type: 'common' | 'boss' | 'final') {
+    this.stopMusic();
+    this.init();
+    let step = 0;
+    
+    // Melodias simplificadas (frequências)
+    const commonNotes = [261, 0, 261, 329, 392, 0, 392, 349]; // C4, E4, G4, F4
+    const bossNotes = [130, 146, 130, 164, 130, 146, 110, 123]; // Bass tenso
+    const finalNotes = [110, 110, 220, 110, 130, 146, 164, 196]; // Épico/Rápido
+
+    const notes = type === 'final' ? finalNotes : (type === 'boss' ? bossNotes : commonNotes);
+    const speed = type === 'final' ? 150 : 200;
+
+    this.musicInterval = setInterval(() => {
+        const freq = notes[step % notes.length];
+        if (freq > 0) {
+            this.playTone(freq, type === 'common' ? 'triangle' : 'sawtooth', 0.15, 0.05);
+        }
+        step++;
+    }, speed);
+  }
+
   playStep() {
     // Som de passo (curto e grave)
     this.playTone(150, 'triangle', 0.1, 0.1);

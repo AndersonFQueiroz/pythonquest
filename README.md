@@ -67,4 +67,4 @@
 Este projeto está licenciado sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
 ---
-Desenvolvido com 🐍 e ☕ por **Anderson Queiroz** & **Pythoria Dev Team**.
+Desenvolvido com 🐍 e ☕ por **Anderson Queiroz** & **Equipe DemenTech**.

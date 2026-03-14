@@ -9,16 +9,17 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
   const setProfile = useGameStore(state => state.setProfile);
   const [name, setName] = useState('DEV_APRENDIZ');
   const [color, setColor] = useState('#3776ab');
+  const [gender, setGender] = useState<'m' | 'f'>('m');
 
   const COLORS = [
     { name: 'AZUL', hex: '#3776ab' },
     { name: 'PRETO', hex: '#221f1f' },
-    { name: 'LARANJA', hex: '#e26116' },
+    { name: 'ROSA', hex: '#ec8b9a' },
     { name: 'VERMELHO', hex: '#cc2e2e' }
   ];
 
   const handleStart = () => {
-    setProfile(name, color);
+    setProfile(name, color, gender);
     onFinish();
   };
 
@@ -36,7 +37,7 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
     }}>
       <h2 style={{ fontSize: '12px', marginBottom: '30px', color: '#ffd43b' }}>[ REGISTRO DE DESENVOLVEDOR ]</h2>
       
-      <div style={{ marginBottom: '30px', width: '100%' }}>
+      <div style={{ marginBottom: '20px', width: '100%' }}>
         <p style={{ fontSize: '7px', marginBottom: '10px', color: '#3776ab' }}>USERNAME:</p>
         <input 
           value={name}
@@ -55,7 +56,47 @@ const CharacterCreation: React.FC<CharacterCreationProps> = ({ onFinish }) => {
         />
       </div>
 
-      <div style={{ marginBottom: '40px' }}>
+      <div style={{ marginBottom: '20px' }}>
+        <p style={{ fontSize: '7px', marginBottom: '10px', color: '#3776ab' }}>GÊNERO:</p>
+        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+          <div 
+            onClick={() => setGender('m')}
+            style={{
+              width: '100px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: gender === 'm' ? '4px solid #ffd43b' : '2px solid #3776ab',
+              backgroundColor: gender === 'm' ? 'rgba(55, 118, 171, 0.4)' : 'rgba(0,0,0,0.3)',
+              fontSize: '8px',
+              cursor: 'pointer',
+              fontFamily: '"Press Start 2P"',
+              color: gender === 'm' ? '#ffd43b' : '#fff',
+              transition: 'all 0.2s'
+            }}
+          >♂ MASC</div>
+          <div 
+            onClick={() => setGender('f')}
+            style={{
+              width: '100px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: gender === 'f' ? '4px solid #ffd43b' : '2px solid #3776ab',
+              backgroundColor: gender === 'f' ? 'rgba(55, 118, 171, 0.4)' : 'rgba(0,0,0,0.3)',
+              fontSize: '8px',
+              cursor: 'pointer',
+              fontFamily: '"Press Start 2P"',
+              color: gender === 'f' ? '#ffd43b' : '#fff',
+              transition: 'all 0.2s'
+            }}
+          >♀ FEM</div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '30px' }}>
         <p style={{ fontSize: '7px', marginBottom: '10px', color: '#3776ab' }}>COR DO TRAJE:</p>
         <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
           {COLORS.map(c => (

@@ -28,23 +28,27 @@ export function useMapEngine(
   const canMoveTo = useCallback((x: number, y: number) => {
     if (x < 0 || x >= map.width || y < 0 || y >= map.height) return false;
     const tile = map.tiles[y][x];
-    if ([3, 4, 5, 8, 10, 11, 13, 14, 21].includes(tile)) return false;
-    
-    if (merchantLocation === map.id && map.merchantPos.x === x && map.merchantPos.y === y) return false;
 
+    // Bloqueia: Arvores(3,4,5), Bau(8), Parede(10), Cerca(11), Bau Aberto(14), Agua(21), Cama(26), PC(27), Livros(28)
+    // PERMITE: Grama(0,1), Caminho(2,12), Placa(13), Porta(29)
+    if ([3, 4, 5, 8, 10, 11, 14, 21, 26, 27, 28].includes(tile)) return false;
+
+    if (merchantLocation === map.id && map.merchantPos.x === x && map.merchantPos.y === y) return false;
     // Adiciona bloqueio físico aos guardas destravados se não falarmos com eles ainda
+    // Bloqueio físico dos guardas
     if (map.lockConfig && x === map.lockConfig.gatePos.x && y === map.lockConfig.gatePos.y) {
+        const requiredCount = map.lockConfig.requiredBugs.length || 0;
         const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
         const bossId = map.id === 'world1' ? 'glitch_byte' : map.id === 'world2' ? 'logic_void' : map.id === 'world3' ? 'stack_overlord' : map.id === 'world4' ? 'protocol_def' : map.id === 'world5' ? 'meta_class' : null;
         const isBossDefeated = !bossId || correctedBugs.includes(bossId);
 
-        if ((clearedCount >= 4 && isBossDefeated) || debugIgnoreBlocks) {
+        // Se cumpriu os requisitos de bugs (ou se é a vila que não tem requisitos) E derrotou o boss
+        if ((clearedCount >= requiredCount && isBossDefeated) || debugIgnoreBlocks) {
              if (!hasTriggeredUnlock[map.id]) return false;
         } else {
             return false;
         }
     }
-
     return !map.npcs.some((npc: any) => npc.tileX === x && npc.tileY === y);
   }, [map, merchantLocation, correctedBugs, debugIgnoreBlocks, hasTriggeredUnlock]);
 
@@ -62,8 +66,35 @@ export function useMapEngine(
     else if (dir === 'left') nx--;
     else if (dir === 'right') nx++;
 
-    // LÓGICA DE BLOQUEIO POR MISSÃO E FORÇAR DIÁLOGO DE SUCESSO
-    if (map.lockConfig && nx === map.lockConfig.gatePos.x && ny === map.lockConfig.gatePos.y) {
+    // BLOQUEIO TUTORIAL: Vila Inicial precisa do Terminal e Caderno
+    if (map.id === 'village' && nx === map.lockConfig?.gatePos.x && ny === map.lockConfig?.gatePos.y) {
+        const { hasTerminal, hasNotebook } = useGameStore.getState();
+        
+        if (!hasTerminal || !hasNotebook) {
+            activeDirRef.current = null;
+            keysPressed.current.clear();
+            onAutoInteract?.({ 
+                type: 'npc', 
+                data: { name: 'PyTetor', dialog: map.lockConfig.guardDialog } 
+            });
+            return;
+        }
+
+        // Liberado, mas precisa forçar o diálogo de vitória do PyTetor primeiro
+        if (!hasTriggeredUnlock[map.id]) {
+            activeDirRef.current = null;
+            keysPressed.current.clear();
+            setTriggeredUnlock(map.id);
+            onAutoInteract?.({ 
+                type: 'npc', 
+                data: { name: 'PyTetor', dialog: map.lockConfig.unlockDialog } 
+            });
+            return;
+        }
+    }
+
+    // LÓGICA DE BLOQUEIO POR MISSÃO E FORÇAR DIÁLOGO DE SUCESSO (OUTROS MAPAS)
+    if (map.id !== 'village' && map.lockConfig && nx === map.lockConfig.gatePos.x && ny === map.lockConfig.gatePos.y) {
         const clearedCount = map.lockConfig.requiredBugs.filter((id: string) => correctedBugs.includes(id)).length;
         
         // Bloqueado (Ainda não capturou todos)
