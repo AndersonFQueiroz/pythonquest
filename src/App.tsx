@@ -8,6 +8,7 @@ import DialogBox from './components/UI/DialogBox';
 import StatusBar from './components/UI/StatusBar';
 import CodeEditor from './components/Battle/CodeEditor';
 import AuthScreen from './components/UI/AuthScreen';
+import CutscenePlayer from './components/UI/CutscenePlayer';
 import { world1Map } from './maps/world1';
 import { villageMap } from './maps/village';
 import { playerHouseMap } from './maps/player_house';
@@ -24,7 +25,7 @@ import { usePyodide } from './hooks/usePyodide';
 import { BOSSES_ENEMIES } from './data/bugs';
 import { supabase } from './lib/supabase';
 
-export type GameState = 'auth' | 'title' | 'char_creation' | 'loading' | 'map' | 'battle' | 'credits';
+export type GameState = 'auth' | 'title' | 'char_creation' | 'loading' | 'map' | 'battle' | 'credits' | 'cutscene';
 
 const ItemIcon: React.FC<{ id: string }> = ({ id }) => {
     switch (id) {
@@ -43,6 +44,7 @@ const MERCHANT_STOCK: InventoryItem[] = [
 
 function App() {
   const [gameState, setGameState] = useState<GameState>('auth');
+  const [activeCutscene, setActiveCutscene] = useState<string>('intro');
   const [currentMap, setCurrentMap] = useState(villageMap);
   const [flash, setFlash] = useState(false);
   const [shake, setShake] = useState(false);
@@ -158,9 +160,23 @@ function App() {
 
   const handleFinishCreation = () => { 
     sounds.playSelect(); 
-    setGameState('map');
-    triggerAreaTitle(villageMap.name);
-    performSave();
+    setActiveCutscene('intro');
+    setGameState('cutscene');
+  };
+
+  const handleCutsceneComplete = (cutsceneId: string) => {
+    if (cutsceneId === 'intro') {
+      setGameState('map');
+      triggerAreaTitle(villageMap.name);
+      performSave();
+    } else if (cutsceneId === 'final') {
+      setGameState('credits');
+      performSave();
+    } else {
+      // fragments 1-5
+      setGameState('map');
+      performSave();
+    }
   };
 
   const triggerAreaTitle = (name: string) => {
@@ -291,12 +307,8 @@ function App() {
 
   const handleEndBattle = (isDead: boolean) => {
     const wasBoss = !!battleBoss;
-    const wasMalwarech = battleBoss?.id === 'malwarech';
-    const bossPhrase = battleBoss?.deathPhrase;
-    const bossName = battleBoss?.name;
 
-    if (isDead) {
-        resetPlayer(); 
+    if (isDead) {        resetPlayer(); 
         setCurrentMap(villageMap); 
         setPlayerPos({ x: 10, y: 10 });
         setFlash(true); 
@@ -307,39 +319,31 @@ function App() {
             performSave();
         }, 500);
     } else {
-        if (wasMalwarech) {
-            setGameState('map');
-            setActiveDialog({
-                name: bossName || 'MALWARECH',
-                messages: [bossPhrase || "O sistema foi restaurado."],
-                onFinish: () => {
-                    setFlash(true);
-                    setTimeout(() => {
-                        setFlash(false);
-                        setGameState('credits');
-                        performSave();
-                    }, 1000);
-                }
-            });
-        } else if (wasBoss) {
-            setGameState('map');
-            setFlash(true);
-            setTimeout(() => {
-                setFlash(false);
-                setActiveDialog({
-                    name: bossName || 'BOSS',
-                    messages: [bossPhrase || "Você me venceu..."]
-                });
-                performSave();
-            }, 500);
-        } else {
-            setGameState('map');
-            performSave();
+        const bossFragmentMap: Record<string, string> = {
+            'glitch_byte':    'fragment_1',
+            'logic_void':     'fragment_2',
+            'stack_overlord': 'fragment_3',
+            'protocol_def':   'fragment_4',
+            'meta_class':     'fragment_5',
+            'malwarech':      'final',
+        };
+
+        if (wasBoss && battleBoss) {
+            const fragment = bossFragmentMap[battleBoss.id];
+            if (fragment) {
+                setActiveCutscene(fragment);
+                setGameState('cutscene');
+                setBattleBoss(null);
+                return;
+            }
         }
+
+        // Batalhas comuns
+        setGameState('map');
+        performSave();
     }
     setBattleBoss(null);
   };
-
   const handleEndAuth = () => {
       // O usuário pediu pra SEMPRE ir pra tela inicial apos o login.
       setGameState('title');
@@ -372,6 +376,13 @@ function App() {
       )}
       {gameState === 'title' && <TitleScreen onStart={handleStartGame} onContinue={() => { sounds.playSelect(); setGameState('map'); }} />}
       {gameState === 'char_creation' && <CharacterCreation onFinish={handleFinishCreation} />}
+      {gameState === 'cutscene' && (
+        <CutscenePlayer 
+            cutsceneId={activeCutscene as any}
+            playerName={playerName}
+            onComplete={() => handleCutsceneComplete(activeCutscene)}
+        />
+      )}
 
       {(gameState === 'map' || gameState === 'battle' || gameState === 'credits') && (
         <>
