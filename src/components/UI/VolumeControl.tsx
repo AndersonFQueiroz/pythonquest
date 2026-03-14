@@ -34,10 +34,8 @@ const VolumeControl: React.FC = () => {
     <div
       style={{
         position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
+        display: 'inline-flex',
         alignItems: 'center',
-        gap: '4px',
         fontFamily: '"Press Start 2P"',
       }}
     >
@@ -143,6 +141,8 @@ const VolumeControl: React.FC = () => {
           boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
           padding: 0,
           lineHeight: 1,
+          alignSelf: 'center',
+          flexShrink: 0,
         }}
       >
         {getIcon()}

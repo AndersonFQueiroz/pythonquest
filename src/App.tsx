@@ -494,7 +494,7 @@ function App() {
             )}
 
             <div style={{ display: gameState === 'map' ? 'block' : 'none', height: '100%', position: 'relative' }}>
-              <MapCanvas key={currentMap.id} map={getCurrentMapWithBoss()} spawnPos={null} onEncounter={triggerBattle} onInteract={handleInteract} onPortal={handlePortal} onOpenNotebook={() => setShowNotebook(true)} isDialogActive={!!activeDialog || !!activeChest || showNotebook || showShop} />
+              <MapCanvas key={currentMap.id} map={getCurrentMapWithBoss()} spawnPos={null} onEncounter={triggerBattle} onInteract={handleInteract} onPortal={handlePortal} onOpenNotebook={() => setShowNotebook(true)} isDialogActive={!!activeDialog || !!activeChest || showNotebook || showShop || gameState === 'credits'} />
             </div>
 
             {showNotebook && (

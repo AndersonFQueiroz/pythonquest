@@ -70,21 +70,21 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
   // LÓGICA DE ANIMAÇÃO DO BOSS FINAL
   useEffect(() => {
-    if (map.id === 'final_boss' && bossStage === 'sitting') {
+    if (map.id === 'final_boss' && bossStage === 'sitting' && !isDialogActive) {
         const dist = Math.abs(playerPos.x - 12) + Math.abs(playerPos.y - 10);
         if (dist <= 5) {
             setBossStage('rising');
             setTimeout(() => {
                 setBossStage('standing');
                 const malwarech = map.npcs.find(n => n.id === 'malwarech');
-                if (malwarech && !triggeredBosses.includes('malwarech')) {
+                if (malwarech && !triggeredBosses.includes('malwarech') && !correctedBugs.includes('malwarech')) {
                     setTriggeredBosses(prev => [...prev, 'malwarech']);
                     onInteract({ type: 'npc', data: malwarech });
                 }
             }, 1500);
         }
     }
-  }, [playerPos, map, bossStage, onInteract, triggeredBosses]);
+  }, [playerPos, map, bossStage, onInteract, triggeredBosses, isDialogActive, correctedBugs]);
 
   const isMerchantHere = merchantLocation === map.id;
 
