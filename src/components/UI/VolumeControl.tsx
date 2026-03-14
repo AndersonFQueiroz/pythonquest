@@ -34,12 +34,12 @@ const VolumeControl: React.FC = () => {
     <div
       style={{
         position: 'absolute',
-        bottom: '170px',
-        right: '12px',
+        bottom: '175px',
+        left: '12px',
         zIndex: 500,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-end',
+        alignItems: 'flex-start',
         gap: '4px',
         fontFamily: '"Press Start 2P"',
       }}

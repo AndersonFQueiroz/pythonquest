@@ -358,14 +358,28 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#ff4757'; ctx.fillRect(-2, -2, 4, 4);
           ctx.restore();
       } else if (npc.id === 'logic_void') {
-          const rot = now / 1000;
-          const voidGrd = ctx.createLinearGradient(nx+16 + Math.cos(rot)*15, ny+16 + Math.sin(rot)*15, nx+16 - Math.cos(rot)*15, ny+16 - Math.sin(rot)*15);
-          voidGrd.addColorStop(0, '#3498db'); voidGrd.addColorStop(0.5, '#111'); voidGrd.addColorStop(1, '#e74c3c');
-          ctx.fillStyle = voidGrd; ctx.beginPath(); ctx.arc(nx+16, ny+16, 14 + pulse/2, 0, Math.PI*2); ctx.fill();
-          ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.ellipse(nx+16, ny+16, 16, 4, now/500, 0, Math.PI*2); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(nx+16, ny+16, 16, 4, now/500 + Math.PI/2, 0, Math.PI*2); ctx.stroke();
-          ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(nx+16, ny+16, 3, 6, 0, 0, Math.PI*2); ctx.fill();
+          // LOGIC-VOID: corpo dividido True/False, olho central, anéis orbitais
+          const cx2 = nx+16; const cy2 = ny+16; const rotLV = now/900;
+          const lvGrd = ctx.createLinearGradient(cx2+Math.cos(rotLV)*14, cy2+Math.sin(rotLV)*14, cx2-Math.cos(rotLV)*14, cy2-Math.sin(rotLV)*14);
+          lvGrd.addColorStop(0, '#1565c0'); lvGrd.addColorStop(0.47, '#0d1b2a'); lvGrd.addColorStop(0.53, '#0d1b2a'); lvGrd.addColorStop(1, '#b71c1c');
+          ctx.fillStyle = lvGrd; ctx.beginPath(); ctx.arc(cx2, cy2, 14+pulse/3, 0, Math.PI*2); ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(cx2, cy2-14); ctx.lineTo(cx2, cy2+14); ctx.stroke();
+          ctx.font = 'bold 5px Arial'; ctx.textAlign = 'center';
+          ctx.fillStyle = '#4fc3f7'; ctx.fillText('T', cx2-7, cy2+2);
+          ctx.fillStyle = '#ef9a9a'; ctx.fillText('F', cx2+7, cy2+2); ctx.textAlign = 'left';
+          for (let rl = 0; rl < 2; rl++) {
+            ctx.save(); ctx.translate(cx2, cy2); ctx.rotate(now/(500+rl*200)*(rl%2===0?1:-1)); ctx.scale(1, 0.28);
+            ctx.strokeStyle = rl===0 ? 'rgba(52,152,219,0.9)' : 'rgba(231,76,60,0.9)'; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.arc(0, 0, 16+rl*3, 0, Math.PI*2); ctx.stroke();
+            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(16+rl*3, 0, 2, 0, Math.PI*2); ctx.fill(); ctx.restore();
+          }
+          const eyeColLV = Math.floor(now/500)%2===0 ? '#3498db' : '#e74c3c';
+          ctx.shadowBlur = 10; ctx.shadowColor = eyeColLV;
+          ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(cx2, cy2, 4, 7, 0, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = '#000'; ctx.fillRect(cx2-1, cy2-3, 2, 6); ctx.shadowBlur = 0;
+          ctx.globalAlpha = 0.5+Math.sin(now/200)*0.5; ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 6px Arial'; ctx.textAlign = 'center';
+          ctx.fillText('==', cx2, cy2+26); ctx.globalAlpha = 1; ctx.textAlign = 'left';
       } else if (npc.id === 'stack_overlord') {
           ctx.fillStyle = '#1a1a1a'; ctx.fillRect(nx + 4, ny + 4, 4, 28); ctx.fillRect(nx + 24, ny + 4, 4, 28); // Pistões
           ctx.fillStyle = '#f39c12'; ctx.fillRect(nx + 4, ny + 14 + Math.sin(now/200)*6, 4, 6); ctx.fillRect(nx + 24, ny + 14 + Math.cos(now/200)*6, 4, 6);
@@ -398,12 +412,38 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.fillStyle = '#ff4757'; ctx.font = '6px Arial';
           ctx.fillText("def?", nx + 6 + Math.sin(now/200)*3, ny + 20 + Math.cos(now/150)*2);
       } else if (npc.id === 'meta_class') {
-          ctx.save(); ctx.translate(nx+16, ny+16); ctx.rotate(Math.sin(now/1000)*0.2);
-          ctx.fillStyle = '#fdf6e3'; ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(12, -7); ctx.lineTo(12, 7); ctx.lineTo(0, 14); ctx.lineTo(-12, 7); ctx.lineTo(-12, -7); ctx.closePath(); ctx.fill();
-          ctx.strokeStyle = '#3498db'; ctx.lineWidth = 1; ctx.stroke();
-          ctx.fillStyle = '#00d2ff'; ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(6, 0); ctx.lineTo(0, 6); ctx.lineTo(-6, 0); ctx.fill();
+          // META-CLASS: fundo blueprint, octógono girando, 4 cópias orbitando, 'class' dourado
+          const mcx = nx+16; const mcy = ny+16;
+          // Fundo blueprint
+          ctx.fillStyle = '#0d1b2a'; ctx.fillRect(nx, ny, 32, 32);
+          ctx.strokeStyle = 'rgba(55,118,171,0.2)'; ctx.lineWidth = 1;
+          for (let gi = 0; gi < 32; gi += 8) { ctx.beginPath(); ctx.moveTo(nx+gi, ny); ctx.lineTo(nx+gi, ny+32); ctx.stroke(); ctx.beginPath(); ctx.moveTo(nx, ny+gi); ctx.lineTo(nx+32, ny+gi); ctx.stroke(); }
+          // Octógono principal girando
+          ctx.save(); ctx.translate(mcx, mcy); ctx.rotate(now/6000);
+          const mcGrd = ctx.createLinearGradient(-12,-12,12,12); mcGrd.addColorStop(0,'#dceeff'); mcGrd.addColorStop(1,'#3776ab');
+          ctx.fillStyle = mcGrd; ctx.beginPath();
+          for (let mi = 0; mi < 8; mi++) { const ma = (Math.PI*2/8)*mi; if(mi===0) ctx.moveTo(Math.cos(ma)*12, Math.sin(ma)*12); else ctx.lineTo(Math.cos(ma)*12, Math.sin(ma)*12); }
+          ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.shadowBlur = 8; ctx.shadowColor = '#3776ab'; ctx.stroke(); ctx.shadowBlur = 0;
           ctx.restore();
-          ctx.fillStyle = '#fff'; ctx.font = '6px Arial'; ctx.fillText("class", nx+16, ny+8);
+          // 4 cópias menores orbitando
+          const mcActive = Math.floor(now/1200)%4;
+          for (let ci = 0; ci < 4; ci++) {
+            const ca = (Math.PI*2/4)*ci + now/2500;
+            const ccx = mcx + Math.cos(ca)*14; const ccy = mcy + Math.sin(ca)*14;
+            ctx.save(); ctx.translate(ccx, ccy); ctx.rotate(-now/2500);
+            ctx.fillStyle = ci===mcActive ? 'rgba(55,118,171,0.95)' : 'rgba(55,118,171,0.4)';
+            if(ci===mcActive){ctx.shadowBlur=10;ctx.shadowColor='#3776ab';}
+            ctx.beginPath();
+            for (let mi2 = 0; mi2 < 8; mi2++) { const ma2=(Math.PI*2/8)*mi2; if(mi2===0) ctx.moveTo(Math.cos(ma2)*5, Math.sin(ma2)*5); else ctx.lineTo(Math.cos(ma2)*5, Math.sin(ma2)*5); }
+            ctx.closePath(); ctx.fill(); ctx.shadowBlur=0; ctx.restore();
+            // linhas conectoras tracejadas
+            ctx.save(); ctx.setLineDash([2,2]); ctx.strokeStyle='rgba(55,118,171,0.3)'; ctx.lineWidth=1;
+            ctx.beginPath(); ctx.moveTo(mcx,mcy); ctx.lineTo(ccx,ccy); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+          }
+          // Texto 'class' dourado com glow
+          ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 6px 'Courier New''; ctx.textAlign = 'center';
+          ctx.shadowBlur = 8; ctx.shadowColor = '#ffd43b';
+          ctx.fillText('class', mcx, mcy-18+Math.sin(now/600)); ctx.shadowBlur=0; ctx.textAlign='left';
       } else if (npc.id === 'malwarech') {
           const sizeMult = bossStage === 'sitting' ? 2.5 : (bossStage === 'rising' ? 3.0 : 4.5);
           const centerX = nx + 16; const bossY = ny - (bossStage !== 'sitting' ? 60 : 0);
