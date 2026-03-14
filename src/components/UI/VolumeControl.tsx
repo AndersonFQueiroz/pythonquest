@@ -134,16 +134,16 @@ const VolumeControl: React.FC = () => {
             : 'rgba(15,23,42,0.88)',
           border: `2px solid ${muted ? '#ff4757' : '#3776ab'}`,
           borderRadius: '50%',
-          fontSize: '13px',
+          fontSize: '12px',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+          boxShadow: '0 3px 0 #000',
           padding: 0,
-          lineHeight: 1,
-          alignSelf: 'center',
-          flexShrink: 0,
+          lineHeight: '28px',
+          margin: 0,
+          verticalAlign: 'middle',
         }}
       >
         {getIcon()}

@@ -990,9 +990,13 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab' }}>
         <div style={{ position: 'absolute', right: '10px', top: '8px', display: 'flex', gap: '8px', zIndex: 100, alignItems: 'center' }}>
             <VolumeControl />
-            <button onClick={() => setShowBugDex(true)} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: '2px solid #3776ab', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px' }}>BUGDEX (B)</button>
+            <button onClick={() => setShowBugDex(true)} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: '2px solid #3776ab', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <span style={{ fontSize: '11px' }}>📖</span> BUGDEX (B)
+            </button>
             {hasNotebook && (
-                <button onClick={onOpenNotebook} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#ff8c00', color: '#fff', border: '2px solid #856404', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px' }}>CADERNO (C)</button>
+                <button onClick={onOpenNotebook} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#ff8c00', color: '#fff', border: '2px solid #856404', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontSize: '11px' }}>📓</span> CADERNO (C)
+                </button>
             )}
         </div>
         <DPad onMoveStart={(dir) => !isDialogActive && setManualDir(dir)} onMoveEnd={() => setManualDir(null)} onInteract={handleInteractBtn} />
