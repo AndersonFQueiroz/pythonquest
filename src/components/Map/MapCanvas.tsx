@@ -441,7 +441,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
             ctx.beginPath(); ctx.moveTo(mcx,mcy); ctx.lineTo(ccx,ccy); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
           }
           // Texto 'class' dourado com glow
-          ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 6px 'Courier New''; ctx.textAlign = 'center';
+          ctx.fillStyle = '#ffd43b'; ctx.font = 'bold 6px monospace'; ctx.textAlign = 'center';
           ctx.shadowBlur = 8; ctx.shadowColor = '#ffd43b';
           ctx.fillText('class', mcx, mcy-18+Math.sin(now/600)); ctx.shadowBlur=0; ctx.textAlign='left';
       } else if (npc.id === 'malwarech') {
