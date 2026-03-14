@@ -375,11 +375,28 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           ctx.strokeStyle = '#f1c40f'; ctx.lineWidth = 1; ctx.stroke();
           ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(nx+16, ny+16, 3 + pulse/3, 0, Math.PI*2); ctx.fill();
       } else if (npc.id === 'protocol_def') {
-          ctx.fillStyle = 'rgba(155, 89, 182, 0.4)'; ctx.beginPath(); ctx.arc(nx+16, ny+16, 16 + pulse/2, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = '#8e44ad'; ctx.beginPath(); ctx.moveTo(nx+16, ny+28); ctx.quadraticCurveTo(nx+28, ny+16, nx+16, ny+8); ctx.quadraticCurveTo(nx+4, ny+16, nx+16, ny+28); ctx.fill();
-          ctx.fillStyle = '#f1c40f'; ctx.beginPath(); ctx.ellipse(nx+16, ny+6, 6, 3, 0, 0, Math.PI*2); ctx.fill();
-          ctx.fillStyle = '#00d2ff'; ctx.fillRect(nx+15, ny+3, 2, 4);
-          ctx.fillStyle = '#fff'; ctx.font = '6px Arial'; ctx.fillText("def", nx+8 + Math.cos(now/500)*10, ny+16 + Math.sin(now/500)*5);
+          // PROTOCOL-DEF no mapa: sombrio, vermelho escuro, corrompido — oposto do Gênio Def
+          // Aura de corrupção vermelha pulsante
+          const pdAura = ctx.createRadialGradient(nx+16, ny+16, 2, nx+16, ny+16, 18);
+          pdAura.addColorStop(0, 'rgba(192,57,43,0.6)'); pdAura.addColorStop(1, 'rgba(192,57,43,0)');
+          ctx.fillStyle = pdAura; ctx.beginPath(); ctx.arc(nx+16, ny+16, 18 + pulse/2, 0, Math.PI*2); ctx.fill();
+          // Corpo: forma de função corrompida (triângulo invertido sombrio)
+          ctx.fillStyle = '#7b241c';
+          ctx.beginPath(); ctx.moveTo(nx+16, ny+30); ctx.lineTo(nx+4, ny+6); ctx.lineTo(nx+28, ny+6); ctx.fill();
+          ctx.strokeStyle = '#c0392b'; ctx.lineWidth = 1; ctx.stroke();
+          // Fissuras vermelhas no corpo
+          ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(nx+16, ny+8); ctx.lineTo(nx+13, ny+18); ctx.lineTo(nx+18, ny+24); ctx.stroke();
+          // Turbante rasgado/corrompido (vermelho ao invés de dourado)
+          ctx.fillStyle = '#c0392b'; ctx.fillRect(nx+10, ny+3, 12, 4);
+          ctx.fillStyle = '#ff4757'; ctx.fillRect(nx+14, ny+0, 4, 4);
+          // Olhos: cruzes vermelhas (corrompido)
+          ctx.strokeStyle = '#ff4757'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(nx+10, ny+8); ctx.lineTo(nx+14, ny+12); ctx.moveTo(nx+14, ny+8); ctx.lineTo(nx+10, ny+12); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(nx+18, ny+8); ctx.lineTo(nx+22, ny+12); ctx.moveTo(nx+22, ny+8); ctx.lineTo(nx+18, ny+12); ctx.stroke();
+          // Texto "def" corrompido (vermelho e distorcido)
+          ctx.fillStyle = '#ff4757'; ctx.font = '6px Arial';
+          ctx.fillText("def?", nx + 6 + Math.sin(now/200)*3, ny + 20 + Math.cos(now/150)*2);
       } else if (npc.id === 'meta_class') {
           ctx.save(); ctx.translate(nx+16, ny+16); ctx.rotate(Math.sin(now/1000)*0.2);
           ctx.fillStyle = '#fdf6e3'; ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(12, -7); ctx.lineTo(12, 7); ctx.lineTo(0, 14); ctx.lineTo(-12, 7); ctx.lineTo(-12, -7); ctx.closePath(); ctx.fill();
@@ -727,13 +744,17 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
       } else {
           const hairColors = ['#4b2c20', '#6d4c41', '#222', '#d35400']; const shirtColors = ['#3498db', '#2ecc71', '#e67e22', '#9b59b6']; const hair = hairColors[(nx + ny) % hairColors.length]; const shirt = shirtColors[(nx * ny) % shirtColors.length]; ctx.fillStyle = shirt; ctx.fillRect(nx + 8, ny + 16, 16, 12); ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 6, ny + 18, 2, 8); ctx.fillRect(nx + 24, ny + 18, 2, 8); ctx.fillStyle = '#ffdbac'; ctx.fillRect(nx + 10, ny + 4, 12, 12); ctx.fillStyle = hair; if ((nx + ny) % 2 === 0) { ctx.fillRect(nx + 10, ny + 2, 12, 6); } else { ctx.fillRect(nx + 10, ny + 4, 12, 3); ctx.fillRect(nx + 20, ny + 4, 2, 8); } ctx.fillStyle = '#000'; ctx.fillRect(nx + 12, ny + 9, 2, 2); ctx.fillRect(nx + 18, ny + 9, 2, 2); ctx.fillStyle = '#fff'; ctx.fillRect(nx + 12, ny + 9, 1, 1); ctx.fillRect(nx + 18, ny + 9, 1, 1);
       }
-      if (npc.name && !['boole', 'iterador', 'genio', 'arquiteto', 'malwarech', 'glitch_byte', 'logic_void', 'stack_overlord', 'protocol_def', 'meta_class'].includes(npc.id)) drawLabel(npc.name, nx + 16, ny - 4);
+      if (npc.name && !['boole', 'iterador', 'genio', 'arquiteto', 'malwarech', 'glitch_byte', 'logic_void', 'stack_overlord', 'protocol_def', 'meta_class', 'historiador'].includes(npc.id)) drawLabel(npc.name, nx + 16, ny - 4);
+      // Historiador: nome segue a posição da caminhada
+      if (npc.id === 'historiador') drawLabel("HIST. BIT", nx + 16 + historiadorWalk.x, ny - 4, '#8d6e63');
       if (npc.id === 'boole') drawLabel("JUIZ BOOLE", nx + 16, ny - 6, '#3498db');
       if (npc.id === 'iterador') drawLabel("ITERADOR-X", nx + 16, ny - 6, '#00d2ff');
       if (npc.id === 'genio') drawLabel("GÊNIO DEF", nx + 16, ny - 12 + Math.sin(now / 300) * 5, '#f1c40f');
-      if (npc.id === 'arquiteto') drawLabel("ARQUITETO INSTÂNCIA", nx + 16, ny - 12 + Math.sin(now / 500) * 3, '#3498db');
+      if (npc.id === 'arquiteto') drawLabel("ARQ. INSTÂNCIA", nx + 16, ny - 12 + Math.sin(now / 500) * 3, '#3498db');
       if (npc.id === 'malwarech') drawLabel("MALWARECH", nx + 16, ny - 100 + (bossStage !== 'sitting' ? -40 : 0), '#ff4757');
-      if (['glitch_byte', 'logic_void', 'stack_overlord', 'protocol_def', 'meta_class'].includes(npc.id)) drawLabel(`BOSS: ${npc.id.replace('_', ' ').toUpperCase()}`, nx + 16, ny - 10, '#ff4757');
+      if (['glitch_byte', 'logic_void', 'stack_overlord', 'meta_class'].includes(npc.id)) drawLabel(`BOSS: ${npc.id.replace('_', ' ').toUpperCase()}`, nx + 16, ny - 10, '#ff4757');
+      // Protocol-Def boss: visual diferenciado do Gênio Def aliado
+      if (npc.id === 'protocol_def') drawLabel("PROTOCOL-DEF", nx + 16, ny - 10, '#c0392b');
 
       // Balão de fala flutuante
       const wanderData = wanderingNpcs[npc.id];
