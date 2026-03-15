@@ -5,7 +5,7 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#141e30" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -53,6 +53,25 @@
       window.addEventListener('wheel', function(e) {
         if (e.ctrlKey) e.preventDefault();
       }, { passive: false });
+
+      // Reseta o viewport se o zoom mudar — força voltar para scale 1.0
+      function resetViewportZoom() {
+        var viewport = document.querySelector('meta[name=viewport]');
+        if (!viewport) return;
+        // Força reset removendo e readicionando o meta tag
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover');
+        scaleGame();
+      }
+
+      // Detecta mudança de zoom pelo visualViewport
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', function() {
+          // Se o scale do viewport mudou, reseta
+          if (Math.abs(window.visualViewport.scale - 1.0) > 0.05) {
+            resetViewportZoom();
+          }
+        });
+      }
     </script>
   </head>
   <body>
