@@ -153,10 +153,13 @@ export function useMapEngine(
     const tick = () => {
       if (!isDisabled && !isMovingRef.current) {
         let dir: Direction | null = null;
+        // Teclado
         if (keysPressed.current.has('w') || keysPressed.current.has('arrowup')) dir = 'up';
         else if (keysPressed.current.has('s') || keysPressed.current.has('arrowdown')) dir = 'down';
         else if (keysPressed.current.has('a') || keysPressed.current.has('arrowleft')) dir = 'left';
         else if (keysPressed.current.has('d') || keysPressed.current.has('arrowright')) dir = 'right';
+        // DPad mobile — tem prioridade se nenhuma tecla estiver pressionada
+        if (!dir && activeDirRef.current) dir = activeDirRef.current;
         if (dir) executeStep(dir);
       }
       frameId = requestAnimationFrame(tick);

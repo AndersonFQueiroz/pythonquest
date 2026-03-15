@@ -14,7 +14,8 @@ class SoundEngine {
     if (!this.ctx) {
       this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.value = this.currentVolume;
+      // Aplica o volume/mute salvo assim que o contexto é criado
+      this.masterGain.gain.value = this.isMuted ? 0 : this.currentVolume;
       this.masterGain.connect(this.ctx.destination);
     }
   }
