@@ -15,6 +15,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script>
+      function scaleGame() {
+        var root = document.getElementById('root');
+        if (!root) return;
+        var GAME_W = 480;
+        var GAME_H = 620;
+        var scaleX = window.innerWidth  / GAME_W;
+        var scaleY = window.innerHeight / GAME_H;
+        var scale  = Math.min(scaleX, scaleY);
+        root.style.transform = 'scale(' + scale + ')';
+      }
+      window.addEventListener('load', scaleGame);
+      window.addEventListener('resize', scaleGame);
+      window.addEventListener('orientationchange', function() {
+        setTimeout(scaleGame, 150);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

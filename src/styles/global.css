@@ -35,52 +35,28 @@ html, body {
   min-height: 100dvh;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  overflow-y: auto;
-  overflow-x: hidden;
+  align-items: center;
+  overflow: hidden;
   color: var(--color-text);
   overscroll-behavior: none;
-  touch-action: pan-y;
+  touch-action: none;
 }
 
+/* O jogo sempre tem 480×620 internamente */
 #root {
-  width: 100vw;
-  min-height: 100dvh;
-  height: auto;
-  border: none;
-  border-radius: 0;
+  width: 480px;
+  height: 620px;
+  min-height: unset;
+  border: 6px solid var(--color-primary);
+  border-radius: 8px;
   background-color: var(--color-bg);
   position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: none;
-  overflow: visible;
-}
-
-/* Desktop e tablets grandes: mantém o visual de "console" */
-@media (min-width: 520px) and (min-height: 640px) {
-  html, body {
-    align-items: center;
-    overflow: hidden;
-    touch-action: none;
-  }
-  #root {
-    width: 480px;
-    height: 620px;
-    min-height: unset;
-    border: 6px solid var(--color-primary);
-    border-radius: 8px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    overflow: hidden;
-  }
-}
-
-/* Landscape mobile */
-@media (orientation: landscape) and (max-height: 500px) {
-  #root {
-    width: 100vw;
-    min-height: 100dvh;
-  }
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  /* Escala para caber na tela sem distorcer — JS vai calcular o valor */
+  transform-origin: center center;
 }
 
 /* Efeito de Scanline mais moderno */
