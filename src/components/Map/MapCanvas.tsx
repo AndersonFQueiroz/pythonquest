@@ -992,7 +992,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         height={VIEWPORT_H}
         style={{ display: 'block', backgroundColor: '#000', flexShrink: 0 }}
       />
-      <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab', minHeight: '130px' }}>
+      <div style={{ height: '140px', flexShrink: 0, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab' }}>
         <div style={{ position: 'absolute', right: '8px', top: '5px', display: 'flex', gap: '5px', zIndex: 100, alignItems: 'center' }}>
             <VolumeControl />
             <button onClick={() => setShowBugDex(true)} style={{ padding: '4px 8px', fontSize: '5px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: '2px solid #3776ab', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
