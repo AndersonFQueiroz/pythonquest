@@ -986,7 +986,7 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Canvas do mapa — ocupa todo espaço disponível acima da área de controle */}
+      {/* Canvas do mapa — ocupa exatamente o espaço acima da área de controle */}
       <canvas
         ref={canvasRef}
         width={VIEWPORT_W}
@@ -994,13 +994,12 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         style={{
           display: 'block',
           backgroundColor: '#000',
-          width: '100%',       // Estica horizontalmente
-          flex: 1,             // Ocupa todo espaço vertical restante
-          objectFit: 'contain',
+          width: '100%',
+          height: 'calc(100% - 170px)',
         }}
       />
 
-      {/* Área de controle — altura fixa, não comprime o canvas */}
+      {/* Área de controle — altura fixa na base */}
       <div style={{
         position: 'relative',
         height: '170px',
