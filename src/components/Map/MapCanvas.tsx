@@ -985,30 +985,14 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   );
 
   return (
-    <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
-      {/* Canvas ocupa 100% — a área de controle flutua sobre ele */}
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       <canvas
         ref={canvasRef}
         width={VIEWPORT_W}
         height={VIEWPORT_H}
-        style={{
-          display: 'block',
-          backgroundColor: '#000',
-          width: '100%',
-          height: '100%',
-        }}
+        style={{ display: 'block', backgroundColor: '#000', flexShrink: 0 }}
       />
-
-      {/* Área de controle — posição absoluta na base, sobre o canvas */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '170px',
-        backgroundColor: 'rgba(245, 245, 245, 0.97)',
-        borderTop: '4px solid #3776ab',
-      }}>
+      <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab', minHeight: '160px' }}>
         <div style={{ position: 'absolute', right: '10px', top: '8px', display: 'flex', gap: '8px', zIndex: 100, alignItems: 'center' }}>
             <VolumeControl />
             <button onClick={() => setShowBugDex(true)} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: '2px solid #3776ab', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
