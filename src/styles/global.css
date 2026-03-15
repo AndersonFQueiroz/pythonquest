@@ -49,10 +49,10 @@ html, body {
   touch-action: manipulation;
 }
 
-/* O jogo sempre tem 480×620 internamente */
+/* O jogo sempre tem 520×680 internamente */
 #root {
-  width: 480px;
-  height: 620px;
+  width: 520px;
+  height: 680px;
   min-height: unset;
   border: 6px solid var(--color-primary);
   border-radius: 8px;
@@ -62,7 +62,6 @@ html, body {
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  /* Escala para caber na tela sem distorcer — JS vai calcular o valor */
   transform-origin: center center;
 }
 
