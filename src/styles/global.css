@@ -25,11 +25,13 @@
   image-rendering: pixelated;
   margin: 0;
   padding: 0;
+  /* Desabilita zoom de duplo toque em TODOS os elementos */
+  touch-action: manipulation;
 }
 
 html {
-  touch-action: none;
-  -ms-touch-action: none;
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
 }
 
 html, body {
@@ -44,7 +46,7 @@ html, body {
   overflow: hidden;
   color: var(--color-text);
   overscroll-behavior: none;
-  touch-action: none;
+  touch-action: manipulation;
 }
 
 /* O jogo sempre tem 480×620 internamente */
