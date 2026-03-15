@@ -985,8 +985,8 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
   );
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Canvas do mapa — ocupa exatamente o espaço acima da área de controle */}
+    <div style={{ height: '100%', width: '100%', position: 'relative', overflow: 'hidden' }}>
+      {/* Canvas ocupa 100% — a área de controle flutua sobre ele */}
       <canvas
         ref={canvasRef}
         width={VIEWPORT_W}
@@ -995,17 +995,18 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
           display: 'block',
           backgroundColor: '#000',
           width: '100%',
-          height: 'calc(100% - 170px)',
+          height: '100%',
         }}
       />
 
-      {/* Área de controle — altura fixa na base */}
+      {/* Área de controle — posição absoluta na base, sobre o canvas */}
       <div style={{
-        position: 'relative',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
         height: '170px',
-        minHeight: '170px',
-        flexShrink: 0,
-        backgroundColor: '#fff',
+        backgroundColor: 'rgba(245, 245, 245, 0.97)',
         borderTop: '4px solid #3776ab',
       }}>
         <div style={{ position: 'absolute', right: '10px', top: '8px', display: 'flex', gap: '8px', zIndex: 100, alignItems: 'center' }}>
