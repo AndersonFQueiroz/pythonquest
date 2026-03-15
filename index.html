@@ -43,6 +43,16 @@
         if (now - lastTap < 300) e.preventDefault();
         lastTap = now;
       }, { passive: false });
+
+      // iOS Safari
+      document.addEventListener('gesturestart',  function(e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+      document.addEventListener('gestureend',    function(e) { e.preventDefault(); }, { passive: false });
+
+      // Bloqueia wheel zoom (trackpad/desktop)
+      window.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) e.preventDefault();
+      }, { passive: false });
     </script>
   </head>
   <body>

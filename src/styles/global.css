@@ -27,6 +27,11 @@
   padding: 0;
 }
 
+html {
+  touch-action: none;
+  -ms-touch-action: none;
+}
+
 html, body {
   background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
   font-family: "Press Start 2P", monospace;
