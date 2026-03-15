@@ -19,10 +19,10 @@
       function scaleGame() {
         var root = document.getElementById('root');
         if (!root) return;
-        var GAME_W = 520;
-        var GAME_H = 680;
-        var scaleX = window.innerWidth  / GAME_W;
-        var scaleY = window.innerHeight / GAME_H;
+        var GAME_W = 480;
+        var GAME_H = 620;
+        var scaleX = (window.innerWidth  * 0.98) / GAME_W;
+        var scaleY = (window.innerHeight * 0.98) / GAME_H;
         var scale  = Math.min(scaleX, scaleY);
         root.style.transform = 'scale(' + scale + ')';
       }

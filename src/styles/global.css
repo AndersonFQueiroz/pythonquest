@@ -49,10 +49,10 @@ html, body {
   touch-action: manipulation;
 }
 
-/* O jogo sempre tem 520×680 internamente */
+/* O jogo sempre tem 480×620 internamente */
 #root {
-  width: 520px;
-  height: 680px;
+  width: 480px;
+  height: 620px;
   min-height: unset;
   border: 6px solid var(--color-primary);
   border-radius: 8px;
