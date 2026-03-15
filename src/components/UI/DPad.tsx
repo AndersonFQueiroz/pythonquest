@@ -75,9 +75,7 @@ const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'flex-end',
-      // Garante que a área de controle não bloqueie eventos do mapa
-      pointerEvents: 'none',
-      // Padding seguro para notch/barra de navegação Android
+      pointerEvents: 'auto',
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       paddingLeft:   'env(safe-area-inset-left, 0px)',
       paddingRight:  'env(safe-area-inset-right, 0px)',
