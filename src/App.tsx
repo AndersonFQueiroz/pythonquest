@@ -415,6 +415,7 @@ function App() {
           <div style={{ backgroundColor: '#0f172a', color: '#fff', padding: '5px', fontSize: '7px', textAlign: 'center', borderBottom: '2px solid #3776ab', position: 'relative' }}>
             {hasNotebook ? '[ WASD = Andar | E = Interagir | C = Caderno ]' : '[ WASD = Andar | E/ENTER = Interagir ]'}
 
+            {/* [DEBUG] Botão de Teleporte Rápido — descomentar para testar mapas
             <button 
                 onClick={() => setShowTPMenu(!showTPMenu)}
                 style={{
@@ -426,6 +427,7 @@ function App() {
             >
                 TP
             </button>
+            */}
 
             {/* ÍCONE DE AUTOSAVE */}
             {isSaving && (
@@ -443,6 +445,7 @@ function App() {
                 </div>
             )}
 
+            {/* [DEBUG] Botão de Lock/Unlock de bloqueios — descomentar para testar bosses sem capturar bugs
             <button 
                 onClick={() => setDebugIgnoreBlocks(!debugIgnoreBlocks)}
                 style={{
@@ -454,6 +457,7 @@ function App() {
             >
                 {debugIgnoreBlocks ? 'LOCK: OFF' : 'LOCK: ON'}
             </button>
+            */}
 
             {userId && (
                 <button 
@@ -524,11 +528,11 @@ function App() {
                             ))}
                         </div>
                     </div>
-                    <button onClick={() => { sounds.playSelect(); logger.exportLogs(); }} style={{ marginTop: '10px', padding: '10px', backgroundColor: '#3776ab', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '6px', opacity: 0.8 }}>GERAR RELATÓRIO DE ERROS</button>
                     <button onClick={() => setShowNotebook(false)} style={{ marginTop: '10px', padding: '10px', backgroundColor: '#856404', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '8px' }}>FECHAR (C)</button>
                 </div>
             )}
 
+            {/* [DEBUG] Menu de Teleporte Rápido — descomentar junto com o botão TP acima
             {showTPMenu && (
                 <div style={{ position: 'absolute', left: '5px', top: '5px', backgroundColor: 'rgba(15, 23, 42, 0.95)', border: '2px solid #3776ab', zIndex: 5000, padding: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
                     <div style={{ fontSize: '5px', color: '#ffd43b', marginBottom: '5px', textAlign: 'center' }}>TELEPORTE RÁPIDO</div>
@@ -548,6 +552,7 @@ function App() {
                     <button onClick={() => setShowTPMenu(false)} style={{ marginTop: '5px', padding: '5px', fontSize: '5px', color: '#ff4757', border: 'none', background: 'none', cursor: 'pointer' }}>[X] FECHAR</button>
                 </div>
             )}
+            */}
 
             {showShop && (
                 <div style={{ position: 'absolute', inset: '20px', backgroundColor: 'rgba(15, 23, 42, 0.98)', border: '4px solid #ff8c00', zIndex: 2000, padding: '20px', color: '#fff', fontFamily: '"Press Start 2P"', display: 'flex', flexDirection: 'column' }}>
