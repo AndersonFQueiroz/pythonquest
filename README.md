@@ -7,7 +7,7 @@
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 
-### 🌐 [Jogar Agora → pythonquest.vercel.app](https://www.pythonquest.vercel.app)
+### 🌐 [Jogar Agora → pythonquest.vercel.app](https://pythonquest.vercel.app/)
 
 **PythonQuest** é um RPG educacional imersivo e gamificado, desenvolvido para ensinar a sintaxe e a lógica da linguagem Python. Através de uma jornada inspirada nos clássicos de 8-bit, os jogadores exploram o mundo corrompido de **Pythoria** e devem usar seus conhecimentos de Python para restaurar a ordem — depurando Bugmons, enfrentando Bosses e finalmente confrontando o vírus supremo **MALWARECH**.
 
