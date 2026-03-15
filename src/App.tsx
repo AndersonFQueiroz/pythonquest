@@ -18,7 +18,6 @@ import { world4Map } from './maps/world4';
 import { world5Map } from './maps/world5';
 import { finalBossMap } from './maps/final_boss';
 import { sounds } from './lib/sounds';
-import { logger } from './lib/logger'; 
 import { useGameStore } from './hooks/useGameStore';
 import type { InventoryItem } from './hooks/useGameStore';
 import { usePyodide } from './hooks/usePyodide';
@@ -51,12 +50,11 @@ function App() {
   const [activeDialog, setActiveDialog] = useState<{ name: string, messages: string[], onFinish?: () => void } | null>(null);
   
   const [battleBoss, setBattleBoss] = useState<any | null>(null);
-  const [showTPMenu, setShowTPMenu] = useState(false);
 
   const { 
     name: playerName, gold, inventory, gainGold, buyItem, setPlayerPos, openedChests, openChest, 
     resetPlayer, fullReset, logout, merchantMessage, clearMerchantMessage, addNote, hasNotebook, notebookNotes, hasTerminal,
-    correctedBugs, setUnlockArrow, debugIgnoreBlocks, setDebugIgnoreBlocks, saveToCloud, userId, setUserId, loadFromCloud
+    correctedBugs, setUnlockArrow, debugIgnoreBlocks, saveToCloud, userId, setUserId, loadFromCloud
   } = useGameStore();
 
   const [isSaving, setIsSaving] = useState(false);
