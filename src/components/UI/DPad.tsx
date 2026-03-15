@@ -10,8 +10,8 @@ interface DPadProps {
 const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
 
   // Tamanho dos botões direcionais — maior = mais fácil de tocar
-  const BTN = 52;
-  const GAP = 4;
+  const BTN = 44;
+  const GAP = 3;
   const DPAD_SIZE = BTN * 3 + GAP * 2;
 
   const btnStyle: React.CSSProperties = {
@@ -24,6 +24,7 @@ const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
     alignItems: 'center',
     cursor: 'pointer',
     userSelect: 'none',
+    // Desabilita comportamentos padrão de toque que interferem
     touchAction: 'none',
     WebkitTapHighlightColor: 'transparent',
     WebkitUserSelect: 'none',
@@ -33,9 +34,8 @@ const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
     margin: 0,
     boxSizing: 'border-box',
     position: 'absolute',
+    // Garante que o botão seja clicável mesmo com overlays
     zIndex: 10,
-    // Bloqueia menu de contexto do long press no Android
-    WebkitTouchCallout: 'none' as any,
   };
 
   const Triangle = ({ dir }: { dir: Direction }) => {
@@ -49,22 +49,21 @@ const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
 
   // Handler unificado para mouse e touch — sem delay
   const makeHandlers = useCallback((dir: Direction) => ({
-    onMouseDown:   (e: React.MouseEvent) => { e.preventDefault(); onMoveStart(dir); },
-    onMouseUp:     (e: React.MouseEvent) => { e.preventDefault(); onMoveEnd(); },
-    onMouseLeave:  (e: React.MouseEvent) => { e.preventDefault(); onMoveEnd(); },
-    onTouchStart:  (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onMoveStart(dir); },
-    onTouchEnd:    (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onMoveEnd(); },
-    onTouchCancel: (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onMoveEnd(); },
-    // Bloqueia menu de contexto do long press (Android zoom)
-    onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); },
+    // Mouse
+    onMouseDown: (e: React.MouseEvent) => { e.preventDefault(); onMoveStart(dir); },
+    onMouseUp:   (e: React.MouseEvent) => { e.preventDefault(); onMoveEnd(); },
+    onMouseLeave:(e: React.MouseEvent) => { e.preventDefault(); onMoveEnd(); },
+    // Touch — sem o delay de 300ms do onClick
+    onTouchStart:(e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onMoveStart(dir); },
+    onTouchEnd:  (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onMoveEnd(); },
+    onTouchCancel:(e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onMoveEnd(); },
   }), [onMoveStart, onMoveEnd]);
 
   const interactHandlers = useCallback(() => ({
-    onMouseDown:   (e: React.MouseEvent) => { e.preventDefault(); onInteract(); },
-    onTouchStart:  (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onInteract(); },
-    onTouchEnd:    (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); },
-    onTouchCancel: (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); },
-    onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); },
+    onMouseDown: (e: React.MouseEvent) => { e.preventDefault(); onInteract(); },
+    onTouchStart:(e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); onInteract(); },
+    onTouchEnd:  (e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); },
+    onTouchCancel:(e: React.TouchEvent) => { e.preventDefault(); e.stopPropagation(); },
   }), [onInteract]);
 
   return (
@@ -120,8 +119,8 @@ const DPad: React.FC<DPadProps> = ({ onMoveStart, onMoveEnd, onInteract }) => {
         <button
           {...interactHandlers()}
           style={{
-            width: '72px',
-            height: '72px',
+            width: '62px',
+            height: '62px',
             borderRadius: '50%',
             backgroundColor: '#ff8c00',
             border: '4px solid #141e30',

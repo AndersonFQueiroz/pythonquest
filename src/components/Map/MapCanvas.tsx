@@ -992,15 +992,15 @@ const MapCanvas: React.FC<MapCanvasProps> = ({ map, spawnPos, onEncounter, onInt
         height={VIEWPORT_H}
         style={{ display: 'block', backgroundColor: '#000', flexShrink: 0 }}
       />
-      <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab', minHeight: '160px' }}>
-        <div style={{ position: 'absolute', right: '10px', top: '8px', display: 'flex', gap: '8px', zIndex: 100, alignItems: 'center' }}>
+      <div style={{ flex: 1, position: 'relative', backgroundColor: '#fff', borderTop: '4px solid #3776ab', minHeight: '130px' }}>
+        <div style={{ position: 'absolute', right: '8px', top: '5px', display: 'flex', gap: '5px', zIndex: 100, alignItems: 'center' }}>
             <VolumeControl />
-            <button onClick={() => setShowBugDex(true)} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: '2px solid #3776ab', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ fontSize: '11px' }}>📖</span> BUGDEX (B)
+            <button onClick={() => setShowBugDex(true)} style={{ padding: '4px 8px', fontSize: '5px', fontFamily: '"Press Start 2P"', backgroundColor: '#141e30', color: '#fff', border: '2px solid #3776ab', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '9px' }}>📖</span> BUGDEX
             </button>
             {hasNotebook && (
-                <button onClick={onOpenNotebook} style={{ padding: '6px 12px', fontSize: '6px', fontFamily: '"Press Start 2P"', backgroundColor: '#ff8c00', color: '#fff', border: '2px solid #856404', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ fontSize: '11px' }}>📓</span> CADERNO (C)
+                <button onClick={onOpenNotebook} style={{ padding: '4px 8px', fontSize: '5px', fontFamily: '"Press Start 2P"', backgroundColor: '#ff8c00', color: '#fff', border: '2px solid #856404', cursor: 'pointer', boxShadow: '0 3px 0 #000', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '9px' }}>📓</span> CADERNO
                 </button>
             )}
         </div>
